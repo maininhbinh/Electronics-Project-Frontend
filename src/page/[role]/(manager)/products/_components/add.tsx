@@ -152,6 +152,7 @@ function AddProduct() {
     
         return acc;
     }, [] as ResultItem[]);    
+    
   
 
     const formdata = new FormData();

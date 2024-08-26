@@ -13,12 +13,35 @@ instance.interceptors.request.use(
     return config
   },
   (error) => {
+    const { response } = error
+    if (response) {
+      if (response.status === 401 || response.status === 403) {
+        localStorage.removeItem('user')
+        window.location.href = '/'
+      }
+    }
+    return Promise.reject(error)
+  }
+)
+
+instance.interceptors.response.use(
+  (response) => {
+    return response
+  },
+  (error) => {
+    const { response } = error
+    if (response) {
+      if (response.status === 401 || response.status === 403) {
+        localStorage.removeItem('user')
+        window.location.href = '/login'
+      }
+    }
     return Promise.reject(error)
   }
 )
 
 const instanceTest: AxiosInstance = axios.create({
-  baseURL: 'http://127.0.0.1:8000/api',
+  baseURL: 'http://127.0.0.1:8000/api'
 })
 
 instanceTest.interceptors.request.use(
@@ -30,6 +53,6 @@ instanceTest.interceptors.request.use(
   }
 )
 
-export {instanceTest}
+export { instanceTest }
 
 export default instance

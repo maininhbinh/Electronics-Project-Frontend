@@ -21,6 +21,53 @@ interface TableVariantProps {
 
 export default function TableVariantDemo({variant, form}: TableVariantProps) {
 
+    const getBase64 = (file: FileType): Promise<string> =>
+        new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.readAsDataURL(file);
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = (error) => reject(error);
+        });
+
+    const handelRemoveImage = (name) => {
+        form.setFieldsValue({
+            variant: {
+              [name]: {
+                image: null,
+                imageUrl: null
+              },
+            },
+          });
+    }
+    const selectedImgVariant = async (e, name) => {
+        const types = [
+            'jpeg',
+            'png',
+            'jpg',
+            'gif',
+          ]
+      
+          const fileSelected = e.target.files[0];    
+      
+          const size = fileSelected.size;
+          const type = types.includes(fileSelected.type.replace('image/', ''));
+      
+          if (size <= 1048576 && type) {
+            const imageBase64 = await getBase64(fileSelected)
+              form.setFieldsValue({
+                variant: {
+                  [name]: {
+                    image: imageBase64,
+                    imageUrl: URL.createObjectURL(fileSelected)
+                  },
+                },
+              });
+              
+          } else {
+            e.target.value = ''
+          }
+    }
+
     const columns = [
         {
             title: 'Ảnh sản phẩm',
@@ -72,18 +119,28 @@ export default function TableVariantDemo({variant, form}: TableVariantProps) {
         return fields.map(({ key, name, ...restField }) => ({
             key: name,
             image: (
-                <Flex vertical align='center' justify='center' gap={10}>
-                    <div style={{ height: '50px', width: '50px', overflow: 'hidden', boxShadow: 'rgba(0, 0, 0, 0.05) 0rem 1.25rem 1.6875rem 0rem' }} className='border-none rounded-[12px]'>
+                <div style={{ height: '50px', width: '50px', overflow: 'hidden', boxShadow: 'rgba(0, 0, 0, 0.05) 0rem 1.25rem 1.6875rem 0rem' }} className='border-none rounded-[12px]  ' >
+                    {
+                        form.getFieldValue(['variant',name, 'imageUrl'])
+                        ?
+                        <div style={{ height: '100%', maxWidth: '100%' }} className='relative group'>
+                            <img src={form.getFieldValue(['variant',name, 'imageUrl']) } alt="" className='object-cover h-[100%] object-center' style={{width: '100%' }} />
+                            <div className=" absolute inset-0 z-1 opacity-0 group-hover:opacity-100 duration-1000" style={{ backgroundColor: 'rgb(0, 0, 0, 0.5)' }}></div>
+                                <DeleteOutlined onClick={() => handelRemoveImage(name)} className=" duration-1000 opacity-0 group-hover:opacity-100 absolute left-[50%] top-[50%]" style={{transform: 'translate(-50%, -50%)', zIndex: 999, fontSize: "20px", color: 'white'}} />
+                        </div>
+                        :
                         <Flex className='border-dashed border-2 relative hover:bg-gray-100 hover:border-solid hover:border' vertical gap={10} justify='center' align='center' style={{ width: '100%', height: "100%", borderRadius: '12px' }}>
                             <Flex vertical gap={10} style={{ width: '100%' }}>
                                 <Flex vertical align='center' justify='center'>
-                                    <CloudUploadOutlined style={{ fontSize: '10px', color: 'gray' }} />
+                                    <CloudUploadOutlined style={{ fontSize: '10px', color: 'gray' }} className='' />
                                 </Flex>
                             </Flex>
-                            <input type="file" accept="image/*" name="image" id={`image-${name}`} multiple className='opacity-0 absolute inset-0' />
+                            <input type="file" accept="image/*" name="image" id="image" multiple className='opacity-0 absolute inset-0'
+                                onChange={(e)=> selectedImgVariant(e, name)}
+                            />
                         </Flex>
-                    </div>
-                </Flex>
+                    }
+                </div>
             ),
             ...variant.reduce((acc, v) => {
                 acc[v.name] = (
@@ -169,9 +226,12 @@ export default function TableVariantDemo({variant, form}: TableVariantProps) {
                         { required: true, message: 'Nhập giá sale!' },
                         ({ getFieldValue }) => ({
                             validator(_, value) {
-                                if (!value || getFieldValue(['variant', name, 'price']) > value) {
+                                const price = parseFloat(getFieldValue(['variant', name, 'price']));
+                
+                                if (price > value) {
                                     return Promise.resolve();
                                 }
+                                
                                 return Promise.reject(new Error('Phải nhỏ hơn giá bán'));
                             },
                         }),

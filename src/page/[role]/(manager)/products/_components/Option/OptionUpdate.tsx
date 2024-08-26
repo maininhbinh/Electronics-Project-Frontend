@@ -1,4 +1,4 @@
-import { Button, Flex, Form, InputNumber, Segmented, Select, Slider, SliderSingleProps, Switch } from 'antd';
+import { Button, Flex, Form, FormInstance, InputNumber, Segmented, Select, Slider, SliderSingleProps, Switch } from 'antd';
 import React, { useEffect, useRef, useState } from 'react'
 import { PlusOutlined} from '@ant-design/icons';
 import axios from 'axios';
@@ -24,9 +24,12 @@ interface option{
     setImageUrl: React.Dispatch<React.SetStateAction<any>>
     setCategory: React.Dispatch<React.SetStateAction<any>>
     thumbnail?: string
+    setVariant: React.Dispatch<React.SetStateAction<Array<variant>>>
+    form: FormInstance,
+    variant: variant[]
 }
 
-export default function Option({setImageUrl, setCategory, thumbnail}: option) {
+export default function OptionUpdate({setImageUrl, setCategory, thumbnail, variant, setVariant, form}: option) {
     const {data: dataCategories, isLoading : isLoadingCategory} = useGetCategoriesQuery({});
     const {data : dataBrands, isLoading : isLoadingBrand} = useGetBrandsQuery({});
     const [DisplayPic, setDisplayPic] = useState<string>();
@@ -68,9 +71,29 @@ export default function Option({setImageUrl, setCategory, thumbnail}: option) {
     }
 
     const getDetails = async (value: string) => {
-        const {data} = await instanceTest(`/category/show/${value}`);        
-        
+        const {data} = await instanceTest(`/category/show/${value}`);       
+         
+        variant.forEach((item)=>{
+            const variants = form.getFieldValue('variant');
+            const newVariant = variants.map((itemc)=>{
+            delete itemc[item.name]
+            return {
+                ...itemc,
+            }
+            })
+            form.setFieldValue('variant', newVariant)
+            return item.id
+        })  
+
         setCategory(data.data)
+        setVariant([{
+            id: `${Date.now()}${getRandomNumber()}`,
+            name: '',
+            attribute: []
+        }])
+
+        console.log(form.getFieldValue('variant'));
+        
     }
     
     return (

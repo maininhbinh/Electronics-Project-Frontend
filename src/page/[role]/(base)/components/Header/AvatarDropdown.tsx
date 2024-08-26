@@ -21,6 +21,7 @@ const { Countdown } = Statistic;
 import {  Input as INPUTANT}  from 'antd';
 import type { GetProps } from 'antd';
 import { useForm } from "react-hook-form";
+import { isValidJSON } from "@/utils/isJson";
 
 const validationSchema = Joi.object({
   username: Joi.string().min(6).required().messages({
@@ -73,7 +74,18 @@ export default function AvatarDropdown() {
  
   const {openModalLogin, openModalSigin} = useAppSelector(state => state.web);
 
-  const user = JSON.parse(String(localStorage.getItem('user')));
+  const [user, setUser] = useState(() => {
+    try {
+        // Get from local storage by key
+        const item = localStorage.getItem('user');
+        // Parse stored JSON or return initialValue if it's not valid JSON
+        return item && isValidJSON(item) ? JSON.parse(item) : '';
+    } catch (error) {
+        console.error(error);
+        return '';
+    }
+  });
+  
   const {data : dataItem, isLoading : dataLoading } = useGetUserQuery(user?.id, {
     skip: !isAuthenticated
   });

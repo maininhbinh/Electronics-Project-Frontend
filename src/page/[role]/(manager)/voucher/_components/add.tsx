@@ -1,8 +1,9 @@
-import { Col, DatePicker, FormInstance, Modal, Row, Select, Space } from 'antd'
+import { Col, DatePicker, FormInstance, Modal, Row, Select, Slider, Space, Switch } from 'antd'
 import { Button, Form, Input, InputNumber } from 'antd'
 import moment from 'moment';
 import { useNavigate } from 'react-router-dom'
 import { BaseDatePicker } from './baseDateFomat';
+import { useEffect, useState } from 'react';
 
 interface Props {
   form: FormInstance<any>;
@@ -36,7 +37,22 @@ export default function ModalCreateVoucher({
   onSubmit,
   isEdit
 }: Props) {
+  const [active, setActive] = useState(true);
+  const [selectedType, setSelectedType] = useState<string>('number');
 
+  const handleTypeChange = (value: string) => {
+    setSelectedType(value);
+  };
+
+  useEffect(() => {
+
+    setSelectedType(isEdit ? form.getFieldValue('type') : 'number')
+    if (isEdit) {
+      form.setFieldValue('is_activate', form.getFieldValue('is_activate') == '1' ? true : false)
+    } else {
+      form.setFieldValue('is_activate', true)
+    }
+  }, [isEdit, form])
   return (
     <>
       <Modal
@@ -53,25 +69,25 @@ export default function ModalCreateVoucher({
           validateMessages={validateMessages}
           autoComplete="off"
           layout="vertical"
-          initialValues={{type: 'number', status: 'private', is_activate: '1'}}
+          initialValues={{ type: 'number', status: 'private', is_activate: active }}
         >
           {/* <Form.Item
             name={'code'}
             label='Code'
 
           > */}
-            {/* <Input placeholder='Nhập mã Voucher' disabled />
+          {/* <Input placeholder='Nhập mã Voucher' disabled />
           </Form.Item> */}
 
           <Form.Item
             name={'name'}
-            label='Mã'
+            label='Tên mã giảm giá'
             rules={[
               { required: true, message: 'Please enter the voucher name' },
               { max: 120, message: 'Voucher name must be at most 120 characters' },
             ]}
           >
-            <Input placeholder='Nhập mã giản giá' />
+            <Input placeholder='Nhập tên' />
           </Form.Item>
 
           <Form.Item
@@ -80,24 +96,44 @@ export default function ModalCreateVoucher({
           >
             <Select
               defaultValue="number"
-            
-            
+
+              onChange={handleTypeChange}
               options={[
                 { value: 'number', label: 'giá' },
                 { value: 'percent', label: 'Phần trăm' },
-                { value: 'free_ship', label: 'Free ship' },
-                
+
               ]}
             />
           </Form.Item>
 
-          <Form.Item
-            name={'value'}
-            label='Số tiền'
-            rules={[{ required: true, type: 'number', message: 'Vui lòng nhập số tiền giảm giá' }]}
-          >
-            <InputNumber placeholder='Nhập số tiền giảm giá' style={{ width: '100%' }} />
-          </Form.Item>
+
+
+
+          {selectedType === 'number' ? (
+            <Form.Item
+              name={'value'}
+              label='Số tiền'
+              rules={[{ required: true, type: 'number', message: 'Vui lòng nhập số tiền giảm giá' }]}
+            >
+              <InputNumber placeholder='Nhập số tiền giảm giá' style={{ width: '100%' }} />
+            </Form.Item>
+          ) : (
+            <Form.Item
+              name="value"
+              label="Phần trăm"
+            >
+              <Slider min={0} max={100} />
+            </Form.Item>
+          )}
+
+
+
+
+
+
+
+
+
           <Row>
             <BaseDatePicker
               span={9}
@@ -152,8 +188,8 @@ export default function ModalCreateVoucher({
 
 
           <Form.Item
-            name={'usage_limit'}
-            label='Giới hạn sử dụng'
+            name={'quantity'}
+            label='Số lượng'
             rules={[{ required: true, type: 'number', message: 'Vui lòng nhập giới hạn sử dụng' }]}
           >
             <InputNumber placeholder='Nhập giới hạn sử dụng' style={{ width: '100%' }} min={1} />
@@ -172,31 +208,22 @@ export default function ModalCreateVoucher({
             label='Status'
           >
             <Select
-      defaultValue="private"
-    
-    
-      options={[
-        { value: 'private', label: 'Private' },
-        { value: 'public', label: 'Public' },
-        
-      ]}
-    />
+              defaultValue="private"
+
+
+              options={[
+                { value: 'private', label: 'Private' },
+                { value: 'public', label: 'Public' },
+
+              ]}
+            />
           </Form.Item>
 
           <Form.Item
             name={'is_activate'}
             label='Active'
           >
-            <Select
-      defaultValue="1"
-    
-    
-      options={[
-        { value: '0', label: 'Inactive' },
-        { value: '1', label: 'Active' },
-        
-      ]}
-    />
+            <Switch />
           </Form.Item>
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '10px' }}>

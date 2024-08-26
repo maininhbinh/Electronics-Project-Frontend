@@ -15,6 +15,7 @@ import { useGetGalleryQuery } from '@/app/endPoint/GalleryEndPoint';
 import VariantUpdate from './Variant/VariantUpdate';
 import TableVariantDemo from './Variant/TableVariantDemo';
 import { CloudUploadOutlined, DeleteOutlined, DownOutlined, MinusCircleOutlined, PlusCircleOutlined, PlusOutlined  } from '@ant-design/icons';
+import OptionUpdate from './Option/OptionUpdate';
 
 
 interface gallery{
@@ -66,7 +67,6 @@ interface Detail {
 }
 
 interface PayloadGallery {
-  id: string | number,
   add?: (string|File)[]
   delete?: (string|number)[]
 }
@@ -81,7 +81,6 @@ function EditProduct() {
   const {data: dataGallery, isLoading: isLoadingGallery} = useGetGalleryQuery(id)
   const [editor, setEditor] = useState<string>('');
   const [payloadGallery, setPayloadGallery] = useState<PayloadGallery>({
-    id: id ?? ''
   });
 
   const [imageUrl, setImageUrl] = useState<Blob>();
@@ -98,76 +97,69 @@ function EditProduct() {
   
 
   const onFinish = async () => {    
-    // const name = form.getFieldValue('name');
-    // const content = form.getFieldValue('content');
-    // const category_id = form.getFieldValue('category_id');
-    // const brand_id = form.getFieldValue('brand_id');
-    // const product_item = form.getFieldValue('variant');
-    // const is_active = form.getFieldValue('is_active') ? 1 : 0;
-    // const is_hot_deal = form.getFieldValue('is_hot_deal') ? 1 : 0;
-    // const is_good_deal = form.getFieldValue('is_good_deal') ? 1 : 0;
-    // const is_new = form.getFieldValue('is_new') ? 1 : 0;
-    // const is_show_home = form.getFieldValue('is_show_home') ? 1 : 0;    
-    
-    // const newProductItem = [];    
+    if(product && product.data){
 
-    // for(const key in product_item){      
-    //   const id = key.split('-');
-    //   const image = variant[0].attribute.find(item => item.id === id[0])?.image;
-    //   const newVariant = variant.map((item, key)=>({
-    //     variant: item.name,
-    //     attribute: item.attribute.find(item => item.id == id[key] && item.value)?.value 
-    //   }));
+      const {products} = product.data
+      
+      const name = form.getFieldValue('name');
+      const content = form.getFieldValue('content');
+      const category_id = form.getFieldValue('category_id');
+      const brand_id = form.getFieldValue('brand_id');
+      const product_item = form.getFieldValue('variant');
+      const is_active = form.getFieldValue('is_active') ? 1 : 0;
+      const is_hot_deal = form.getFieldValue('is_hot_deal') ? 1 : 0;
+      const is_good_deal = form.getFieldValue('is_good_deal') ? 1 : 0;
+      const is_new = form.getFieldValue('is_new') ? 1 : 0;
+      const is_show_home = form.getFieldValue('is_show_home') ? 1 : 0;   
+      
+      const details = category?.details.map(item=>{
+        return {
+          id: item.id,
+          attributes: item.attributes.map(item=>({
+            id: item.id,
+            values: form.getFieldValue(`attr-${item.id}`)
+          }))
+        }
+      })
 
-    //   newProductItem.push({
-    //     id: id[0],
-    //     image,
-    //     variants: newVariant,
-    //     ...product_item[key]
-    //   });
-    // }    
-    
-    // const details = detailsAttr.reduce((acc, item) => {
-    //   // Tìm đối tượng idDetail hiện có trong acc hoặc tạo mới nếu không tồn tại
-    //     let detail = acc.find(d => d.id === item.idDetail);
-    //     if (!detail) {
-    //         detail = { id: item.idDetail, attributes: [] };
-    //         acc.push(detail);
-    //     }
-    
-    //     // Thêm thuộc tính vào detail
-    //     detail.attributes.push({
-    //         id: item.id,
-    //         values: item.values
-    //     });
-    
-    //     return acc;
-    // }, [] as ResultItem[]);    
-  
+      const newProductItem = product_item.map(item=>({
+        id: item.id,
+        image: item.image,
+        quantity: item.quantity,
+        price: item.price,
+        price_sale: item.price_sale,
+        variants: variant.map((value)=>{
+          return {
+            variant: value.name,
+            attribute: item[value.name]
+          }
+        }, {}),
+        status: item.status
+      }))
 
-    // const formdata = new FormData();
+      const productDeletes = products.filter(item=>{
+        return newProductItem.findIndex(itemC => itemC.id === item.id) == -1 ? true : false
+      }).map(item=>item.id)
 
-    // formdata.append('thumbnail', imageUrl ? imageUrl : '');
-    // formdata.append('gallery', gallery ? JSON.stringify(gallery) : '');
-    // formdata.append('name', name);
-    // formdata.append('content', content);
-    // formdata.append('category_id', category_id);
-    // formdata.append('brand_id', brand_id);
-    // formdata.append('is_active', String(is_active));
-    // formdata.append('is_hot_deal', String(is_hot_deal));
-    // formdata.append('is_good_deal', String(is_good_deal));
-    // formdata.append('is_new', String(is_new));
-    // formdata.append('is_show_home', String(is_show_home));
-    // formdata.append('product_details', JSON.stringify(details));
-    // formdata.append('product_items', JSON.stringify(newProductItem));    
-        
-    // try {
-    //   await addProduct(formdata).unwrap();
-    //   popupSuccess('Add product success');
-    //   navigate('..');
-    // } catch (error) {
-    //   popupError('Add product error');
-    // }
+     
+      const formdata = new FormData();
+
+      formdata.append('thumbnail', imageUrl ? imageUrl : '');
+      formdata.append('gallery', payloadGallery ? JSON.stringify(payloadGallery) : '');
+      formdata.append('name', name);
+      formdata.append('content', content);
+      formdata.append('category_id', category_id);
+      formdata.append('brand_id', brand_id);
+      formdata.append('is_active', String(is_active));
+      formdata.append('is_hot_deal', String(is_hot_deal));
+      formdata.append('is_good_deal', String(is_good_deal));
+      formdata.append('is_new', String(is_new));
+      formdata.append('is_show_home', String(is_show_home));
+      formdata.append('product_details', JSON.stringify(details));
+      formdata.append('product_items', JSON.stringify(newProductItem));    
+      formdata.append('productDeletes', JSON.stringify(productDeletes));    
+      
+    }
     
   }
 
@@ -189,7 +181,7 @@ function EditProduct() {
         attribute: []
       }
     ])
-  }  
+  }
   
   const handleRemoveDetail = (name: string) => {  
     const updatedVariant = variant.filter((item)=>{
@@ -222,7 +214,6 @@ function EditProduct() {
 
     const fileSelected = e.target.files;  
     
-
     for(const key in fileSelected){
       if(numberFile.current == 5) break;
       if(typeof fileSelected[key] == 'number') break;
@@ -285,21 +276,20 @@ function EditProduct() {
           variant: [
               ...form.getFieldValue('variant'),
               {
-                  image: '',
-                  quantity: null,
-                  price: null,
-                  price_sale: null,
-                  sku: '',
-                  status: 'new'
+                image: '',
+                quantity: null,
+                price: null,
+                price_sale: null,
+                sku: '',
+                status: 'new'
               }
           ]
       });
   };
 
-
   useEffect(()=>{
     if(product && !isLoadingProduct){
-      const {name, content, category_id, brand_id, category, products} = product.data
+      const {name, content, category_id, brand_id, category, products, is_active, is_hot_deal, is_good_deal, is_new, is_show_home} = product.data
       const variantModels: variant[] = product.variants
       const variantSet = products.map((item)=>({
         id: item.id,
@@ -307,6 +297,7 @@ function EditProduct() {
           acc[item.variant_name] = item.name
           return acc
         }, {}),
+        imageUrl: item.image,
         quantity: item.quantity,
         price: item.price,
         price_sale: item.price_sale,
@@ -318,26 +309,31 @@ function EditProduct() {
         category_id,
         brand_id,
         content,
-        variant: variantSet
+        variant: variantSet,
+        is_active,
+        is_hot_deal,
+        is_good_deal,
+        is_new,
+        is_show_home
       }
-    setEditor(`${content}`)
-    setCategory(category)
-    category.details.forEach((item)=>{
-      item.attributes.forEach((item)=>{
-        form.setFieldValue(`attr-${item.id}`, item.values.map((item)=>item.name))
+      setEditor(`${content}`)
+      setCategory(category)
+      category.details.forEach((item)=>{
+        item.attributes.forEach((item)=>{
+          form.setFieldValue(`attr-${item.id}`, item.values.map((item)=>item.name))
+        })
       })
-    })
-    setVariant([
-      ...variantModels
-    ])
-    variantModels.forEach((item: variant)=>{
-      form.setFieldValue(`input-${item.id}`, item.name)
-      item.attribute.forEach((item)=>{
-        form.setFieldValue(`attr-value-${item.id}`, item.value)
+      setVariant([
+        ...variantModels
+      ])
+      variantModels.forEach((item: variant)=>{
+        form.setFieldValue(`input-${item.id}`, item.name)
+        item.attribute.forEach((item)=>{
+          form.setFieldValue(`attr-value-${item.id}`, item.value)
+        })
       })
-    })
 
-    form.setFieldsValue(addForm)
+      form.setFieldsValue(addForm)
     }
   }, [product])
 
@@ -617,7 +613,7 @@ function EditProduct() {
               </Flex>
             </Col>
             <Col span={5} className='w-full'>
-              <Option setImageUrl={setImageUrl} setCategory={setCategory} thumbnail={product?.data?.thumbnail}/>
+              <OptionUpdate setImageUrl={setImageUrl} setCategory={setCategory} thumbnail={product?.data?.thumbnail} variant={variant} setVariant={setVariant} form={form}/>
             </Col>
           </Row>
         </Flex>

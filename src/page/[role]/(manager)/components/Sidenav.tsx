@@ -9,9 +9,17 @@ import profile from "./icon/Profile";
 import Dashboard from "./icon/Dashboard";
 import { useAppSelector } from "../../../../app/hooks";
 import { useEffect, useState } from "react";
-
+import { FaProductHunt } from "react-icons/fa";
 import type { MenuProps } from 'antd';
-
+import { FaAlignLeft } from "react-icons/fa";
+import { FaPeopleCarry } from "react-icons/fa";
+import { FaIdBadge } from "react-icons/fa";
+import { FaUserCog } from "react-icons/fa";
+import { GoTag } from "react-icons/go";
+import { FaSign } from "react-icons/fa";
+import { FaBahai } from "react-icons/fa";
+import { FaMoneyBillAlt } from "react-icons/fa";
+import { FaShoppingBasket } from "react-icons/fa";
 function Sidenav() {
   const { Text } = Typography;
 
@@ -21,7 +29,7 @@ function Sidenav() {
   const useSidenav = UseSidenav({
     components: [
 
-     
+
       {
         label: (
           <>
@@ -48,7 +56,7 @@ function Sidenav() {
               <span
                 className={`icon `}
               >
-                {<Tables color={darkColor} />}
+                <FaBahai />
               </span>
               <span className={`label font-bold text-[#344767]`}>Tiếp thị</span>
             </Flex>
@@ -59,7 +67,7 @@ function Sidenav() {
             label: (
               <>
                 <Flex align="center" gap={10} justify="center" className="children-menu">
-                  {<Tables color={'#9ca3af'} />}
+                  <FaMoneyBillAlt />
                   <span className="label font-bold text-gray-400">Mã giảm giá</span>
                 </Flex>
               </>
@@ -76,7 +84,7 @@ function Sidenav() {
               <span
                 className={`icon `}
               >
-                {<Tables color={darkColor} />}
+                <FaShoppingBasket />
               </span>
               <span className={`label font-bold text-[#344767]`}>Bán hàng</span>
             </Flex>
@@ -87,7 +95,7 @@ function Sidenav() {
             label: (
               <>
                 <Flex align="center" gap={10} justify="center" className="children-menu">
-                  {<Tables color={darkColor} />}
+                  <FaProductHunt />
                   <span className="label font-bold text-gray-400">Sản phẩm</span>
                 </Flex>
               </>
@@ -98,7 +106,7 @@ function Sidenav() {
             label: (
               <>
                 <Flex align="center" gap={10} justify="center" className="children-menu">
-                  {<Tables color={darkColor} />}
+                  <FaAlignLeft />
                   <span className="label font-bold text-gray-400">Danh mục</span>
                 </Flex>
               </>
@@ -153,7 +161,7 @@ function Sidenav() {
             label: (
               <>
                 <Flex align="center" gap={10} justify="center" className="children-menu">
-                  {<Tables color={darkColor} />}
+                  <FaPeopleCarry />
                   <span className="label font-bold text-gray-400">Thương hiệu</span>
                 </Flex>
               </>
@@ -211,7 +219,7 @@ function Sidenav() {
               <span
                 className={`icon `}
               >
-                {<Tables color={darkColor} />}
+                <FaIdBadge />
               </span>
               <span className={`label font-bold text-[#344767]`}>Người dùng</span>
             </Flex>
@@ -221,8 +229,8 @@ function Sidenav() {
           {
             label: (
               <>
-               <Flex align="center" gap={10} justify="center" className="children-menu">
-                  {<Tables color={darkColor} />}
+                <Flex align="center" gap={10} justify="center" className="children-menu">
+                  <FaUserCog />
                   <span className="label font-bold text-gray-400">Người dùng</span>
                 </Flex>
               </>
@@ -249,7 +257,7 @@ function Sidenav() {
               <span
                 className={`icon `}
               >
-                {<Tables color={darkColor} />}
+                <FaSign />
               </span>
               <span className="label font-bold text-[#344767]">Banner</span>
             </Flex>
@@ -273,8 +281,8 @@ function Sidenav() {
         ),
         link: '/admin/order'
       },
-     
-     
+
+
       {
         label: (
           <>
@@ -307,7 +315,7 @@ function Sidenav() {
         label: (
           <>
             <Text style={{ fontSize: '16px', fontWeight: '700' }} className={`text-[${bgIcon}]`}>
-            Trang tài khoản
+              Trang tài khoản
             </Text>
           </>
         ),
@@ -353,7 +361,7 @@ function Sidenav() {
   };
 
   const levelKeys = getLevelKeys(items as LevelKeysProps[]);
-  
+
 
   const onOpenChange: MenuProps['onOpenChange'] = (openKeys) => {
     const currentOpenKey = openKeys.find((key) => stateOpenKeys.indexOf(key) === -1);
@@ -376,7 +384,7 @@ function Sidenav() {
     }
   };
 
-  useEffect(()=>{
+  useEffect(() => {
     const defaultActiveString = useSidenav.getKeyActive().map(num => num.toString());
     setStateOpenKeys(defaultActiveString);
   }, []);
