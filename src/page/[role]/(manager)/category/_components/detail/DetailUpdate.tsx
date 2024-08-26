@@ -55,6 +55,9 @@ interface ButtonEditProps {
     detailModel: Detail;
     useDetails: Variants[]
     setUseDetails: React.Dispatch<React.SetStateAction<any>>;
+    data: {
+        data: Array<Detail>
+    }
 }
 
 interface Variants {
@@ -62,7 +65,7 @@ interface Variants {
     name: string
 }
 
-export default function Detail({ keyValue, detail, setDetail, handleRemoveDetail, form, detailModel, useDetails, setUseDetails}: ButtonEditProps) {
+export default function DetailUpdate({ keyValue, detail, setDetail, handleRemoveDetail, form, detailModel, useDetails, setUseDetails, data}: ButtonEditProps) {
 
     const [edit, setEdit] = useState(true);
     const inputRef = useRef<null>(null);
@@ -149,8 +152,8 @@ export default function Detail({ keyValue, detail, setDetail, handleRemoveDetail
     const handleChangeParent = async (value: string) => {   
         handleChangeParentDebounced(value);
         try{
+                    
             const {data} = await instanceTest.post('/attribute/detail/name', {name: value})
-            console.log(detailModel);
             
             setOptions(data.data)            
         }catch(error){
@@ -251,6 +254,23 @@ export default function Detail({ keyValue, detail, setDetail, handleRemoveDetail
         handleUpdateFieldDebounced(e, index, id);
     };     
 
+    useEffect(()=>{
+        
+        if(data && data.data){
+            (async()=>{
+                try{
+                    console.log(detailModel);
+                    
+                    const {data: dataDetail} = await instanceTest.post('/attribute/detail/name', {name: detailModel.name})
+                    setOptions(dataDetail.data)            
+                }catch(error){
+                    console.log(error);
+                }
+            })()
+        }
+        
+    }, [data])
+
     return (
         <Flex vertical gap={10} className='sm:rounded-xl overflow-hidden relative p-5 border-[1px]'>
             <Flex justify='center' align='center' className='p-1 rounded-md border-[1px] absolute right-2 top-2 cursor-pointer'>
@@ -285,6 +305,7 @@ export default function Detail({ keyValue, detail, setDetail, handleRemoveDetail
                         <Select
                             style={{ width: '23%' }}
                             placeholder="Chọn hoặc thêm biến thể sản phẩm"
+                            disabled={form.getFieldValue(`input-${keyValue}`) ? true : false}
                             className='m-0 h-[40px]'
                             onChange={(value)=>{
                                 form.validateFields([`input-${keyValue}`]).then(() => {
@@ -357,6 +378,7 @@ export default function Detail({ keyValue, detail, setDetail, handleRemoveDetail
                                         <Select
                                             placeholder="Chọn hoặc thêm"
                                             className='h-[40px]'
+                                            disabled={form.getFieldValue(`attr-value-${value.id}`) ? true : false}
                                             onChange={(e) => {
                                                 handleUpdateField(e, index + 1, value.id)
                                             }}

@@ -96,6 +96,7 @@ export default function AddCategory() {
       navigate('..')
 
     } catch (error) {
+      dispatch(setLoading(false))
       popupError('Add category error');
     }
 

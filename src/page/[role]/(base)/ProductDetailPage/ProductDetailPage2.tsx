@@ -703,7 +703,7 @@ import { useGetVouchersQuery } from "../../(manager)/voucher/VoucherEndpoint";
 
     return (
       <div
-        className={`ListingDetailPage nc-ProductDetailPage2 ${className}`}
+        className={`ListingDetailPage nc-ProductDetailPage2 ${className} overflow-hidden`}
         data-nc-id="ProductDetailPage2"
       >
         {/* SINGLE HEADER */}

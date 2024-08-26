@@ -59,12 +59,9 @@ import EditOrder from '@/page/[role]/(manager)/order/_components/edit'
 import CommonLayout from '@/page/[role]/(base)/AccountPage/CommonLayout'
 import DetailOrder from '@/page/[role]/(base)/AccountPage/DetailOrder'
 import GuardPage from '@/middleware/GuardPage'
-import AddAttribute from '@/page/[role]/(manager)/attribute/_components/attribute/add'
 import DetailManagement from '@/page/[role]/(manager)/details'
-import AttributeManagementV2 from '@/page/[role]/(manager)/attribute/indexV2'
 import AddDetail from '@/page/[role]/(manager)/details/_component/add'
 import EditDetail from '@/page/[role]/(manager)/details/_component/edit'
-import EditAttributeV2 from '@/page/[role]/(manager)/attribute/_components/attribute/editV2'
 import ListCategory from '@/page/[role]/(manager)/category/_components/list'
 
 export default function Router() {

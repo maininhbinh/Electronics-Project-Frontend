@@ -169,7 +169,6 @@ function AddProduct() {
     formdata.append('is_show_home', String(is_show_home));
     formdata.append('product_details', JSON.stringify(details));
     formdata.append('product_items', JSON.stringify(newProductItem));    
-    console.log(newProductItem);
     
         
     try {
@@ -179,6 +178,7 @@ function AddProduct() {
       dispatch(setLoading(false))
       // navigate('..');
     } catch (error) {
+      dispatch(setLoading(false))
       popupError('Add product error');
     }
     
