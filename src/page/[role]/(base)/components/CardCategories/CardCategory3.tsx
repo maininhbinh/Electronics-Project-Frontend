@@ -8,6 +8,8 @@ import dayjs from 'dayjs';
 import SalePercentAnimationIcon from "../Icon/Voucher/SalePercent";
 import FreeShipAnimationIcon from "../Icon/Voucher/FreeShip";
 import SalePriceAnimationIcon from "../Icon/Voucher/SalePrice";
+import { format } from 'date-fns';
+import { VND } from "@/utils/formatVietNamCurrency";
 
 const { Countdown } = Statistic;
 
@@ -24,7 +26,10 @@ export interface CardCategory3Props {
 const CardCategory3: FC<CardCategory3Props> = ({
   item,
 }) => {
-  const endDateTimestamp = dayjs(item.end_date).valueOf();
+  console.log(item);
+  const {code, name,end_date, type, value} = item
+  
+  const endDateTimestamp = dayjs(end_date).valueOf();
   const copyIt = () => {
     const copyText = document.getElementById('copyvalue');
     copyText.select();
@@ -35,17 +40,13 @@ const CardCategory3: FC<CardCategory3Props> = ({
     <div className="relative p-4 bg-white rounded-lg shadow-lg overflow-hidden">
       <div className="flex items-center">
         <div className="flex-shrink-0">
-          <img
-            className="w-24 h-24 object-cover"
-            src="https://i.pinimg.com/originals/c7/84/67/c78467db9ff497393cb548a48f02d451.png"
-            alt="McDonald's"
-          />
+          {type == 'percent' ? <SalePercentAnimationIcon width={'50px'}/> : <SalePriceAnimationIcon width={'50px'}/>}
         </div>
         <div className="border-l-4 border-dotted border-black h-24 mx-4"></div>
         <div className="flex-1">
-          <h2 className="text-xl text-gray-600 uppercase">Mcdonalds</h2>
-          <h1 className="text-4xl text-gray-600 mt-1">10% <span className="text-xl">Coupon</span></h1>
-          <p className="text-gray-500 mt-1">Valid till 30 April 2021</p>
+          <h2 className="text-xl text-gray-600 uppercase">{name}</h2>
+          <h1 className="text-4xl text-gray-600 mt-1">{type == 'percent' ? `${value}%`: VND(value)} <span className="text-xl">Khuyến mại</span></h1>
+          <p className="text-gray-500 mt-1">Tới hết { format(new Date(end_date), 'dd/MM/yyyy')}</p>
         </div>
       </div>
       <div className="flex justify-between items-center mt-4 border border-gray-300 rounded-md p-2">
@@ -53,7 +54,7 @@ const CardCategory3: FC<CardCategory3Props> = ({
           id="copyvalue"
           type="text"
           readOnly
-          value="GOFREE"
+          value={code}
           className="w-full h-full border-none outline-none text-sm"
         />
         <button

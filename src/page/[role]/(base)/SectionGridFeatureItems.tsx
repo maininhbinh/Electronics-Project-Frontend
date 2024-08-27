@@ -34,7 +34,7 @@ const SectionGridFeatureItems: FC<SectionGridFeatureItemsProps> = ({
         </div>
       </div>
       <div className="nc-SectionGridFeatureItems relative">
-        <HeaderFilterSection title="Ưu đãi hấp dẫn" handleFilter={setFilter}/>
+        {/* <HeaderFilterSection title="Ưu đãi hấp dẫn" handleFilter={setFilter}/> */}
         <div
           className={`grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 `}
         >

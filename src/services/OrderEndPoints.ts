@@ -71,7 +71,7 @@ export const ordersApi = apiWithTag.injectEndpoints({
     }),
     vnPayment: builder.mutation({
       query: (id) => ({
-        url: `payment/vnpay/${id}`,
+        url: `payment/${id}`,
         method: 'GET',
       }),
       invalidatesTags: [{ type: 'Orders', id: 'LIST' }],

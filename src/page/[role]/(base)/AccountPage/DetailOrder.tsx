@@ -101,12 +101,13 @@ export default function DetailOrder(){
     if(!data){
         return null
     }
+      console.log(dataItem);
       
     return (
         <>
         <Row gutter={16}>
             <div className="flex w-full justify-between mb-10">
-                {dataItem.payment_status == 'Chờ thanh toán'
+                {dataItem.payment_status == 'Chờ thanh toán' && dataItem.payment_methods !== 'COD'
                 ?
                 <Button onClick={()=>{
                     handelPayment(dataItem.id)

@@ -65,7 +65,6 @@ export const Signin = (payload: ISignin) => async (dispatch: Dispatch) => {
 export const Logout = (payload: string) => async (dispatch: Dispatch) => {
     try{
         const {data} = await LogoutService(payload)
-        console.log(data);
         
         if(data && data.success == true){         
 

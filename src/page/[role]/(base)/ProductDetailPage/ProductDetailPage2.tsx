@@ -354,7 +354,7 @@ import { useGetVouchersQuery } from "../../(manager)/voucher/VoucherEndpoint";
 
       const product = findProductVariant()(products, variantActives);      
       
-      const {price} = product   
+      const {price, price_sale} = product   
             
       return (
         <div className="listingSectionSidebar__wrap border-gray-100" style={{boxShadow: 'rgba(0, 0, 0, 0.05) 0rem 1.25rem 1.6875rem 0rem'}}>
@@ -363,8 +363,14 @@ import { useGetVouchersQuery } from "../../(manager)/voucher/VoucherEndpoint";
             <div className="">
               {/* ---------- 1 HEADING ----------  */}
               <div className="flex items-center justify-between space-x-5">
-                <div className="flex text-2xl font-semibold">
-                  {VND(parseFloat(price))}
+                <div>
+                  <div className="flex text-md font-semibold justify-end text-red-500 line-through">
+                    {VND(parseFloat(price))}
+                  </div>
+                  <div className="flex text-2xl font-semibold">
+                    {VND(parseFloat(price_sale))}
+                  </div>
+                  
                 </div>
 
                 <a
@@ -414,12 +420,12 @@ import { useGetVouchersQuery } from "../../(manager)/voucher/VoucherEndpoint";
               <div className="space-y-2.5">
                 <div className="flex justify-between text-slate-600 dark:text-slate-300">
                   <span className="flex">
-                    <span>{`${VND(parseFloat(price))}  `}</span>
+                    <span>{`${VND(parseFloat(price_sale))}  `}</span>
                     <span className="mx-2">x</span>
                     <span>{`${qualitySelected} `}</span>
                   </span>
 
-                  <span>{`${VND((price * qualitySelected))}`}</span>
+                  <span>{`${VND((price_sale * qualitySelected))}`}</span>
                 </div>
                 {/* <div className="flex justify-between text-slate-600 dark:text-slate-300">
                   <span>Thuế giá trị gia tăng</span>
@@ -429,7 +435,7 @@ import { useGetVouchersQuery } from "../../(manager)/voucher/VoucherEndpoint";
               <div className="border-b border-slate-200 dark:border-slate-700"></div>
               <div className="flex justify-between font-semibold text-[24px]">
                 <span>Tổng tiền</span>
-                <span>{`${VND((price * qualitySelected))}`}</span>
+                <span>{`${VND((price_sale * qualitySelected))}`}</span>
               </div>
             </div>
           </div>
@@ -726,7 +732,6 @@ import { useGetVouchersQuery } from "../../(manager)/voucher/VoucherEndpoint";
             
             {renderSection1()}
 
-            {renderSection2()}
             
           </div>
 

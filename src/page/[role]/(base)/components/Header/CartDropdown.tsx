@@ -15,17 +15,8 @@ import { useAppDispatch } from "@/app/hooks";
 import { isValidJSON } from "@/utils/isJson";
 export default function CartDropdown() {
   const dispatch = useAppDispatch();
-  const [user, setUser] = useState(() => {
-    try {
-        // Get from local storage by key
-        const item = localStorage.getItem('user');
-        // Parse stored JSON or return initialValue if it's not valid JSON
-        return item && isValidJSON(item) ? JSON.parse(item) : '';
-    } catch (error) {
-        console.error(error);
-        return '';
-    }
-  });
+  const item = localStorage.getItem('user');
+  const user = item && isValidJSON(item) ? JSON.parse(item) : '';
   const {data: carts} =  useGetCartsQuery(undefined, {skip: !user}) 
   
  

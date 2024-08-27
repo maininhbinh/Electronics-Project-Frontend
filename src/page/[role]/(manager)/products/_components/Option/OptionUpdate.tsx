@@ -216,7 +216,7 @@ export default function OptionUpdate({setImageUrl, setCategory, thumbnail, varia
             {/* Brand */}
 
              {/* Tags */}
-             <div className='sm:rounded-lg flex-1 p-2 relative bg-[#ffff]' style={{boxShadow: 'rgba(0, 0, 0, 0.05) 0rem 1.25rem 1.6875rem 0rem'}}>
+             {/* <div className='sm:rounded-lg flex-1 p-2 relative bg-[#ffff]' style={{boxShadow: 'rgba(0, 0, 0, 0.05) 0rem 1.25rem 1.6875rem 0rem'}}>
                 <div className='p-2'>
                     <h2 className='font-bold'>Từ khóa</h2>
                 </div>
@@ -233,7 +233,7 @@ export default function OptionUpdate({setImageUrl, setCategory, thumbnail, varia
                     />
                 </Form.Item>  
                 </Flex>
-            </div>
+            </div> */}
             {/* Tags */}
 
             {/* Setting */}

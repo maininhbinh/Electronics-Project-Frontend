@@ -24,7 +24,7 @@ const HeaderFilterSection: FC<HeaderFilterSectionProps> = ({
     <div className={`flex flex-col relative ${className}`}>
       <Heading>{title}</Heading>
       <div className="flex flex-col lg:flex-row lg:items-center justify-between space-y-6 lg:space-y-0 lg:space-x-2 ">
-        <Nav
+        {/* <Nav
           className="sm:space-x-2"
           containerClassName="relative flex w-full overflow-x-auto text-sm md:text-base hiddenScrollbar"
         >
@@ -39,8 +39,8 @@ const HeaderFilterSection: FC<HeaderFilterSectionProps> = ({
               </NavItem>
             )
           )}
-        </Nav>
-        <span className="block flex-shrink-0">
+        </Nav> */}
+        {/* <span className="block flex-shrink-0">
           <ButtonPrimary
             className="w-full !pr-16"
             sizeClass="pl-4 py-2.5 sm:pl-6"
@@ -81,10 +81,10 @@ const HeaderFilterSection: FC<HeaderFilterSectionProps> = ({
               />
             </span>
           </ButtonPrimary>
-        </span>
+        </span> */}
       </div>
 
-      <Transition
+      {/* <Transition
         show={isOpen}
         enter="transition-opacity duration-150"
         enterFrom="opacity-0"
@@ -95,7 +95,7 @@ const HeaderFilterSection: FC<HeaderFilterSectionProps> = ({
       >
         <div className="w-full border-b border-neutral-200 dark:border-neutral-700 my-8"></div>
         <TabFilters />
-      </Transition>
+      </Transition> */}
     </div>
   );
 };

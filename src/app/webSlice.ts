@@ -11,7 +11,7 @@ export interface WebState {
   notification: boolean,
   backgroundColor: string,
   openModalLogin: boolean
-  openModalSigin: boolean
+  openModalSigup: boolean
 }
 
 const initialState: WebState = {
@@ -25,7 +25,7 @@ const initialState: WebState = {
   loading: false,
   notification: false,
   openModalLogin: false,
-  openModalSigin: false
+  openModalSigup: false
 }
 
 export const webSlice = createSlice({
@@ -56,9 +56,8 @@ export const webSlice = createSlice({
       state.openModalLogin = payload
       
     },
-    setOpenModalSignin: (state, {payload}) => {
-      state.openModalSigin = payload
-      
+    setOpenModalSignup: (state, {payload}) => {
+      state.openModalSigup = payload
     }
   }
 })
@@ -70,7 +69,7 @@ export const {
   setNotification, 
   setLoading,
   setOpenModalLogin,
-  setOpenModalSignin
+  setOpenModalSignup
 } = webSlice.actions
 
 export default webSlice.reducer

@@ -1,5 +1,5 @@
 import { Menu, Flex } from "antd";
-import logo from "../../../../assets/images/manager/logo.png";
+import logo from "../../../../assets/images/base/logo.svg"
 import UseSidenav from "../../../../feature/UseSidenav";
 import { Typography } from 'antd';
 import Tables from "./icon/Tables";
@@ -391,9 +391,8 @@ function Sidenav() {
 
   return (
     <>
-      <Flex gap={10} className="brand" style={{ display: 'flex', alignItems: 'center' }}>
+      <Flex gap={10} className="brand" justify="center" style={{ display: 'flex', alignItems: 'center' }}>
         <img src={logo} alt="" />
-        <span className=" text-center">Bảng điều khiển</span>
       </Flex>
       <hr />
       <Menu theme="light" mode="inline" triggerSubMenuAction='click' openKeys={stateOpenKeys} defaultSelectedKeys={stateOpenKeys} items={items} onOpenChange={onOpenChange} />

@@ -106,9 +106,6 @@ export default function ModalCreateVoucher({
             />
           </Form.Item>
 
-
-
-
           {selectedType === 'number' ? (
             <Form.Item
               name={'value'}
@@ -125,13 +122,6 @@ export default function ModalCreateVoucher({
               <Slider min={0} max={100} />
             </Form.Item>
           )}
-
-
-
-
-
-
-
 
 
           <Row>
@@ -186,10 +176,17 @@ export default function ModalCreateVoucher({
 
           </Row>
 
-
           <Form.Item
             name={'quantity'}
             label='Số lượng'
+            rules={[{ required: true, type: 'number', message: 'Vui lòng nhập giới hạn sử dụng' }]}
+          >
+            <InputNumber placeholder='Nhập số lượng' style={{ width: '100%' }} min={1} />
+          </Form.Item>
+
+          <Form.Item
+            name={'used_count'}
+            label='Số lần tối đa có thể sử dụng'
             rules={[{ required: true, type: 'number', message: 'Vui lòng nhập giới hạn sử dụng' }]}
           >
             <InputNumber placeholder='Nhập giới hạn sử dụng' style={{ width: '100%' }} min={1} />

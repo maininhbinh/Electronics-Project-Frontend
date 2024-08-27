@@ -17,6 +17,8 @@ import { useGetStatisticalTodayQuery } from "./StatisticalEnpoint";
 import { VND } from "@/utils/formatVietNamCurrency";
 import CountUp from 'react-countup';
 import Piechart from "./components/charts/pieChart";
+import ExpenseStatistics from "./components/expense/ExpenseStatistics";
+import BalanceHistory from "./components/balance/BalanceHistory";
 
 export default function Dashboard() {
     const {backgroundColor} = useAppSelector(state => state.web)
@@ -130,20 +132,20 @@ export default function Dashboard() {
           </Row>
   
           <Row gutter={[24, 0]}>
-            <Col xs={24} sm={24} md={12} lg={12} xl={15} className="mb-24">
-              <Overview/>
-            </Col>
-            <Col xs={24} sm={24} md={12} lg={12} xl={9} className="mb-24">
+            <Col xs={24} sm={24} md={12} lg={12} xl={16} className="mb-24">
               <Card bordered={false} className="criclebox h-full">
-                <Flex vertical gap={20}>
-                <Flex justify="space-between" className="flex-col md:flex-row md:align-items-center " flex={1}>
-                  <Text className=" font-bold text-[24px]">
-                    Danh mục được quan tâm nhất
-                  </Text>
-                </Flex>
-                <Piechart color={'#3a416f'}/>
-                </Flex>
+                <h3 className="font-bold text-[20px] text-gray-500 mb-5">Doanh số trong ngày</h3>
+                <LineChart data={data ? data.ordersByHour : []}/>
               </Card>
+            </Col>
+            <Col xs={24} sm={24} md={12} lg={12} xl={8} className="mb-24">
+              <Card bordered={false} className="criclebox h-full">
+                <h3 className="font-bold text-[20px] text-gray-500 mb-5">Danh mục quan tâm nhiều nhất</h3>
+                <ExpenseStatistics data={data ? data.categoriesWithTotalValue : []}/>
+              </Card>
+            </Col>
+            <Col xs={24}className="mb-24">
+              <Overview/>
             </Col>
           </Row>
         </div>

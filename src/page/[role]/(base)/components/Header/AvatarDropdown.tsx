@@ -1,6 +1,6 @@
 import { Popover, Transition } from "@headlessui/react";
 import { avatarImgs } from "../../../../../contains/fakeData";
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Avatar from "../../shared/Avatar/Avatar";
 import SwitchDarkMode2 from "../../shared/SwitchDarkMode/SwitchDarkMode2";
@@ -8,43 +8,13 @@ import { Button, Checkbox, Flex, Form, Input, Modal, Select } from "antd";
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
 import { login, logout, Logout, Signin } from "@/app/slices/authSlide";
 import { ISignin } from "@/common/types/Auth.interface";
-import { setLoading, setOpenModalLogin, setOpenModalSignin } from "@/app/webSlice";
+import { setLoading, setOpenModalLogin, setOpenModalSignup } from "@/app/webSlice";
 import { popupSuccess, popupError } from "@/page/[role]/shared/Toast";
 import { useGetCartsQuery } from "@/services/CartEndPoinst";
-import { useLazyGetCartsQuery } from "@/services/ProductEndPoinst";
-import Joi from 'joi';
-import { useGetUserQuery } from "@/page/[role]/(manager)/user/UsersEndpoints";
+import { useGetProfileUserQuery, useGetUserQuery } from "@/page/[role]/(manager)/user/UsersEndpoints";
 import { SignupService, VerifyToken } from "@/services/AuthService";
-import { joiResolver } from '@hookform/resolvers/joi';
-import { Statistic } from 'antd';
-const { Countdown } = Statistic;
-import {  Input as INPUTANT}  from 'antd';
-import type { GetProps } from 'antd';
-import { useForm } from "react-hook-form";
 import { isValidJSON } from "@/utils/isJson";
-
-const validationSchema = Joi.object({
-  username: Joi.string().min(6).required().messages({
-    'string.min': 'Tên người dùng phải có ít nhất 6 ký tự',
-    'any.required': 'Tên người dùng là bắt buộc',
-     'string.empty': 'Tên người dùng không được để trống'
-  }),
-  email: Joi.string().email({ tlds: { allow: false } }).required().messages({
-    'string.email': 'Địa chỉ email không hợp lệ',
-    'any.required': 'Địa chỉ email là bắt buộc',
-     'string.empty': 'Email không được để trống'
-  }),
-  password: Joi.string().min(6).required().messages({
-    'string.min': 'Mật khẩu phải có ít nhất 6 ký tự',
-    'any.required': 'Mật khẩu là bắt buộc',
-    'string.empty': 'Mật khẩu không được để trống'
-  }),
-  confirmPassword: Joi.any().equal(Joi.ref('password')).required().messages({
-    'any.only': 'Xác nhận mật khẩu không khớp',
-    'any.required': 'Xác nhận mật khẩu là bắt buộc',
-    'string.empty': 'Xác nhận mật khẩu không được để trống',
-  }),
-});
+import Verytify from "../Verytify";
 
 type FieldType = {
   email?: string;
@@ -60,44 +30,19 @@ type FieldTypeSignup = {
 
 export default function AvatarDropdown() {
   const {isAuthenticated} = useAppSelector(state => state.auth);  
-  const {refetch} = useGetCartsQuery({}, {skip: !isAuthenticated});
+  const {refetch, isSuccess } = useGetCartsQuery({}, {skip: !isAuthenticated});
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-
   const [isModalVeritifyOpen, setIsModalVeritifyOpen] = useState(false);
-  const [isVerifyToken, setIsVerifyToken] = useState<boolean>(false);
-  const [otp, setOtp] = useState<string>('');
   const [email, setEmail] = useState<string>('');
 
   const [form] = Form.useForm()
   const [formSignup] = Form.useForm()
  
-  const {openModalLogin, openModalSigin} = useAppSelector(state => state.web);
+  const {openModalLogin, openModalSigup} = useAppSelector(state => state.web);
 
-  const [user, setUser] = useState(() => {
-    try {
-        // Get from local storage by key
-        const item = localStorage.getItem('user');
-        // Parse stored JSON or return initialValue if it's not valid JSON
-        return item && isValidJSON(item) ? JSON.parse(item) : '';
-    } catch (error) {
-        console.error(error);
-        return '';
-    }
-  });
-  
-  const {data : dataItem, isLoading : dataLoading } = useGetUserQuery(user?.id, {
-    skip: !isAuthenticated
-  });
-
-  const { register, handleSubmit,  watch, formState: { errors } } = useForm<IFormInput>({
-    resolver: joiResolver(validationSchema),
-  });
-
-  type OTPProps = GetProps<typeof INPUTANT.OTP>;
-
-  // const [open, setOpen] = useState(false);
-  // const [checked, setChecked] = useState(true);
+  const item = localStorage.getItem('user');
+  const user = item && isValidJSON(item) ? JSON.parse(item) : '';
 
   const onSignin = async (value :ISignin) => {
     dispatch(setLoading(true));
@@ -110,7 +55,6 @@ export default function AvatarDropdown() {
         {
           name: 'password',
           value: '',
-          errors: ['Password is required']
         }
       ])
       popupError("Email hoặc mật khẩu không chính xác");
@@ -119,44 +63,59 @@ export default function AvatarDropdown() {
         {
           name: 'email',
           value: '',
-          errors: ['Email is required']
         },
         {
           name: 'password',
           value: '',
-          errors: ['Password is required']
         }
       ])
       dispatch(login(result))
       dispatch(setOpenModalLogin(false))
       popupSuccess("Xin chào " + result.user.username);
-      refetch();
+      if(isSuccess){
+        refetch();
+      }
       navigate('/')
     }
   }  
 
-  const onChange: OTPProps['onChange'] = (text) => {
-    setOtp(text);
-  };
-
-  const sharedProps: OTPProps = {
-    onChange,
-  };
-
   const onSignup = async(value: FieldTypeSignup) => {
+
+    setEmail(value.email ?? '')
     const payload = {
       username : value.username,
       email : value.email,
       password : value.password,
       password_confirmation : value.password_confirmation
     }
+
+    formSignup.setFields([
+      {
+        name: 'username',
+        value: ''
+      },
+      {
+        name: 'email',
+        value: ''
+      },
+      {
+        name: 'password',
+        value: ''
+      },
+      {
+        name: 'password_confirmation',
+        value: ''
+      },
+    ])
+    
     try {
       dispatch(setLoading(true));
       await SignupService(payload);
       dispatch(setLoading(false));
-      setOpenModalSignin(false)
+      dispatch(setOpenModalSignup(false))
       setIsModalVeritifyOpen(true)
     } catch (error) {
+      dispatch(setLoading(false));
       popupError('Đăng ký thất bại');
     }
   }
@@ -165,14 +124,13 @@ export default function AvatarDropdown() {
     const access_token = localStorage.getItem('access_token');
     dispatch(logout());
     dispatch(setOpenModalLogin(false))
+
     if(!access_token){
-
-      popupError('unAuth');
-
+      popupError('Chưa đăng nhập');
     }else{
 
       dispatch(setLoading(true));
-       await dispatch(Logout(access_token));
+      await dispatch(Logout(access_token));
       dispatch(setLoading(false));
       popupSuccess("Đăng xuất thành công");
       navigate('/')
@@ -180,23 +138,7 @@ export default function AvatarDropdown() {
     
   }
 
-  const handleConfirmOtp = async () => {
-    try {
-      const email = formSignup.getFieldValue('email')
-      
-      setIsVerifyToken(true);
-      const response = await VerifyToken(otp, email);
-      dispatch(login(response.data));
-      popupSuccess(`Hello "${watch('username')}"`);
-      setIsModalVeritifyOpen(false)
-      navigate("../");
-    } catch (error) {
-      popupError('OTP does not match');
-    }finally{
-      setIsVerifyToken(false);
-    }
-
-  }
+  
 
   return (
     <div className="AvatarDropdown ">
@@ -247,10 +189,10 @@ export default function AvatarDropdown() {
                         (
                           <>
                             <div className="flex items-center space-x-3">
-                              <Avatar imgUrl={dataItem?.data.image ? dataItem?.data.image : avatarImgs[10] } sizeClass="w-12 h-12" />
+                              <Avatar imgUrl={user?.image ? user?.image : avatarImgs[10] } sizeClass="w-12 h-12" />
                               <div className="flex-grow truncate break-all">
-                                <h4 className="font-semibold">{  dataItem?.data.username}</h4>
-                                <p className="text-xs mt-0.5 ">{  dataItem?.data.email}</p>
+                                <h4 className="font-semibold">{user.username}</h4>
+                                <p className="text-xs mt-0.5 ">{user.email}</p>
                               </div>
                             </div>
 
@@ -301,7 +243,7 @@ export default function AvatarDropdown() {
 
                         <button
                           className="flex items-center p-2 -m-3 transition duration-150 ease-in-out rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-700 focus:outline-none focus-visible:ring focus-visible:ring-orange-500 focus-visible:ring-opacity-50"
-                          onClick={() => dispatch(setOpenModalSignin(true))}
+                          onClick={() => dispatch(setOpenModalSignup(true))}
                         >
                           <div className="flex items-center justify-center flex-shrink-0 text-neutral-500 dark:text-neutral-300">
                             <svg
@@ -625,22 +567,6 @@ export default function AvatarDropdown() {
         )}
       </Popover>
 
-      <Modal title="Enter OTP" open={isModalVeritifyOpen} onCancel={()=>setIsModalVeritifyOpen(false)}  footer={false} >
-        <p>Vui lòng kiểm tra email của bạn</p>
-      
-        <div className="my-3">
-          <Countdown value={Date.now() + 60 * 1000} />
-        </div>
-        <div className="mt-5 w-full flex justify-center items-center">
-          <INPUTANT.OTP  length={4} {...sharedProps} className=""/>
-        </div>
-
-        <button disabled={isVerifyToken} onClick={() => handleConfirmOtp()} className={`mt-5 cursor-pointer bg-black rounded-[20px] text-white py-2 px-5 font-[700] ${isVerifyToken && 'cursor-not-allowed'}`} >
-          Confirm
-        </button>
-      </Modal>
-
-
       <Modal open={openModalLogin} onCancel={()=>dispatch(setOpenModalLogin(false))} footer=''>
           <div className="p-10">
             <Flex vertical gap={20}>
@@ -748,7 +674,7 @@ export default function AvatarDropdown() {
       </Modal>
 
 
-      <Modal open={openModalSigin} onCancel={()=>dispatch(setOpenModalSignin(false))} footer=''>
+      <Modal open={openModalSigup} onCancel={()=>dispatch(setOpenModalSignup(false))} footer=''>
           <div className="p-10">
             <Flex vertical gap={20}>
                 <h1 className="font-mono text-[24px] font-bold">
@@ -897,14 +823,22 @@ export default function AvatarDropdown() {
                   </Form.Item>
                   <div className="flex justify-center">
                     <span>Đã có tài khoản? <Link onClick={()=>{
-                      dispatch(setOpenModalSignin(false))
+                      dispatch(setOpenModalSignup(false))
                       dispatch(setOpenModalLogin(true))
-                    }}>Đăng nhập ngay</Link></span>
+                    }}>Đăng kí ngay</Link></span>
                   </div>
                 </Form>
             </Flex>
           </div>
       </Modal>
+
+      {
+        isModalVeritifyOpen
+        ?
+        <Verytify setIsModalVeritifyOpen={setIsModalVeritifyOpen} email={email} setUser={setUser}/>
+        :
+        ''
+      }
     </div>
   );
 }

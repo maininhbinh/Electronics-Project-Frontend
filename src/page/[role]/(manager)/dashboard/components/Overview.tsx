@@ -85,9 +85,9 @@ export default function Overview() {
         <Card bordered={false} className="criclebox h-full">
             <Flex vertical gap={20}>
             <Flex justify="space-between" className="flex-col md:flex-row md:align-items-center ">
-                <Text className=" font-bold text-[24px]">
+                <h3 className="font-bold text-[20px] text-gray-500">
                     Đơn hàng hôm nay
-                </Text>
+                </h3>
             </Flex>
             <Row gutter={[24, 0]}>
                 <Table

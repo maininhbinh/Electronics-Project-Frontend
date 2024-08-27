@@ -195,25 +195,6 @@ const CheckoutPage = () => {
           response.type === 'percent'
             ? Number(getTotalPriceCart(carts.data)) * (response.value / 100)
             : Number(getTotalPriceCart(carts.data)) - response.value
-
-        if (priceVoucher < 10000) {
-          setVoucher({
-            apply: false,
-            error: 'Tổng tiền đơn hàng của bạn nhỏ hơn Số tiền sau khi áp dụng voucher',
-            data: {}
-          })
-
-          return true
-        }
-        if (priceVoucher < response.discount_max) {
-          setVoucher({
-            apply: false,
-            error:
-              'Tổng tiền tối đa đơn hàng sau khi áp dụng voucher cho đơn hàng này là: ' + VND(response.discount_max),
-            data: {}
-          })
-          return true
-        }
         
         setVoucher({
           code : discount,
@@ -223,6 +204,7 @@ const CheckoutPage = () => {
         })
 
       } else {
+        
         setVoucher({
           apply: false,
           error: response.message,
@@ -230,6 +212,13 @@ const CheckoutPage = () => {
         })
       }
     } catch (error) {
+        const {data} = error
+        
+        setVoucher({
+          apply: false,
+          error: data.message,
+          data: {}
+        })
       popupError('Apply voucher error')
     }
   }
@@ -430,10 +419,6 @@ const CheckoutPage = () => {
                   {carts && VND(getTotalPriceCart(carts.data))}
                 </span>
               </div>
-              <div className='flex justify-between py-2.5'>
-                <span>Ước tính vận chuyển</span>
-                <span className='font-semibold text-slate-900 dark:text-slate-200'>0đ</span>
-              </div>
               {
               dataVoucher.apply
               ?
@@ -444,10 +429,6 @@ const CheckoutPage = () => {
               :
               ''
               }
-              <div className='flex justify-between py-2.5'>
-                <span>Ước tính thuế</span>
-                <span className='font-semibold text-slate-900 dark:text-slate-200'>0đ</span>
-              </div>
               <div className='flex justify-between font-semibold text-slate-900 dark:text-slate-200 text-base pt-4'>
                 <span>Tổng tiền đơn hàng</span>
 

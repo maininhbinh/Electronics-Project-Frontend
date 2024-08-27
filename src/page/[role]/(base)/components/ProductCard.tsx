@@ -226,15 +226,16 @@ const ProductCard: FC<ProductCardProps> = ({
           <BagIcon className="w-3.5 h-3.5 mb-0.5" />
           <span className="ml-1">Add to cart</span>
         </ButtonPrimary>
-        <ButtonSecondary
-          className="ml-1.5 bg-white hover:!bg-gray-100 hover:text-slate-900 transition-colors shadow-lg"
-          fontSize="text-xs"
-          sizeClass="py-2 px-4"
-          onClick={() => setShowModalQuickView(true)}
-        >
-          <ArrowsPointingOutIcon className="w-3.5 h-3.5" />
-          <span className="ml-1">Quick view</span>
-        </ButtonSecondary>
+        <Link to={`/product-detail/${slug}`}>
+          <ButtonSecondary
+            className="ml-1.5 bg-white hover:!bg-gray-100 hover:text-slate-900 transition-colors shadow-lg"
+            fontSize="text-xs"
+            sizeClass="py-2 px-4"
+          >
+            <ArrowsPointingOutIcon className="w-3.5 h-3.5" />
+            <span className="ml-1">Quick view</span>
+          </ButtonSecondary>
+        </Link>
       </div>
     );
   };
@@ -305,6 +306,7 @@ const ProductCard: FC<ProductCardProps> = ({
 
           <div className="flex justify-between items-center ">
             <Prices price={maxPrice} />
+            <Prices price={maxPriceSale} classChildren='text-[12px] text-red-500 line-through'/>
             <div className="flex items-center mb-0.5">
               <StarIcon className="w-5 h-5 pb-[1px] text-amber-400" />
               <span className="text-sm ml-1 text-slate-500 dark:text-slate-400">

@@ -111,7 +111,7 @@ const CartPage = () => {
 
   const renderProduct = (item: ICart) => {
    
-    const { image, price, name, slug, thumbnail, quantity, user_id, product_item_id, price_sale, variants} = item;
+    const { image, price, name, slug, thumbnail, quantity, user_id, product_item_id, price_sale, variants, } = item;
     const product = {
       id: product_item_id,
       price,
@@ -132,7 +132,7 @@ const CartPage = () => {
         key={item.id}
         className="relative flex py-8 sm:py-10 xl:py-12 first:pt-0 last:pb-0"
       >
-        <div className="relative h-36 w-24 sm:w-32 flex-shrink-0 overflow-hidden rounded-xl bg-slate-100">
+        <div className={`relative h-36 w-24 sm:w-32 flex-shrink-0 overflow-hidden rounded-xl bg-slate-100`}>
           <img
             src={image ? image : thumbnail}
             alt={name}
@@ -153,7 +153,6 @@ const CartPage = () => {
                     <div className="flex" key={index}>
                       {index !== variants.length && index > 0 ? (<span className="mx-4 border-l border-slate-200 dark:border-slate-700 "></span>) : ''}
                       <div className="flex items-center space-x-1.5">
-                        {iconVariants[index]}
                         <span>{item.name}</span>
                       </div>
                     </div>
@@ -196,7 +195,7 @@ const CartPage = () => {
           </div>
 
           <div className="flex mt-auto pt-4 items-end justify-between text-sm">
-            {Math.random() > 0.6
+            {quantity < 1
               ? renderStatusSoldout()
               : renderStatusInstock()}
 
@@ -256,28 +255,16 @@ const CartPage = () => {
           {!isLoading &&  Boolean(carts?.data.length)  && <><div className="border-t lg:border-t-0 lg:border-l border-slate-200 dark:border-slate-700 my-10 lg:my-0 lg:mx-10 xl:mx-16 2xl:mx-20 flex-shrink-0"></div>
           <div className="flex-1">
             <div className="sticky top-28">
-              <h3 className="text-lg font-semibold ">Order Summary</h3>
+              <h3 className="text-lg font-semibold ">Tạm tính</h3>
               <div className="mt-7 text-sm text-slate-500 dark:text-slate-400 divide-y divide-slate-200/70 dark:divide-slate-700/80">
                 <div className="flex justify-between pb-4">
-                  <span>Subtoal</span>
+                  <span>Giá</span>
                   <span className="font-semibold text-slate-900 dark:text-slate-200">
                     {carts && VND(getTotalPriceCart(carts.data))}
                   </span>
                 </div>
-                <div className="flex justify-between py-4">
-                  <span>Shpping estimate</span>
-                  <span className="font-semibold text-slate-900 dark:text-slate-200">
-                    0đ
-                  </span>
-                </div>
-                <div className="flex justify-between py-4">
-                  <span>Tax estimate</span>
-                  <span className="font-semibold text-slate-900 dark:text-slate-200">
-                    0đ
-                  </span>
-                </div>
                 <div className="flex justify-between font-semibold text-slate-900 dark:text-slate-200 text-base pt-4">
-                  <span>Order total</span>
+                  <span>Tổng đơn hàng</span>
                   <span>{carts && VND(getTotalPriceCart(carts.data))}</span>
                 </div>
               </div>

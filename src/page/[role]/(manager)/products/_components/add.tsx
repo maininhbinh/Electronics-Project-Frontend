@@ -177,7 +177,7 @@ function AddProduct() {
       await addProduct(formdata).unwrap();
       popupSuccess('Add product success');
       dispatch(setLoading(false))
-      // navigate('..');
+      navigate('..');
     } catch (error) {
       dispatch(setLoading(false))
       popupError('Add product error');
