@@ -21,13 +21,13 @@ export default function AddBanner() {
     const image_title = form.getFieldValue('title')
     const is_active = form.getFieldValue('status') ? 1 : 0
     const image = form.getFieldValue('img').file.originFileObj
-    const image_url = form.getFieldValue('url')
+    const url = form.getFieldValue('url')
 
     const formData = new FormData()
     formData.append('image_title', image_title)
     formData.append('is_active', String(is_active))
     formData.append('image', image)
-    formData.append('image_url', image_url)
+    formData.append('url', url)
     try {
       // console.log('>>>> ', formData)
       await createBanner(formData).unwrap()

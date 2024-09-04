@@ -23,6 +23,11 @@ import { ordersApi } from '@/services/OrderEndPoints'
 import cartSlide from './slices/cartSlide'
 import { voucherApi } from '@/page/[role]/(manager)/voucher/VoucherEndpoint'
 import { CommentsApi } from '@/services/CommentEndPoints'
+import { statisticalApi } from '@/page/[role]/(manager)/dashboard/StatisticalEnpoint'
+import { detailsApi } from '@/page/[role]/(manager)/details/_component/DetailsEndpoints'
+import { galleryApi } from './endPoint/GalleryEndPoint'
+import { detailApi } from './endPoint/DetailEndPoint'
+
 export const store = configureStore({
   reducer: {
     web: webReducer,
@@ -48,10 +53,35 @@ export const store = configureStore({
     [ordersApi.reducerPath] : ordersApi.reducer,
     [voucherApi.reducerPath] : voucherApi.reducer,
     [CommentsApi.reducerPath] : CommentsApi.reducer,
+    [statisticalApi.reducerPath] : statisticalApi.reducer,
+    [detailsApi.reducerPath] : detailsApi.reducer,
+    [galleryApi.reducerPath] : galleryApi.reducer,
+    [detailApi.reducerPath]: detailApi.reducer
   },
   // middleware: (getDefaultMiddleware) => getDefaultMiddleware({ serializableCheck: false })
   middleware: (getDefaultMiddleware) => //attributesApi.middleware
-  getDefaultMiddleware({ serializableCheck: false }).concat(usersApi.middleware, addressApi.middleware, attributesApi.middleware, categoryAttributesApi.middleware, valueAttributesApi.middleware, privilegeGroupApi.middleware, privilegeApi.middleware, privilegeUsersApi.middleware, productsApi.middleware, categoriesApi.middleware, brandsApi.middleware, bannersApi.middleware, CartsApi.middleware, ordersApi.middleware, voucherApi.middleware, CommentsApi.middleware),
+  getDefaultMiddleware({ serializableCheck: false }).concat(
+    usersApi.middleware, 
+    addressApi.middleware, 
+    attributesApi.middleware, 
+    categoryAttributesApi.middleware, 
+    valueAttributesApi.middleware, 
+    privilegeGroupApi.middleware, 
+    privilegeApi.middleware, 
+    privilegeUsersApi.middleware, 
+    productsApi.middleware, 
+    categoriesApi.middleware, 
+    brandsApi.middleware, 
+    bannersApi.middleware, 
+    CartsApi.middleware, 
+    ordersApi.middleware, 
+    voucherApi.middleware, 
+    CommentsApi.middleware, 
+    statisticalApi.middleware, 
+    detailsApi.middleware,
+    galleryApi.middleware,
+    detailApi.middleware
+  ),
 });
 
 

@@ -222,15 +222,15 @@ import { useGetVouchersQuery } from "../../(manager)/voucher/VoucherEndpoint";
               </span>
             </label>
           </div>
-          <div className="grid grid-cols-4 gap-2 mt-3">
+          <div className="flex flex-wrap gap-1 mt-3">
             {variant.attribute.map((item, index) => {
               const isActive = item === variantActives[key][variant.name];
               const sizeOutStock = !findProductVariant()(products, variantActives).quantity
               return (
                 <div
                   key={index}
-                  className={`relative h-10 sm:h-11 rounded-2xl border flex items-center justify-center 
-                  text-sm sm:text-base uppercase font-semibold select-none overflow-hidden border-2 z-0 ${
+                  className={`relative h-10 sm:h-11 rounded-2xl flex items-center justify-center p-2
+                  text-sm sm:text-base uppercase font-semibold select-none overflow-hidden border-[1px] z-0 ${
                     sizeOutStock
                       ? "text-opacity-20 dark:text-opacity-20 cursor-not-allowed"
                       : "cursor-pointer"
@@ -354,17 +354,23 @@ import { useGetVouchersQuery } from "../../(manager)/voucher/VoucherEndpoint";
 
       const product = findProductVariant()(products, variantActives);      
       
-      const {price} = product   
+      const {price, price_sale} = product   
             
       return (
-        <div className="listingSectionSidebar__wrap lg:shadow-lg">
+        <div className="listingSectionSidebar__wrap border-gray-100" style={{boxShadow: 'rgba(0, 0, 0, 0.05) 0rem 1.25rem 1.6875rem 0rem'}}>
           <div className="space-y-7 lg:space-y-8">
             {/* PRICE */}
             <div className="">
               {/* ---------- 1 HEADING ----------  */}
               <div className="flex items-center justify-between space-x-5">
-                <div className="flex text-2xl font-semibold">
-                  {VND(parseFloat(price))}
+                <div>
+                  <div className="flex text-md font-semibold justify-end text-red-500 line-through">
+                    {VND(parseFloat(price))}
+                  </div>
+                  <div className="flex text-2xl font-semibold">
+                    {VND(parseFloat(price_sale))}
+                  </div>
+                  
                 </div>
 
                 <a
@@ -414,12 +420,12 @@ import { useGetVouchersQuery } from "../../(manager)/voucher/VoucherEndpoint";
               <div className="space-y-2.5">
                 <div className="flex justify-between text-slate-600 dark:text-slate-300">
                   <span className="flex">
-                    <span>{`${VND(parseFloat(price))}  `}</span>
+                    <span>{`${VND(parseFloat(price_sale))}  `}</span>
                     <span className="mx-2">x</span>
                     <span>{`${qualitySelected} `}</span>
                   </span>
 
-                  <span>{`${VND((price * qualitySelected))}`}</span>
+                  <span>{`${VND((price_sale * qualitySelected))}`}</span>
                 </div>
                 {/* <div className="flex justify-between text-slate-600 dark:text-slate-300">
                   <span>Thuế giá trị gia tăng</span>
@@ -429,7 +435,7 @@ import { useGetVouchersQuery } from "../../(manager)/voucher/VoucherEndpoint";
               <div className="border-b border-slate-200 dark:border-slate-700"></div>
               <div className="flex justify-between font-semibold text-[24px]">
                 <span>Tổng tiền</span>
-                <span>{`${VND((price * qualitySelected))}`}</span>
+                <span>{`${VND((price_sale * qualitySelected))}`}</span>
               </div>
             </div>
           </div>
@@ -485,7 +491,7 @@ import { useGetVouchersQuery } from "../../(manager)/voucher/VoucherEndpoint";
             <ButtonPrimary>Gửi</ButtonPrimary>
        
           </div>
-        </form> : <span> Vui lòng đăng nhập để bình luận</span>}
+        </form> : ''}
       </div>
 
 
@@ -495,21 +501,16 @@ import { useGetVouchersQuery } from "../../(manager)/voucher/VoucherEndpoint";
           <div className="mt-10">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-y-11 gap-x-28">
               {listComments?.map((item : any, key : any) => (
-  <ReviewItem
-  data={{
-    comment: item.content,
-    date: formatDate(item.created_at),
-    name: item.user_name,
-    starPoint: item.rating,
-  }}
-/>
+                <ReviewItem
+                  data={{
+                    comment: item.content,
+                    date: formatDate(item.created_at),
+                    name: item.user_name,
+                    starPoint: item.rating,
+                  }}
+                />
               ))}
-            
-          
-             
             </div>
-
-          
           </div>
         </div>
       );
@@ -518,9 +519,9 @@ import { useGetVouchersQuery } from "../../(manager)/voucher/VoucherEndpoint";
     const Gallery = () => {
       return (
         <div className="lg:space-y-3 space-y-2">
-          <div className="relative border-2 rounded-[0.75rem]">
+          <div className="relative border-[1px] rounded-[0.75rem]">
               <div
-                className="col-span-2 md:col-span-1 row-span-2 relative rounded-md sm:rounded-xl overflow-hidden cursor-pointer h-[250px] md:h-[400px]"
+                className="col-span-2 md:col-span-1 row-span-2 relative rounded-md sm:rounded-xl overflow-hidden cursor-pointer h-[250px] md:h-[450px]"
               >
                 <Swiper
                   ref={swiperRef}
@@ -607,7 +608,7 @@ import { useGetVouchersQuery } from "../../(manager)/voucher/VoucherEndpoint";
                 [thumb, ...data.data.galleries.map(item => item.image)].map((item, index)=>(
                   <SwiperSlide key={index}>
                       <NcImage
-                        containerClassName="flex items-center justify-center border-[2px] rounded-md sm:rounded-xl p-1 cursor-pointer "
+                        containerClassName="flex items-center justify-center border-[1px] rounded-md sm:rounded-xl p-1 cursor-pointer "
                         className=" rounded-sm sm:rounded-md h-[50px] object-cover w-[50px] "
                         src={item}
                       />
@@ -708,7 +709,7 @@ import { useGetVouchersQuery } from "../../(manager)/voucher/VoucherEndpoint";
 
     return (
       <div
-        className={`ListingDetailPage nc-ProductDetailPage2 ${className}`}
+        className={`ListingDetailPage nc-ProductDetailPage2 ${className} overflow-hidden`}
         data-nc-id="ProductDetailPage2"
       >
         {/* SINGLE HEADER */}
@@ -731,7 +732,6 @@ import { useGetVouchersQuery } from "../../(manager)/voucher/VoucherEndpoint";
             
             {renderSection1()}
 
-            {renderSection2()}
             
           </div>
 
@@ -751,7 +751,7 @@ import { useGetVouchersQuery } from "../../(manager)/voucher/VoucherEndpoint";
 
           <Row gutter={[32, 24]}>
             <Col className="gutter-row " span={16}>
-              <div className="py-5 border-2 rounded-md relative max-h-[450px] lg:shadow-lg p-4 overflow-hidden">
+              <div className="py-5 rounded-xl relative max-h-[700px] p-4 overflow-hidden border-[1px] border-gray-100 min-h-[500px]" style={{boxShadow: 'rgba(0, 0, 0, 0.05) 0rem 1.25rem 1.6875rem 0rem'}}>
                 <div dangerouslySetInnerHTML={{ __html: data.data.content }} />
                 <div style={{background: 'linear-gradient(180deg, hsla(0, 0%, 100%, 0), hsla(0, 0%, 100%, .91) 50%, #fff 55%)'}} className=" absolute bottom-0 left-0 p-2 flex justify-center items-center w-full">
                   <Button onClick={()=>setOpenContent(true)}>
@@ -777,12 +777,12 @@ import { useGetVouchersQuery } from "../../(manager)/voucher/VoucherEndpoint";
                   header={<div className="text-[20px] font-bold">Thông số kĩ thuật</div>}
                   footer={<div><Button onClick={()=>setOpenDetail(true)} className="w-full">Xem cấu hình chi tiết</Button></div>}
                   bordered
-                  dataSource={details.flatMap((item: IDetail) => item.attributes).slice(0,13)}
+                  dataSource={details.flatMap((item: IDetail) => item.attributes).slice(0,10)}
                   renderItem={(item: IAttribute) => (
                     <List.Item className=" flex justify-between">
                       
-                        <div>{item.name}</div> 
-                        <div>
+                        <div className="w-[30%]">{item.name}</div> 
+                        <div className="w-[50%]">
                           <ul>
                             {item.values.map((item, key)=>(
                               <li key={key}>
@@ -794,7 +794,8 @@ import { useGetVouchersQuery } from "../../(manager)/voucher/VoucherEndpoint";
 
                     </List.Item>
                   )}
-                  className="lg:shadow-lg"
+                  className="rounded-xl border-gray-100 border-[1px]"
+                  style={{boxShadow: 'rgba(0, 0, 0, 0.05) 0rem 1.25rem 1.6875rem 0rem'}}
                 />
                 <Modal 
                   title={
@@ -815,9 +816,8 @@ import { useGetVouchersQuery } from "../../(manager)/voucher/VoucherEndpoint";
                         dataSource={item.attributes}
                         renderItem={(item) => (
                           <List.Item className=" flex justify-between">
-                            
-                              <div>{item.name}</div>
-                              <div>
+                              <div className="w-[30%]">{item.name}</div> 
+                              <div className="w-[50%]">
                                 <ul>
                                   {item.values.map((item, key)=>(
                                     <li key={key}>

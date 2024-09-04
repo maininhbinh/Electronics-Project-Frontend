@@ -17,11 +17,11 @@ const SectionGridFeatureItems: FC<SectionGridFeatureItemsProps> = ({
   const {data : dataHot, isLoadingHot } = useFilterProductQuery('is_hot_deal');
   const {data : dataGood, isLoadingGood } = useFilterProductQuery('is_good_deal');
   const {data : dataNew, isLoadingNew } = useFilterProductQuery('is_new');
-  const {data : dataHome, isLoadingHome } = useFilterProductQuery('is_show_home');
+  // const {data : dataHome, isLoadingHome } = useFilterProductQuery('is_show_home');
   return (
     <>
       <div className="nc-SectionGridFeatureItems relative">
-        <HeaderFilterSection title="Sản phẩm bán chạy" handleFilter={setFilter}/>
+        <HeaderFilterSection title="Sản phẩm thịnh hành" handleFilter={setFilter}/>
         <div
           className={`grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 `}
         >
@@ -34,7 +34,7 @@ const SectionGridFeatureItems: FC<SectionGridFeatureItemsProps> = ({
         </div>
       </div>
       <div className="nc-SectionGridFeatureItems relative">
-        <HeaderFilterSection title="Ưu đãi hấp dẫn" handleFilter={setFilter}/>
+        {/* <HeaderFilterSection title="Ưu đãi hấp dẫn" handleFilter={setFilter}/> */}
         <div
           className={`grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 `}
         >
@@ -59,7 +59,7 @@ const SectionGridFeatureItems: FC<SectionGridFeatureItemsProps> = ({
           <ButtonPrimary loading>Xem thêm</ButtonPrimary>
         </div>
       </div>
-      <div className="nc-SectionGridFeatureItems relative">
+      {/* <div className="nc-SectionGridFeatureItems relative">
         <HeaderFilterSection title="Khuyến mãi hấp dẫn" handleFilter={setFilter}/>
         <div
           className={`grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 `}
@@ -71,7 +71,7 @@ const SectionGridFeatureItems: FC<SectionGridFeatureItemsProps> = ({
         <div className="flex mt-16 justify-center items-center">
           <ButtonPrimary loading>Xem thêm</ButtonPrimary>
         </div>
-      </div>
+      </div> */}
     </>
   );
 };

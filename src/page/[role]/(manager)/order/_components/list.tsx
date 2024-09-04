@@ -130,62 +130,10 @@ export default function ListOrder() {
     },
     {
       title: 'Trạng thái',
+      dataIndex: 'status_name',
       width: 150,
       align: 'center',
-      filters: [
-        {
-          text:  <Tag color="red">Chờ xử lý</Tag>,
-          value: '1',
-        },
-        {
-          text: <Tag color="orange">Đang chuẩn bị</Tag> ,
-          value: '2',
-        },
-        {
-          text: <Tag color="green">Đơn hàng sẵn sàng</Tag> ,
-          value: '3',
-        },
-        {
-          text: <Tag color="cyan">Đang vận chuyển</Tag>,
-          value: '4',
-        },
-        {
-          text: <Tag color="blue"> Đang giao hàng</Tag>,
-          value: '5',
-        },
-        {
-          text: <Tag color="geekblue"> Đã giao hàng</Tag>,
-          value: '6',
-        },
-        {
-          text: <Tag color="success"> Hoàn thành</Tag>,
-          value: '7',
-        },
-        {
-          text: <Tag color="#000000"> Đơn hàng bị hủy</Tag>,
-          value: '8',
-        },
-      ],
-      onFilter: (value, record : any) => String(record.order_status_id).startsWith(value as string),
-      
-      render: (item : any) => {
-        return (<div className='w-[150px]'><Select
-          defaultValue={String(item.order_status_id)}
-          style={{ width: 150 }}
-          onChange={(e) => { handleOnChangeStatus(Number(e), Number(item.id)) }}
-          options={[
-            { value: '1', label: <Tag color="red">Chờ xử lý</Tag>, disabled: handleDisableSelect(1, Number(item.order_status_id))},
-            { value: '2', label: <Tag color="orange">Đang chuẩn bị</Tag>, disabled: handleDisableSelect(2, Number(item.order_status_id))},
-            { value: '3', label: <Tag color="green">Đơn hàng sẵn sàng</Tag>, disabled: handleDisableSelect(3, Number(item.order_status_id))},
-            { value: '4', label: <Tag color="cyan">Đang vận chuyển</Tag>, disabled: handleDisableSelect(4, Number(item.order_status_id))},
-            { value: '5', label: <Tag color="blue"> Đang giao hàng</Tag>, disabled: handleDisableSelect(5, Number(item.order_status_id))},
-            { value: '6', label: <Tag color="geekblue"> Đã giao hàng</Tag>, disabled: handleDisableSelect(6, Number(item.order_status_id))},
-            { value: '7', label: <Tag color="success"> Hoàn thành</Tag>, disabled: handleDisableSelect(7, Number(item.order_status_id))},
-            { value: '8', label: <Tag color="#000000"> Đơn hàng bị hủy</Tag>, disabled: handleDisableSelect(8, Number(item.order_status_id))},
-          ]}
-        /></div>)
-        
-      }
+      key: 'status_name'
     },
     {
       title: 'Tổng tiền',
@@ -224,12 +172,7 @@ export default function ListOrder() {
   return (
     <>
       <Content
-        style={{
-          background: colorBgContainer,
-          padding: 24,
-          borderRadius: borderRadiusLG,
-          boxShadow: 'rgba(0, 0, 0, 0.05) 0rem 1.25rem 1.6875rem 0rem'
-        }}
+        
         className='h-full'
       >
         <div className='lable font-bold text-[24px] text-[#344767]'>Đơn hàng</div>
@@ -261,27 +204,31 @@ export default function ListOrder() {
           </Col>
         </Row>
 
-        <Flex justify='space-between' className='my-5'>
-        <div className='lable font-bold text-[17px] text-[#344767]'>Danh sách đơn hàng</div>
-          <Flex gap={10}>
-            <Button onClick={() => handleExportExcelFile()} >Xuất</Button>
-            <Button className='bg-[#344767] text-white'>Thêm order</Button>
+        <Flex style={{
+          background: colorBgContainer,
+          padding: 24,
+          borderRadius: borderRadiusLG,
+          boxShadow: 'rgba(0, 0, 0, 0.05) 0rem 1.25rem 1.6875rem 0rem'
+        }}>
+          <Flex gap={20} vertical>
+            <Flex justify='space-between' className='my-5'>
+              <div className='lable font-bold text-[17px] text-[#344767]'>Danh sách đơn hàng</div>
+            </Flex>
+            <Table
+              pagination={{ pageSize: 8 }}
+              columns={columns}
+              size='middle'
+              sticky={{ offsetHeader: 0 }}
+              dataSource={newData}
+              loading={isLoadingOrders}
+              className='rounded-md'
+              style={{
+                background: colorBgContainer,
+                borderRadius: borderRadiusLG,
+                boxShadow: 'rgba(0, 0, 0, 0.05) 0rem 1.25rem 1.6875rem 0rem'
+              }}
+            />
           </Flex>
-        </Flex>
-
-        <Flex gap={20} vertical>
-        
-          <Table
-            
-            pagination={{ pageSize: 8 }}
-            columns={columns}
-            size='middle'
-            scroll={{ x: 1000, y: 500 }}
-            sticky={{ offsetHeader: 0 }}
-            dataSource={newData}
-            loading={isLoadingOrders}
-            className='border-2 rounded-md'
-          />
         </Flex>
       </Content>
     </>

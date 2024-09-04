@@ -34,28 +34,28 @@ const NcInputNumber: FC<NcInputNumberProps> = ({
 
   const handleClickDecrement = async () => {
     if (min >= value) return;
-    setValue((state) => {
-      return state - 1;
-    });
-    onChange && onChange(value - 1);
+    
 
     try{
-      console.log(item);
-      
       item && await changeCart({id : item.id, quantity : value - 1 });
+      setValue((state) => {
+        return state - 1;
+      });
+      onChange && onChange(value - 1);
     }catch(error){
       popupError('Update cart error');
     }
   };
   const handleClickIncrement = async () => {
     if (max && max <= value) return;
-    setValue((state) => {
-      return state + 1;
-    });
-    onChange && onChange(value + 1);
+    
     
     try{
       item && await changeCart({id : item.id, quantity : value + 1 });
+      setValue((state) => {
+        return state + 1;
+      });
+      onChange && onChange(value + 1);
     }catch(error){
       popupError('Update cart error');
     }

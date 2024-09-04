@@ -75,7 +75,7 @@ const Policy = () => {
             key={index}
             className={`flex flex-col p-5 rounded-2xl bg-red-50 dark:bg-opacity-90`}
           >
-              {item.type === 'percent' && <SalePercentAnimationIcon width={60} height={60} />}
+            {item.type === 'percent' && <SalePercentAnimationIcon width={60} height={60} />}
            {item.type === 'free_ship' && <FreeShipAnimationIcon width={60} height={60} />}
            {item.type === 'number' && <SalePriceAnimationIcon width={60} height={60} />}
             <div className="mt-2.5">

@@ -5,180 +5,71 @@ import SectionPromo1 from '../components/SectionPromo1'
 import ProductCard from '../components/ProductCard'
 import { PRODUCTS } from '../../../../data/data'
 import TabFilters from '../components/TabFilters'
-import SidebarFilters from './SidebarFilters'
+import Pagination from '../shared/Pagination/Pagination'
+import ButtonPrimary from '../shared/Button/ButtonPrimary'
+import { useParams } from 'react-router-dom'
+import { useGetProductByCategoryQuery } from '../../(manager)/products/ProductsEndpoints'
 import { IProduct } from '@/common/types/product.interface'
-import { useSearchParams } from 'react-router-dom'
-import { useGetProductsQuery, useSearchProductMutation } from '../../(manager)/products/ProductsEndpoints'
-import { useGetBrandsQuery } from '../../(manager)/brand/BrandEndpoints'
-import { useGetCategoriesAttributesQuery } from '../../(manager)/attribute/_components/category_attribute/CategoryAttributeEndpoints'
-import { useGetCategoriesQuery } from '../../(manager)/category/CategoryEndpoints'
-import { VND } from '@/utils/formatVietNamCurrency'
 
-export interface PageCategory {
-  className?: string
+export interface PageCollectionProps {
+  className?: string;
 }
 
-const PageCategory: FC<PageCategory> = ({ className = '' }) => {
-  const queryObj = useRef<any>({})
-  const [searchParams] = useSearchParams()
-  const [products, setProducts] = useState<IProduct[]>([])
+const PageCollection: FC<PageCollectionProps> = ({ className = "" }) => {
+  const {slug} = useParams();
+  const {data: products, isLoading, refetch} = useGetProductByCategoryQuery(slug)
+  // console.log(products);
+  
+  if(!products || isLoading){
 
-  const [filterProduct, { isLoading: isLoadingFiltrProduct }] = useSearchProductMutation()
-  const { data: listBrands } = useGetBrandsQuery({})
-  const { data: listCategory } = useGetCategoriesQuery({})
-   const [data, setData] = useState<any>([]);
-  const [categoryId, setCategoryId] = useState('')
-  const [brandId, setBrandId] = useState('')
-  const [price, setPrice] = useState<any>(false)
-
-  const handleFilterProduct = async (query: any) => {
-   const response = await filterProduct(query).unwrap()
-   setData(response.data)
-    
+    return ''
   }
 
-  useEffect(() => {
-    handleFilterProduct({});
-  }, [])
-  useEffect(() => {
-    if (categoryId) {
-      queryObj.current = {
-        ...queryObj.current,
-        category: categoryId
-      }
 
-      handleFilterProduct(queryObj.current)
-    }
-    if (brandId) {
-      queryObj.current = {
-        ...queryObj.current,
-        brand: brandId
-      }
-      handleFilterProduct(queryObj.current)
-    }
-    if (price) {
-      queryObj.current = {
-        ...queryObj.current,
-        min_price: price.min,
-        max_price: price.max
-      }
-      handleFilterProduct(queryObj.current)
-    }
-  }, [categoryId, brandId, price])
-  const onClearFilter = () => {
-    queryObj.current = {};
-    setCategoryId('')
-   setBrandId('')
-  setPrice(false)
-    handleFilterProduct(queryObj.current)
-
-  }
   return (
-    <div className={`nc-PageCollection2 ${className}`} data-nc-id='PageCollection2'>
+    <div
+      className={`nc-PageCollection ${className}`}
+      data-nc-id="PageCollection"
+    >
       <Helmet>
-        <title>Category || Ciseco Ecommerce Template</title>
+        <title>Collection || Ciseco Ecommerce Template</title>
       </Helmet>
 
-      <div className='container py-16 lg:pb-28 lg:pt-20 space-y-16 sm:space-y-20 lg:space-y-28'>
-        <div className='space-y-10 lg:space-y-14'>
+      <div className="container py-16 lg:pb-28 lg:pt-20 space-y-16 sm:space-y-20 lg:space-y-28">
+        <div className="space-y-10 lg:space-y-14">
           {/* HEADING */}
 
-          <hr className='border-slate-200 dark:border-slate-700' />
+          <hr className="border-slate-200 dark:border-slate-700" />
           <main>
+            {/* TABS FILTER */}
+            {/* <TabFilters /> */}
 
-
-            <div className='flex gap-3 items-center'>
-              {listBrands?.data.map((item, key) => (
-                <>
-                  {key === 0 && <span> Brands: </span>}
-                  <div
-                    onClick={() => setBrandId(item.name)}
-                    key={key}
-                    className={`hover:bg-red-500 hover:text-white transition-all duration-300 w-fit px-4 py-2 text-sm rounded-full border focus:outline-none cursor-pointer select-none border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 hover:border-neutral-400 dark:hover:border-neutral-500`}
-                  >
-                    <span className='line-clamp-1 ml-2'>{item.name}</span>
-                  </div>
-                </>
+            {/* LOOP ITEMS */}
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-10 mt-8 lg:mt-10">
+              {products.data.map((item: IProduct, index: number) => (
+                <ProductCard data={item} key={index} />
               ))}
             </div>
 
-            <div className='flex gap-3 mt-5 items-center'>
-              {listCategory?.data.map((item, key) => (
-                <>
-                  {key === 0 && <span> Categories: </span>}
-                  <div
-                    onClick={() => setCategoryId(item.name)}
-                    key={key}
-                    className={`hover:bg-red-500 hover:text-white transition-all duration-300 w-fit px-4 py-2 text-sm rounded-full border focus:outline-none cursor-pointer select-none border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 hover:border-neutral-400 dark:hover:border-neutral-500`}
-                  >
-                    <span className='line-clamp-1 ml-2'>{item.name}</span>
-                  </div>
-                </>
-              ))}
-            </div>
-
-            <div className='flex gap-3 mt-5 items-center'>
-              <>
-                <span> Price: </span>
-                <div
-                  onClick={() => setPrice({min: 2000000, max: 4000000})}
-                  className={`hover:bg-red-500 hover:text-white transition-all duration-300 w-fit px-4 py-2 text-sm rounded-full border focus:outline-none cursor-pointer select-none border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 hover:border-neutral-400 dark:hover:border-neutral-500`}
-                >
-                  <span className='line-clamp-1 ml-2'>2 - 4tr</span>
-                </div>
-
-                <div
-                 onClick={() => setPrice({min: 4000000, max: 8000000})}
-                  className={`hover:bg-red-500 hover:text-white transition-all duration-300 w-fit px-4 py-2 text-sm rounded-full border focus:outline-none cursor-pointer select-none border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 hover:border-neutral-400 dark:hover:border-neutral-500`}
-                >
-                  <span className='line-clamp-1 ml-2'>4 - 8tr</span>
-                </div>
-
-                <div
-                onClick={() => setPrice({min: 8000000, max: 15000000})}
-                  className={`hover:bg-red-500 hover:text-white transition-all duration-300 w-fit px-4 py-2 text-sm rounded-full border focus:outline-none cursor-pointer select-none border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 hover:border-neutral-400 dark:hover:border-neutral-500`}
-                >
-                  <span className='line-clamp-1 ml-2'>8 - 15tr</span>
-                </div>
-
-                <div
-                onClick={() => setPrice({min: 12000000, max: 500000000})}
-                  className={`hover:bg-red-500 hover:text-white transition-all duration-300 w-fit px-4 py-2 text-sm rounded-full border focus:outline-none cursor-pointer select-none border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 hover:border-neutral-400 dark:hover:border-neutral-500`}
-                >
-                  <span className='line-clamp-1 ml-2'>Trên 12tr</span>
-                </div>
-              </>
-            </div>
-
-              <div className='mt-5'>
-              <div
-                  onClick={() =>{ onClearFilter()}}
-                  className={`hover:bg-red-500 hover:text-white transition-all duration-300 w-fit px-4 py-2 text-sm rounded-full border focus:outline-none cursor-pointer select-none border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 hover:border-neutral-400 dark:hover:border-neutral-500 bg-black text-white`}
-                >
-                  <span className='line-clamp-1 ml-2'> Clear filter</span>
-                </div>
-              </div>
-            <div className=' grid grid-cols-4 gap-3 mt-5'>
-              {data.map((item: IProduct, index: number) => (
-                <div key={index} className='my-5'>
-                  {item && <ProductCard data={item} />}
-                </div>
-              ))}
-            </div>
+            {/* PAGINATION */}
+            {/* <div className="flex flex-col mt-12 lg:mt-16 space-y-5 sm:space-y-0 sm:space-x-3 sm:flex-row sm:justify-between sm:items-center">
+              <Pagination />
+              <ButtonPrimary loading>Show me more</ButtonPrimary>
+            </div> */}
           </main>
         </div>
 
         {/* === SECTION 5 === */}
-        <hr className='border-slate-200 dark:border-slate-700' />
+        {/* <hr className="border-slate-200 dark:border-slate-700" />
 
         <SectionSliderCollections />
-        <hr className='border-slate-200 dark:border-slate-700' />
+        <hr className="border-slate-200 dark:border-slate-700" /> */}
 
         {/* SUBCRIBES */}
-        <SectionPromo1 />
+        {/* <SectionPromo1 /> */}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default PageCategory
+export default PageCollection;

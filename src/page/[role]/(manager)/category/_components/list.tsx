@@ -12,24 +12,24 @@ import { useGetCategoriesQuery } from '../CategoryEndpoints'
 import { useDeleteCategoryMutation } from '../CategoryEndpoints'
 import axios from 'axios'
 import ErrorLoad from '../../components/util/ErrorLoad'
+
 export default function ListCategory() {
-  
   const [searchValue, setSearchValue] = useState('')
   const debouncedValue = useDebounce(searchValue, 600)
   const [current, setCurrent] = useState(1);
   const [pageSize, setPageSize] = useState(5);
 
-  const {data : categories , isLoading, isError} = useGetCategoriesQuery({});
-  const [deleteCategory, { isLoading: loadingDeleteCategory}] = useDeleteCategoryMutation();
+  const { data: categories, isLoading, isError } = useGetCategoriesQuery({});
+  const [deleteCategory, { isLoading: loadingDeleteCategory }] = useDeleteCategoryMutation();
 
   const handlerDistableCategory = async (value: ICategory) => {
-  
+
     try {
-     await deleteCategory(value?.id).unwrap();
-     
-      message.success( 'Vô hiệu hoá danh mục thành công!')
-    } catch (error : any) {
-      message.error( error.data ? error.data.message :'Vô hiệu hoá danh mục thất bại!')
+      await deleteCategory(value?.id).unwrap();
+
+      message.success('Vô hiệu hoá danh mục thành công!')
+    } catch (error: any) {
+      message.error(error.data ? error.data.message : 'Vô hiệu hoá danh mục thất bại!')
     }
 
 
@@ -96,19 +96,19 @@ export default function ListCategory() {
       align: 'center',
       render: (record) => (
         <Space size={'middle'}>
-           <Link to={"" + record.id}>
-              <Button type='primary'>Sửa </Button>
-            </Link>
+          <Link to={"" + record.id}>
+            <Button type='primary'>Sửa </Button>
+          </Link>
           <Popconfirm
             placement='topRight'
             title={record.active == 1 ? 'Are you sure distable this category?' : 'Are you sure enable this category?'}
             onConfirm={() => handlerDistableCategory(record)}
-            onCancel={() => {}}
+            onCancel={() => { }}
             okText='Đồng ý'
             cancelText='Hủy bỏ'
           >
             <Button type='primary' danger>
-               Xóa
+              Xóa
             </Button>
           </Popconfirm>
         </Space>
@@ -120,7 +120,7 @@ export default function ListCategory() {
     ...category,
     key: index + 1
   }))
-  if(isError ){
+  if (isError) {
     return <ErrorLoad />
   }
   return (
@@ -154,16 +154,16 @@ export default function ListCategory() {
           </Link>
         </Flex>
         <Table
-          style={{border: '2px', borderRadius: '10px', boxShadow: 'rgba(0, 0, 0, 0.05) 0rem 1.25rem 1.6875rem 0rem', height: '100%'}}
+          style={{ border: '2px', borderRadius: '10px', boxShadow: 'rgba(0, 0, 0, 0.05) 0rem 1.25rem 1.6875rem 0rem', height: '100%' }}
           columns={columns}
           sticky={{ offsetHeader: 0 }}
           dataSource={newData}
           loading={isLoading}
-         
+
         />
       </div>
     </>
-    
+
   )
 }
 

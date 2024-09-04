@@ -72,7 +72,7 @@ export default function EditBanner() {
         onOk={handleSubmit}
         onCancel={handleCancel}
       >
-        <Form    initialValues={data.data} form={form} name='nest-messages' layout='vertical' style={{ maxWidth: 600 }}>
+        <Form   initialValues={data.data} form={form} name='nest-messages' layout='vertical' style={{ maxWidth: 600 }}>
           <Form.Item
             name='image_title'
             label='Title Banner'
@@ -100,15 +100,12 @@ export default function EditBanner() {
             </Dragger>
           </Form.Item>
 
-         
-
           <Flex justify="flex-start">
               <Image
                 width={150}
                 src={data.data.image_url}
               />
           </Flex>
-
 
           <Form.Item className='m-0' label='Active' name='is_active' valuePropName='checked'>
             <Switch />

@@ -17,13 +17,17 @@ export const createCategory = (payload : any) => {
   })
 }
 
-export const updateCategory = (payload: ICategory) => {
-  const { id, ...data } = payload
-  return instance.put(`category/${id}`, data)
+export const updateCategory = (payload: {id: string | undefined, formData: FormData}) => {
+  const { id, formData } = payload
+  return instanceTest.post(`category/${id}`, formData)
 }
 
 export const changeStatusCategory = (id: string, status: boolean) => {
-  return instance.patch(`category/${id}`, { is_delete: status })
+  return instance.patch(`category/${id}`, { is_delete: status }, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    }
+  })
 }
 
 export const deleteCategory = (id: string) => {

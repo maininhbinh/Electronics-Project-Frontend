@@ -23,6 +23,10 @@ export const usersApi = apiWithTag.injectEndpoints({
       query: (id) => `user/${id}`,
       providesTags: (id) => [{ type: 'Users', id }],
     }),
+    getProfileUser: builder.query({
+      query: () => `user/profile`,
+      providesTags: (id) => [{ type: 'Users', id }],
+    }),
     createUser: builder.mutation({
       query: (newUser) => ({
         url: 'user',
@@ -57,4 +61,5 @@ export const {
   useCreateUserMutation,
   useUpdateUserMutation,
   useDeleteUserMutation,
+  useGetProfileUserQuery
 } = usersApi;

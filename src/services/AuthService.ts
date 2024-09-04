@@ -13,6 +13,12 @@ export const SignupService = (payload: ISignup) => {
 export const VerifyToken = (otp : string, email : string) => {
     return instance.post('auth/verifyOTP', {OTP : otp, email : email});
 }
+
+export const ResendToken = (email: string) => {
+    return instance.post('auth/resend_token', {email});
+}
+
+
 export const LogoutService = (payload: string) => {
     return instanceTest.post('auth/logout', {}, {
         headers: {

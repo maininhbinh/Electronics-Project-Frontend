@@ -78,7 +78,7 @@ export default function ListProduct(){
           key: 'thumbnail',
           render: (thumbnail) => (
             <div className=' rounded-md w-[40px] h-[40px] overflow-hidden ' style={{boxShadow: 'rgba(1, 1, 1, 0.06) 1rem 1.25rem 1.6875rem 1rem'}}>
-              <img src={thumbnail} alt="" width={110} className=' object-cover object-center'/>
+              <img src={thumbnail} alt="" className=' object-cover object-center w-full h-full'/>
             </div>
           )
         },

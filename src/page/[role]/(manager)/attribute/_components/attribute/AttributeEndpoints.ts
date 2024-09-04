@@ -15,7 +15,7 @@ export const attributesApi = apiWithTag.injectEndpoints({
     getAttributes: builder.query({
         
       query: () => ({
-         url : 'attributes?_embed=value_attributes',
+         url : 'attribute',
         //  prepareHeaders: (headers : Headers) => {
         //     console.log('token will prepare in request attribute')
         //     headers.set('authorization', `Bearer tokencustomhere`);
@@ -31,12 +31,12 @@ export const attributesApi = apiWithTag.injectEndpoints({
           : [{ type: 'Attributes', id: 'LIST' }]
     }),
     getAttribute: builder.query({
-      query: (id) => `attributes/${id}`,
+      query: (id) => `attribute/${id}`,
       providesTags: (id) => [{ type: 'Attributes', id }]
     }),
     createAttribute: builder.mutation({
       query: (newAttribute) => ({
-        url: 'attributes',
+        url: 'attribute',
         method: 'POST',
         body: newAttribute
       }),
@@ -44,8 +44,8 @@ export const attributesApi = apiWithTag.injectEndpoints({
     }),
     updateAttribute: builder.mutation({
       query: (updatedAttribute) => ({
-        url: `attributes/${updatedAttribute.id}`,
-        method: 'PUT',
+        url: `attribute/${updatedAttribute.id}`,
+        method: 'POST',
         body: updatedAttribute,
       }),
       invalidatesTags: (id) => [
@@ -55,7 +55,7 @@ export const attributesApi = apiWithTag.injectEndpoints({
     }),
     deleteAttribute: builder.mutation({
       query: (id) => ({
-        url: `attributes/${id}`,
+        url: `attribute/${id}`,
         method: 'DELETE'
       }),
       invalidatesTags: [{ type: 'Attributes', id: 'LIST' }]

@@ -10,6 +10,7 @@ import backgroundLineSvg from '../../../../../assets/images/base/Moon.svg'
 import ButtonPrimary from '../../shared/Button/ButtonPrimary'
 import Next from '../../shared/NextPrev/Next'
 import Prev from '../../shared/NextPrev/Prev'
+import { Link } from 'react-router-dom'
 
 interface Hero2DataType {
   image: string
@@ -52,13 +53,11 @@ const SectionHero2: FC<SectionHero2Props> = ({ className = '' }) => {
   const [indexActive, setIndexActive] = useState(0)
   const [isRunning, toggleIsRunning] = useBoolean(true)
   const { data } = useGetBannersQuery({})
-  const [bannersList, setBannersList] = useState([])
+  const [bannersList, setBannersList] = useState(DATA)
 
   useEffect(() => {
     if (data) {
-      let aciveBanner = data?.filter((item: any) => item.is_active == 1)
-      aciveBanner = aciveBanner?.length > 3 ? aciveBanner.splice(0, 3) : aciveBanner
-      setBannersList(aciveBanner?.length > 0 ? aciveBanner : DATA)
+      setBannersList(data?.length > 0 ? data : DATA)
     }
   }, [data])
 
@@ -119,7 +118,7 @@ const SectionHero2: FC<SectionHero2Props> = ({ className = '' }) => {
 
     return (
       <div
-        className={`nc-SectionHero2Item nc-SectionHero2Item--animation flex flex-col-reverse lg:flex-col relative overflow-hidden ${className}`}
+        className={`nc-SectionHero2Item nc-SectionHero2Item--animation flex flex-col-reverse lg:flex-col relative overflow-hidden container ${className} rounded-xl shadow-2xl`}
         key={index}
       >
         <div className='absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex justify-center'>
@@ -149,13 +148,13 @@ const SectionHero2: FC<SectionHero2Props> = ({ className = '' }) => {
         </div>
 
         <Prev
-          className='absolute left-1 sm:left-5 top-3/4 sm:top-1/2 sm:-translate-y-1/2 z-10 !text-slate-700'
+          className='absolute left-1 sm:left-5 top-3/4 sm:top-1/2 sm:-translate-y-1/2 z-10 !text-white bg-black rounded-full border-black '
           btnClassName='w-12 h-12 hover:border-slate-400 dark:hover:border-slate-400'
           svgSize='w-6 h-6'
           onClickPrev={handleClickPrev}
         />
         <Next
-          className='absolute right-1 sm:right-5 top-3/4 sm:top-1/2 sm:-translate-y-1/2 z-10 !text-slate-700'
+          className='absolute right-1 sm:right-5 top-3/4 sm:top-1/2 sm:-translate-y-1/2 z-10 !text-white bg-black rounded-full border-black '
           btnClassName='w-12 h-12 hover:border-slate-400 dark:hover:border-slate-400'
           svgSize='w-6 h-6'
           onClickNext={handleClickNext}
@@ -171,51 +170,8 @@ const SectionHero2: FC<SectionHero2Props> = ({ className = '' }) => {
           />
         </div>
 
-        <div className='relative container pb-0 pt-14 sm:pt-20 lg:py-44 md:min-h-[30rem]'>
-          <div className={`relative z-[1] w-full max-w-3xl space-y-8 sm:space-y-14 nc-SectionHero2Item__left`}>
-            {data && data.length > 0 ? (
-              ''
-            ) : (
-              <div className='space-y-5 sm:space-y-6'>
-                <span className='nc-SectionHero2Item__subheading block text-base md:text-xl text-slate-700 font-medium'>
-                  In this season, find the best 🔥
-                </span>
-                <h2 className='nc-SectionHero2Item__heading font-semibold text-3xl sm:text-4xl md:text-5xl xl:text-6xl 2xl:text-7xl !leading-[114%] text-slate-900'>
-                  Exclusive collection for everyone
-                </h2>
-              </div>
-            )}
-
-            {data && data.length > 0 ? (
-              <></>
-            ) : (
-              <ButtonPrimary
-                className='nc-SectionHero2Item__button dark:bg-slate-900'
-                sizeClass='py-3 px-6 sm:py-5 sm:px-9'
-                
-              >
-                <span>Explore now</span>
-                <span>
-                  <svg className='w-5 h-5 ml-2.5' viewBox='0 0 24 24' fill='none'>
-                    <path
-                      d='M11.5 21C16.7467 21 21 16.7467 21 11.5C21 6.25329 16.7467 2 11.5 2C6.25329 2 2 6.25329 2 11.5C2 16.7467 6.25329 21 11.5 21Z'
-                      stroke='currentColor'
-                      strokeWidth='1.5'
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                    />
-                    <path
-                      d='M22 22L20 20'
-                      stroke='currentColor'
-                      strokeWidth='1.5'
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                    />
-                  </svg>
-                </span>
-              </ButtonPrimary>
-            )}
-          </div>
+        <div className='relative container md:min-h-[30rem]'>
+          <Link to={item?.url}></Link>
           {item?.image && (
             <div className='mt-10 lg:mt-0 lg:absolute right-0 bottom-0 top-0 w-full max-w-2xl xl:max-w-3xl 2xl:max-w-4xl'>
               <img

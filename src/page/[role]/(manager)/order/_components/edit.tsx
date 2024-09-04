@@ -1,5 +1,5 @@
 import { VND } from "@/utils/formatVietNamCurrency";
-import { Badge, Button, Card, Col, Row, Table, Tag } from "antd";
+import { Badge, Button, Card, Col, Flex, Row, Table, Tag } from "antd";
 import { TableProps } from "antd";
 import {
     HourglassOutlined,
@@ -156,9 +156,43 @@ export default function EditOrder(){
           Xuất hóa đơn
         </Button>
       </div>
-      <Row gutter={16}>
-        <Col span={12}>
+      <Row gutter={[24,32]}>
+      <Col span={24}>
+          <Card title="Giao hàng" bordered={false}>
+            <Flex justify="space-around" align="center" gap={10}>
+                {dataOrderStatus?.map((item: any, key: number) => (
+                  <div className="relative flex space-x-3 flex-col items-center justify-center gap-5 h-full">
+                    <div className="h-[50px] w-[50px] rounded-full bg-green-300 flex items-center justify-center ring-8 ring-white">
+                      {orderIcon[key]}
+                    </div>
+                    <div className="text-sm text-gray-500 w-[130px] text-center"> {item?.name}</div>
+                    <Button onClick={() => changeStatusOrder(item.id)} disabled={Boolean(getDateHistoreOrder(item.name)) || handleDisableButton(item.id)} type="primary">{Boolean(getDateHistoreOrder(item.name)) && 'Đã'} Xác nhận</Button>
+                    <div className="whitespace-nowrap text-right text-sm text-gray-500">
+                      <span> {getDateHistoreOrder(item.name)}</span>
+                    </div>
+                  </div>
+                ))}
+            </Flex>    
+          </Card>
+        </Col>
+        <Col span={24}>
           <Card className='h-full' title="Thông tin đơn hàng" bordered={false}  extra={<> <Badge color="green" text={dataItem?.order_status?.status} /></>}>
+              <div className="flex justify-between border-solid border-b-[1px] border-b-[#eee] py-4">
+                  <b className="">Tên: </b>
+                  <span className="">{dataItem?.receiver_name}</span>
+              </div>
+              <div className="flex justify-between border-solid border-b-[1px] border-b-[#eee] py-4">
+                  <b className="">Email: </b>
+                  <span className="">{dataItem?.receiver_email}</span>
+              </div>
+              <div className="flex justify-between border-solid border-b-[1px] border-b-[#eee] py-4">
+                  <b className="">Số điện thoại: </b>
+                  <span className="">{dataItem?.receiver_phone}</span>
+              </div>
+              <div className="flex justify-between border-solid border-b-[1px] border-b-[#eee] py-4">
+                  <b className="">Địa chỉ: </b>
+                  <span className="">{dataItem?.receiver_address}-{dataItem?.receiver_ward}-{dataItem?.receiver_district}-{dataItem?.receiver_pronvinces}</span>
+              </div>
               <div className="flex justify-between border-solid border-b-[1px] border-b-[#eee] py-4">
                   <b className="">Mã đơn hàng : </b>
                   <span className="">{dataItem?.code}</span>
@@ -174,43 +208,20 @@ export default function EditOrder(){
               </div>
           </Card>
         </Col>
-        <Col span={12}>
-          <Card title="Thông tin khách hàng" bordered={false}>
-          <div className="flex justify-between border-solid border-b-[1px] border-b-[#eee] py-4">
-                  <b className="">Tên: </b>
-                  <span className="">{dataItem?.receiver_name}</span>
-              </div>
 
-              <div className="flex justify-between border-solid border-b-[1px] border-b-[#eee] py-4">
-                  <b className="">Email: </b>
-                  <span className="">{dataItem?.receiver_email}</span>
-              </div>
-              <div className="flex justify-between border-solid border-b-[1px] border-b-[#eee] py-4">
-                  <b className="">Số điện thoại: </b>
-                  <span className="">{dataItem?.receiver_phone}</span>
-              </div>
-              <div className="flex justify-between border-solid border-b-[1px] border-b-[#eee] py-4">
-                  <b className="">Địa chỉ: </b>
-                  <span className="">{dataItem?.receiver_address}-{dataItem?.receiver_ward}-{dataItem?.receiver_district}-{dataItem?.receiver_pronvinces}</span>
-              </div>
-          </Card>
-        </Col>
-    
-        <Col className="mb-5" span={24}>
+        <Col className="mb-5 rounded-xl" span={24} 
+        >
+          <Card>
           <div className='lable font-bold text-[17px] text-[#344767] my-5'>Danh sách sản phẩm đặt hàng</div>
           <Table
-            pagination={{ pageSize: 8 }}
+            pagination={false}
             columns={columns}
-            size='middle'
-            scroll={{ x: 1000, y: 500 }}
-            sticky={{ offsetHeader: 0 }}
             dataSource={dataOrderDetail}
             loading={false}
-            className='border-2 rounded-md'
           />
+          </Card>
         </Col>
-
-        <Col span={12}>
+        <Col span={24}>
           <Card className='h-full' title="Thanh toán" bordered={false} extra={<> <Tag color="#f50">{dataItem?.payment_status}</Tag></>}>
               <div className="flex justify-between border-solid border-b-[1px] border-b-[#eee] py-4">
                   <b className="">Tổng tiền sản phẩm : </b>
@@ -235,41 +246,7 @@ export default function EditOrder(){
               </div>
           </Card>
         </Col>
-        <Col span={12}>
-          <Card title="Giao hàng" bordered={false}>
         
-            <div className="">
-              <ul role="list" className="-mb-8">
-
-                {dataOrderStatus?.map((item: any, key: number) => (
-                  <li key={key}>
-                    <div className="relative pb-8">
-                      {key !== 7 && <span className="absolute left-4 top-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>}
-                      <div className="relative flex space-x-3">
-                        <div  className="flex items-center justify-center w-[50px] h-full">
-                          <div className="h-auto w-auto rounded-full bg-gray-400 flex items-center justify-center ring-8 ring-white">
-                              {orderIcon[key]}
-                          </div>
-                        </div>
-                        <div className="flex min-w-0 flex-1 justify-between space-x-4 ">
-
-                          <div className="flex gap-3 items-center">
-                            <p className="text-sm text-gray-500 w-[130px]"> <a href="#" className="font-medium text-gray-900">{item?.name}</a></p>
-                            <Button onClick={() => changeStatusOrder(item.id)} disabled={Boolean(getDateHistoreOrder(item.name)) || handleDisableButton(item.id)} type="primary">{Boolean(getDateHistoreOrder(item.name)) && 'Đã'} Xác nhận</Button>
-                          </div>
-
-                          <div className="whitespace-nowrap text-right text-sm text-gray-500">
-                              <span> {getDateHistoreOrder(item.name)}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </div>    
-          </Card>
-        </Col>
       </Row>
     </>
 )

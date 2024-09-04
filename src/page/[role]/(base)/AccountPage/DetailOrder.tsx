@@ -19,25 +19,29 @@ import DeliveringAnimationIcon from "../../../[role]/components/icon/OrderIcon/D
 import PickupAnimationIcon from "../../../[role]/components/icon/OrderIcon/PickUp";
 import Prices from "../components/Prices";
 import { formatDate } from "@/utils/convertCreatedLaravel";
+import { useVnPaymentMutation } from "@/services/OrderEndPoints";
 
 export default function DetailOrder(){
-  const orderIcon = [
-    <></>,
-    <HandleAnimationIcon width={30} height={30} />,
-    <PrepareAnimationIcon width={30} height={30}/>,
-    <PrepareSuccessAnimationIcon width={30} height={30}/>,
-    <PickupAnimationIcon  width={30} height={30} />,
-    <DeliveringAnimationIcon  width={30} height={30}  />,
-    <DeliverAnimationIcon width={30} height={30}  />,
-    <DoneOrderAnimationIcon width={30} height={30}  />,
-    <OrderCancelAnimationIcon width={30} height={30}  />,
-  ]
-  const [changeStatus, {isLoading : isLoadingChangeStatus}] = useChangeStatusOrderMutation();
-  const params = useParams();
-  const {data, refetch} = useGetUserOrderDetailQuery(params.id);
-  const dataItem = data?.order_detail;
     
-const renderProductItem = (product: any, index: number) => {
+    const orderIcon = [
+        <></>,
+        <HandleAnimationIcon width={30} height={30} />,
+        <PrepareAnimationIcon width={30} height={30}/>,
+        <PrepareSuccessAnimationIcon width={30} height={30}/>,
+        <PickupAnimationIcon  width={30} height={30} />,
+        <DeliveringAnimationIcon  width={30} height={30}  />,
+        <DeliverAnimationIcon width={30} height={30}  />,
+        <DoneOrderAnimationIcon width={30} height={30}  />,
+        <OrderCancelAnimationIcon width={30} height={30}  />,
+    ]
+    const [changeStatus, {isLoading : isLoadingChangeStatus}] = useChangeStatusOrderMutation();
+    const params = useParams();
+    const {data, refetch} = useGetUserOrderDetailQuery(params.id);
+    const dataItem = data?.order_detail;
+
+    const [vnPayment, {isLoading: loadingVnPay}] = useVnPaymentMutation();
+    
+    const renderProductItem = (product: any, index: number) => {
     const { image, thumbnail, name, price, quantity } = product;
     return (
         <div key={index} className="flex py-4 sm:py-7 last:pb-0 first:pt-0">
@@ -83,21 +87,41 @@ const renderProductItem = (product: any, index: number) => {
         );
     };
 
+    const handelPayment = async (id: string) => {
+        try {
+            const responseVnPayment : any = await vnPayment(id).unwrap();
+            // console.log(responseVnPayment);
+            window.location.href = responseVnPayment.url;
+            // window.open(responseVnPayment.data.data, "MoMoPayment", "width=600, height=800");
+         } catch (error) {
+            popupError('Lỗi thanh toán thông qua VNPay')
+         }
+    }
+
     if(!data){
         return null
     }
+      console.log(dataItem);
       
     return (
         <>
         <Row gutter={16}>
-            <div className="flex w-full justify-end mb-10">
-              <div>
-                <p className="text-slate-500 dark:text-slate-400 text-sm mt-1.5 sm:mt-2">
-                  <span>{dataItem.code}</span>
-                  <span className="mx-2">·</span>
-                  <span className="text-primary-500">{dataItem.order_status.status}</span>
-                </p>
-              </div>
+            <div className="flex w-full justify-between mb-10">
+                {dataItem.payment_status == 'Chờ thanh toán' && dataItem.payment_methods !== 'COD'
+                ?
+                <Button onClick={()=>{
+                    handelPayment(dataItem.id)
+                }}>Thanh toán ngay</Button>
+                :
+                ''
+                }
+                <div>
+                    <p className="text-slate-500 dark:text-slate-400 text-sm mt-1.5 sm:mt-2">
+                    <span>{dataItem.code}</span>
+                    <span className="mx-2">·</span>
+                    <span className="text-primary-500">{dataItem.order_status.status}</span>
+                    </p>
+                </div>
             </div>
             
             <Col span={24}>
@@ -112,7 +136,7 @@ const renderProductItem = (product: any, index: number) => {
                                                 {orderIcon[item.status_id]}
                                             </div>
                                         </div>
-                                        <div className="flex min-w-0 flex-1 justify-between space-x-4 ">
+                                        <div className="flex min-w-0 flex-1 justify-between space-x-4 items-center">
                                             <div className="whitespace-nowrap text-right text-sm text-gray-500 flex justify-center items-center flex-col">
                                                 <span> {item.status_name}</span>
                                                 <span> {formatTimestamp(item.created_at)}</span>
@@ -152,11 +176,15 @@ const renderProductItem = (product: any, index: number) => {
 
                 <div className="flex justify-end border-solid border-b-[1px] border-b-[#eee] ">
                     <span className="text-[12px] text-gray-500 border-r-[1px] p-3">Giảm giá : </span>
-                    <span className=" px-3 w-[240px] flex justify-end">{VND(Number(dataItem?.total_price) - Number(dataItem?.discount_price))}</span>
+                    <span className=" px-3 w-[240px] flex justify-end items-center">{VND(Number(dataItem?.total_price) - Number(dataItem?.discount_price))}</span>
                 </div>
                 <div className="flex justify-end border-solid border-b-[1px] border-b-[#eee] ">
                     <span className="text-[12px] text-gray-500 border-r-[1px] p-3">Kiểu thanh toán : </span>
-                    <span className=" px-3 w-[240px] flex justify-end">{dataItem?.payment_methods}</span>
+                    <span className=" px-3 w-[240px] flex justify-end items-center">{dataItem?.payment_methods}</span>
+                </div>
+                <div className="flex justify-end border-solid border-b-[1px] border-b-[#eee] ">
+                    <span className="text-[12px] text-gray-500 border-r-[1px] p-3">trạng thái thanh toán : </span>
+                    <span className=" px-3 w-[240px] flex justify-end items-center">{dataItem?.payment_status}</span>
                 </div>
                 <div className="flex justify-end border-solid border-b-[1px] border-b-[#eee] ">
                     <span className="text-[12px] text-gray-500 border-r-[1px] p-3">Phí vận chuyển : </span>
@@ -164,7 +192,7 @@ const renderProductItem = (product: any, index: number) => {
                 </div>
                 <div className="flex justify-end border-solid border-b-[1px] border-b-[#eee] ">
                     <span className="text-[12px] text-gray-500 border-r-[1px] p-3">Tổng cộng : </span>
-                    <b className="text-[19px] text-red-500 p-3 w-[240px] flex justify-end">{ VND(Number(dataItem?.discount_price))}</b>
+                    <b className="text-[19px] text-red-500 p-3 w-[240px] flex justify-end">{ VND(Number(dataItem.total_price))}</b>
                 </div>
             </Col>
         </Row>

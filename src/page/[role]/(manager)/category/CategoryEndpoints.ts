@@ -25,7 +25,9 @@ export const categoriesApi = apiWithTag.injectEndpoints({
       query: (id) => `category/${id}`,
       providesTags: (id) => [{ type: 'Categories', id }],
     }),
- 
+    getDetailCategory: builder.query({
+      query: (id) => `category/show/${id}`,
+    }),
     createCategory: builder.mutation({
       query: (newCategory) => ({
         
@@ -102,6 +104,7 @@ export const categoriesApi = apiWithTag.injectEndpoints({
 });
 
 export const {
+  useGetDetailCategoryQuery,
   useGetCategoriesQuery,
   useGetCategoryQuery,
   useUpdateCategoryMutation,

@@ -1,9 +1,11 @@
 import Label from "../components/Label/Label";
-import  { FC } from "react";
+import  { FC, useEffect, useState } from "react";
 import ButtonPrimary from "../shared/Button/ButtonPrimary";
 import ButtonSecondary from "../shared/Button/ButtonSecondary";
 import Checkbox from "../shared/Checkbox/Checkbox";
 import Input from "../shared/Input/Input";
+import { Iuser } from "@/common/types/user.interface";
+import { Form } from "antd";
 
 interface Props {
   isActive: boolean;
@@ -12,6 +14,21 @@ interface Props {
 }
 
 const ContactInfo: FC<Props> = ({ isActive, onCloseActive, onOpenActive }) => {
+  const [user, setUser] = useState<Iuser>()
+  
+  useEffect(()=>{
+    const user = localStorage.getItem('user');
+
+    if(user){
+      try{
+        setUser(JSON.parse(user))
+      }catch(error){
+        console.log(error);
+        
+      }
+    }
+  }, [])
+
   const renderAccount = () => {
     return (
       <div className="border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden z-0">
@@ -48,7 +65,7 @@ const ContactInfo: FC<Props> = ({ isActive, onCloseActive, onOpenActive }) => {
           </span>
           <div className="sm:ml-8">
             <h3 className=" text-slate-700 dark:text-slate-300 flex ">
-              <span className="uppercase tracking-tight">CONTACT INFO</span>
+              <span className="uppercase tracking-tight">Thông tin liên lạc</span>
               <svg
                 fill="none"
                 viewBox="0 0 24 24"
@@ -64,8 +81,8 @@ const ContactInfo: FC<Props> = ({ isActive, onCloseActive, onOpenActive }) => {
               </svg>
             </h3>
             <div className="font-semibold mt-1 text-sm">
-              <span className="">Enrico Smith</span>
-              <span className="ml-3 tracking-tighter">+855 - 666 - 7744</span>
+              <span className="">{user ? user?.username : ''}</span>
+              <span className="ml-3 tracking-tighter">{user?.phone ?? ''}</span>
             </div>
           </div>
           <ButtonSecondary
@@ -73,6 +90,7 @@ const ContactInfo: FC<Props> = ({ isActive, onCloseActive, onOpenActive }) => {
             fontSize="text-sm font-medium"
             className="bg-slate-50 dark:bg-slate-800 mt-5 sm:mt-0 sm:ml-auto !rounded-lg"
             onClick={() => onOpenActive()}
+            type="button"
           >
             Change
           </ButtonSecondary>
@@ -83,7 +101,7 @@ const ContactInfo: FC<Props> = ({ isActive, onCloseActive, onOpenActive }) => {
           }`}
         >
           <div className="flex justify-between flex-wrap items-baseline">
-            <h3 className="text-lg font-semibold">Contact infomation</h3>
+            <h3 className="text-lg font-semibold">Thông tin chi tiết</h3>
             <span className="block text-sm my-1 md:my-0">
               Do not have an account?{` `}
               <a href="##" className="text-primary-500 font-medium">
@@ -92,33 +110,73 @@ const ContactInfo: FC<Props> = ({ isActive, onCloseActive, onOpenActive }) => {
             </span>
           </div>
           <div className="max-w-lg">
-            <Label className="text-sm">Your phone number</Label>
-            <Input className="mt-1.5" defaultValue={"+808 xxx"} type={"tel"} />
+            <Label className="text-sm">Họ và tên</Label>
+            <Form.Item
+              name={'receiver_name'}
+              rules={[
+                {
+                  required: true,
+                  message: 'Vui lòng điền vào trường này'
+                }
+              ]}
+            >
+              <Input className="mt-1.5" type={"text"} />
+            </Form.Item>
           </div>
           <div className="max-w-lg">
-            <Label className="text-sm">Email address</Label>
-            <Input className="mt-1.5" type={"email"} />
+            <Label className="text-sm">Số điện thoại</Label>
+            <Form.Item
+              name={'receiver_phone'}
+              rules={[
+                {
+                  required: true,
+                  message: 'Vui lòng điền vào trường này'
+                }
+              ]}
+            >
+              <Input className="mt-1.5" type={"tel"} />
+            </Form.Item>
           </div>
-          <div>
+          <div className="max-w-lg">
+            <Label className="text-sm">Địa chỉ Email</Label>
+            <Form.Item
+              name={'receiver_email'}
+              rules={[
+                {
+                  type: 'email',
+                  message: 'Sai định dạng'
+                },
+                {
+                  required: true,
+                  message: 'Vui lòng điền vào trường này'
+                }
+              ]}
+            >
+              <Input className="mt-1.5" type={"email"} />
+            </Form.Item>
+          </div>
+          {/* <div>
             <Checkbox
               className="!text-sm"
               name="uudai"
               label="Email me news and offers"
               defaultChecked
             />
-          </div>
+          </div> */}
 
           {/* ============ */}
           <div className="flex flex-col sm:flex-row pt-6">
             <ButtonPrimary
               className="sm:!px-7 shadow-none"
               onClick={() => onCloseActive()}
+              type="button"
             >
-              Save and next to Shipping
+              Lưu và chuyển tiếp qua giao hàng
             </ButtonPrimary>
             <ButtonSecondary
               className="mt-3 sm:mt-0 sm:ml-3"
               onClick={() => onCloseActive()}
+              type="button"
             >
               Cancel
             </ButtonSecondary>

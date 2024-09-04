@@ -54,13 +54,21 @@ const AccountPage: FC<AccountPageProps> = ({ className = "" }) => {
   const [updateUser, { isLoading : loadingUpdateUser }] = useUpdateUserMutation();
   const [form] = Form.useForm();
   const [optionsDistrict, setOptionDistrict] = useState<SelectProps['options']>([])
+  const [image, setImage] = useState("")
 
   useEffect(() => {
     if(dataItem?.data){
       localStorage.removeItem('user')
       localStorage.setItem('user', JSON.stringify(dataItem.data));
     }
- }, [dataItem])
+  }, [dataItem])
+
+  const onFileChanged = (event:any) => {
+    debugger
+    if (event?.file && event?.file.originFileObj) {
+      setImage(URL.createObjectURL(event.file.originFileObj));
+    }
+  }
   
   const onFinish = async (values: Iuser | any) => {
     console.log(values);
@@ -183,7 +191,7 @@ const AccountPage: FC<AccountPageProps> = ({ className = "" }) => {
               {/* AVATAR */}
               <div className="relative rounded-full overflow-hidden flex">
                 <img
-                  src={dataItem?.data.image}
+                  src={!image ? dataItem?.data.image : image}
                   alt=""
                   className="w-32 h-32 rounded-full object-cover z-0"
                 />
@@ -209,7 +217,7 @@ const AccountPage: FC<AccountPageProps> = ({ className = "" }) => {
                   valuePropName='fileList'
                   getValueFromEvent={(e) => (Array.isArray(e) ? e : e && e.fileList)}
                 >
-                  <Upload name='image' listType='picture' customRequest={handleUpload}>
+                  <Upload name='image' listType='picture' showUploadList={false} onChange={onFileChanged} customRequest={handleUpload}>
                     <span className="mt-1 text-xs text-white">Change Image</span>
                   </Upload>
                 </Form.Item>
@@ -280,7 +288,7 @@ const AccountPage: FC<AccountPageProps> = ({ className = "" }) => {
                 <Form.Item name="county" rules={[{required: true }]}>
                   <SelectAntd
                 
-                      style={{ width: '100%' }}
+                      style={{ width: '445px', height:'40px'}}
                     
                       options={[
                     
@@ -296,7 +304,7 @@ const AccountPage: FC<AccountPageProps> = ({ className = "" }) => {
                 <Form.Item name="city" rules={[{required: true }]}>
                   <SelectAntd
                       
-                      style={{ width: '100%' }}
+                      style={{ width: '445px', height:'40px'}}
                       placeholder="Enter name province"
                       options={options}
                       onChange={(value) => onChangeProvince(value)}
@@ -309,7 +317,7 @@ const AccountPage: FC<AccountPageProps> = ({ className = "" }) => {
                 <Form.Item name="district" rules={[{required: true }]}>
                       <SelectAntd
                           loading={districtLoading}                      
-                          style={{ width: '100%' }}
+                          style={{ width: '445px', height:'40px'}}
                           placeholder="Enter name district"
                           options={optionsDistrict}
                         />

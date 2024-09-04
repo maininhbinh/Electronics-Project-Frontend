@@ -71,21 +71,26 @@ export const ordersApi = apiWithTag.injectEndpoints({
     }),
     vnPayment: builder.mutation({
       query: (id) => ({
-        url: `payment/vnpay/${id}`,
-        method: 'POST',
+        url: `payment/${id}`,
+        method: 'GET',
       }),
       invalidatesTags: [{ type: 'Orders', id: 'LIST' }],
     }),
-
-
-
+    getOrderToDay: builder.query({
+      query: () => 'order/today',
+      providesTags: (result) =>
+      result
+        ? [
+            ...result?.data.map(({ id } : {id : number | string}) => ({ type: 'Orders' as const, id })),
+            { type: 'Orders', id: 'LIST' },
+          ]
+        : [{ type: 'Orders', id: 'LIST' }],
+    }),
   }),
-
-
-
 });
 
 export const {
+  useGetOrderToDayQuery,
   useGetUserOrderDetailQuery,
   useGetUserOrderQuery,
   useAddOrderMutation,

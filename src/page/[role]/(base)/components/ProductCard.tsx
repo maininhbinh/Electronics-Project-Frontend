@@ -34,6 +34,9 @@ const ProductCard: FC<ProductCardProps> = ({
     thumbnail,
     slug,
     products,
+    products_sum_product_itemsquantity,
+    order_details_sum_quantity,
+    is_active
   } = data;
   const [addToCart, {isLoading}] = useAddToCartMutation();
   const [variantActive, setVariantActive] = React.useState(0);
@@ -41,17 +44,24 @@ const ProductCard: FC<ProductCardProps> = ({
   const [image, setImage] = React.useState(thumbnail);
   const blocksRef = useRef([]);
   const [maxWidth, setMaxWidth] = useState(0);
-
+  
+  
   useEffect(() => {
     const widths = blocksRef.current.map(block => block.offsetWidth);
     const max = Math.max(...widths);
     setMaxWidth(max);
   }, []);
-
+  
   const prices = products.map((product: IProductItem) => parseFloat(product.price));
+  const price_sale = products.map((product: IProductItem) => parseFloat(product.price_sale));
   const maxPrice = Math.max(...prices);
-  // const minPrice = Math.min(...prices);  
-
+  const maxPriceSale = Math.max(...price_sale)
+  
+  const productVariantDetail = {
+    price: maxPrice,
+    price_sale: maxPriceSale
+  }
+  
   const firstVariantGroup: Set<string> = new Set();
   const secondVariantGroup: Set<string> = new Set();
 
@@ -214,17 +224,18 @@ const ProductCard: FC<ProductCardProps> = ({
           onClick={() => notifyAddTocart({ second: null })}
         >
           <BagIcon className="w-3.5 h-3.5 mb-0.5" />
-          <span className="ml-1">Thêm vào giỏ hàng</span>
+          <span className="ml-1">Add to cart</span>
         </ButtonPrimary>
-        <ButtonSecondary
-          className="ml-1.5 bg-white hover:!bg-gray-100 hover:text-slate-900 transition-colors shadow-lg"
-          fontSize="text-xs"
-          sizeClass="py-2 px-4"
-          onClick={() => setShowModalQuickView(true)}
-        >
-          <ArrowsPointingOutIcon className="w-3.5 h-3.5" />
-          <span className="ml-1">Quick view</span>
-        </ButtonSecondary>
+        <Link to={`/product-detail/${slug}`}>
+          <ButtonSecondary
+            className="ml-1.5 bg-white hover:!bg-gray-100 hover:text-slate-900 transition-colors shadow-lg"
+            fontSize="text-xs"
+            sizeClass="py-2 px-4"
+          >
+            <ArrowsPointingOutIcon className="w-3.5 h-3.5" />
+            <span className="ml-1">Quick view</span>
+          </ButtonSecondary>
+        </Link>
       </div>
     );
   };
@@ -263,28 +274,26 @@ const ProductCard: FC<ProductCardProps> = ({
   return (
     <>
       <div
-        className={`nc-ProductCard relative flex flex-col bg-transparent ${className}`}
+        className={`nc-ProductCard relative flex flex-col bg-transparent ${className} rounded-3xl overflow-hidden`}
         data-nc-id="ProductCard"
+        style={{ boxShadow: 'rgba(0, 0, 0, 0.05) 0rem 1.25rem 1.6875rem 1.6875rem' }}
       >
         <Link to={`/product-detail/${slug}`} className="absolute inset-0"></Link>
 
-        <div className="relative flex-shrink-0 bg-slate-50 dark:bg-slate-300 rounded-3xl overflow-hidden z-1 group">
-          <Link to={`/product-detail/${slug}`} className="block">
+        <div className="relative flex-shrink-0  rounded-3xl overflow-hidden z-1 group">
+          <Link to={`/product-detail/${slug}`} className="block p-5">
             <NcImage
               containerClassName="flex aspect-w-11 aspect-h-12 w-full h-0"
               src={image}
-              className="object-cover w-full h-full drop-shadow-xl"
             />
           </Link>
 
-          <ProductStatus status={status} />
-
-          <LikeButton liked={isLiked} className="absolute top-3 right-3 z-10" />
+          <ProductStatus productVariantDetail={productVariantDetail} />
 
           {secondVariantArray && secondVariantArray.length ? renderSizeList() : renderGroupButtons()}
         </div>
 
-        <div className="space-y-4 px-2.5 pt-5 pb-2.5">
+        <div className="space-y-4 px-3 pt-5 pb-2.5">
           {renderVariants()}
 
           <div>
@@ -295,13 +304,18 @@ const ProductCard: FC<ProductCardProps> = ({
             </h2>
           </div>
 
-          <div className="flex justify-between items-end ">
+          <div className="flex justify-between items-center ">
             <Prices price={maxPrice} />
+            <Prices price={maxPriceSale} classChildren='text-[12px] text-red-500 line-through'/>
             <div className="flex items-center mb-0.5">
               <StarIcon className="w-5 h-5 pb-[1px] text-amber-400" />
               <span className="text-sm ml-1 text-slate-500 dark:text-slate-400">
-                {(Math.random() * 1 + 4).toFixed(1)} (
-                {Math.floor(Math.random() * 70 + 20)} reviews)
+                {(Math.random() * 1 + 4).toFixed(1)} 
+                (
+                  {
+                    `${order_details_sum_quantity ? order_details_sum_quantity : 0} Đã mua`
+                  }
+                )
               </span>
             </div>
           </div>

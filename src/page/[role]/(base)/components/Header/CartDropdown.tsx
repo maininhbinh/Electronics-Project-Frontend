@@ -12,10 +12,13 @@ import { useDeleteCartMutation, useGetCartsQuery } from "@/services/CartEndPoins
 import { useLocalStorage } from "@uidotdev/usehooks";
 import { setOpenModalLogin } from "@/app/webSlice";
 import { useAppDispatch } from "@/app/hooks";
+import { isValidJSON } from "@/utils/isJson";
 export default function CartDropdown() {
   const dispatch = useAppDispatch();
-  const [user] = useLocalStorage('user', undefined);
-const {data: carts} =  useGetCartsQuery(undefined, {skip: !user}) 
+  const item = localStorage.getItem('user');
+  const user = item && isValidJSON(item) ? JSON.parse(item) : '';
+  const {data: carts} =  useGetCartsQuery(undefined, {skip: !user}) 
+  
  
   const [deleteCart] = useDeleteCartMutation();
   const renderProduct = (item: ICart, index: number, close: () => void) => {

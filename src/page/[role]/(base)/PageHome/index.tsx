@@ -22,11 +22,6 @@ function PageHome() {
     <div className='nc-PageHome relative overflow-hidden'>
       {/* SECTION HERO */}
       <SectionHero2 />
-
-      <div className='mt-24 lg:mt-32'>
-        <DiscoverMoreSlider />
-      </div>
-
       <div className='container relative space-y-24 my-24 lg:space-y-32 lg:my-32'>
         {/* SECTION */}
         <SectionSliderProductCard
@@ -37,33 +32,37 @@ function PageHome() {
           <SectionHowItWork />
         </div>
 
-        {/* SECTION */}
-        <SectionPromo1 />
+        <div className=' mt-24 lg:mt-32'>
+          <DiscoverMoreSlider />
+        </div>
 
         {/* SECTION */}
-        <div className='relative py-24 lg:py-32'>
+        {/* <SectionPromo1 /> */}
+
+        {/* SECTION */}
+        {/* <div className='relative py-24 lg:py-32'>
           <BackgroundSection />
           <SectionGridMoreExplore />
-        </div>
+        </div> */}
 
         {/* SECTION */}
         <SectionGridFeatureItems />
 
         {/*  */}
-        <SectionPromo2 />
+        {/* <SectionPromo2 /> */}
 
         {/* SECTION 3 */}
-        <SectionSliderLargeProduct cardStyle='style2' />
+        {/* <SectionSliderLargeProduct cardStyle='style2' /> */}
 
         {/*  */}
-        <SectionSliderCategories />
+        {/* <SectionSliderCategories /> */}
 
         {/* SECTION */}
-        <SectionPromo3 />
+        {/* <SectionPromo3 /> */}
 
-        <SectionSliderProductCard heading='Best Sellers' subHeading='Best selling of the month' />
+        {/* <SectionSliderProductCard heading='Best Sellers' subHeading='Best selling of the month' /> */}
 
-        <div className='relative py-24 lg:py-32'>
+        {/* <div className='relative py-24 lg:py-32'>
           <BackgroundSection />
           <div>
             <Heading rightDescText='From the Ciseco blog'>The latest news</Heading>
@@ -72,10 +71,10 @@ function PageHome() {
               <ButtonSecondary>Show all blog articles</ButtonSecondary>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/*  */}
-        <SectionClientSay />
+        {/* <SectionClientSay /> */}
       </div>
     </div>
   )

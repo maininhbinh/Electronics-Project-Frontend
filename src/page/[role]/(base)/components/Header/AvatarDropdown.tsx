@@ -1,6 +1,6 @@
 import { Popover, Transition } from "@headlessui/react";
 import { avatarImgs } from "../../../../../contains/fakeData";
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Avatar from "../../shared/Avatar/Avatar";
 import SwitchDarkMode2 from "../../shared/SwitchDarkMode/SwitchDarkMode2";
@@ -8,33 +8,41 @@ import { Button, Checkbox, Flex, Form, Input, Modal, Select } from "antd";
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
 import { login, logout, Logout, Signin } from "@/app/slices/authSlide";
 import { ISignin } from "@/common/types/Auth.interface";
-import { setLoading, setOpenModalLogin } from "@/app/webSlice";
+import { setLoading, setOpenModalLogin, setOpenModalSignup } from "@/app/webSlice";
 import { popupSuccess, popupError } from "@/page/[role]/shared/Toast";
 import { useGetCartsQuery } from "@/services/CartEndPoinst";
-import { useLazyGetCartsQuery } from "@/services/ProductEndPoinst";
-import { useLocalStorage } from "@uidotdev/usehooks";
-import { useGetUserQuery } from "@/page/[role]/(manager)/user/UsersEndpoints";
+import { useGetProfileUserQuery, useGetUserQuery } from "@/page/[role]/(manager)/user/UsersEndpoints";
+import { SignupService, VerifyToken } from "@/services/AuthService";
+import { isValidJSON } from "@/utils/isJson";
+import Verytify from "../Verytify";
 
 type FieldType = {
   email?: string;
   password?: string;
 };
 
+type FieldTypeSignup = {
+  username?: string;
+  email?: string;
+  password?: string;
+  password_confirmation?: string;
+};
+
 export default function AvatarDropdown() {
-  const [_, setUser] = useLocalStorage('user', undefined);
-  const {refetch} = useGetCartsQuery({});
+  const {isAuthenticated} = useAppSelector(state => state.auth);  
+  const {refetch, isSuccess } = useGetCartsQuery({}, {skip: !isAuthenticated});
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const [isModalVeritifyOpen, setIsModalVeritifyOpen] = useState(false);
+  const [email, setEmail] = useState<string>('');
+
   const [form] = Form.useForm()
-  const {isAuthenticated} = useAppSelector(state => state.auth);  
+  const [formSignup] = Form.useForm()
  
-  const {openModalLogin} = useAppSelector(state => state.web);
+  const {openModalLogin, openModalSigup} = useAppSelector(state => state.web);
 
-  const user = JSON.parse(String(localStorage.getItem('user')));
-  const {data : dataItem, isLoading : dataLoading } = useGetUserQuery(user?.id);
-
-  // const [open, setOpen] = useState(false);
-  // const [checked, setChecked] = useState(true);
+  const item = localStorage.getItem('user');
+  const user = item && isValidJSON(item) ? JSON.parse(item) : '';
 
   const onSignin = async (value :ISignin) => {
     dispatch(setLoading(true));
@@ -47,7 +55,6 @@ export default function AvatarDropdown() {
         {
           name: 'password',
           value: '',
-          errors: ['Password is required']
         }
       ])
       popupError("Email hoặc mật khẩu không chính xác");
@@ -56,42 +63,82 @@ export default function AvatarDropdown() {
         {
           name: 'email',
           value: '',
-          errors: ['Email is required']
         },
         {
           name: 'password',
           value: '',
-          errors: ['Password is required']
         }
       ])
       dispatch(login(result))
       dispatch(setOpenModalLogin(false))
-      popupSuccess("Hello " + result.user.username);
-      refetch();
+      popupSuccess("Xin chào " + result.user.username);
+      if(isSuccess){
+        refetch();
+      }
       navigate('/')
     }
   }  
+
+  const onSignup = async(value: FieldTypeSignup) => {
+
+    setEmail(value.email ?? '')
+    const payload = {
+      username : value.username,
+      email : value.email,
+      password : value.password,
+      password_confirmation : value.password_confirmation
+    }
+
+    formSignup.setFields([
+      {
+        name: 'username',
+        value: ''
+      },
+      {
+        name: 'email',
+        value: ''
+      },
+      {
+        name: 'password',
+        value: ''
+      },
+      {
+        name: 'password_confirmation',
+        value: ''
+      },
+    ])
+    
+    try {
+      dispatch(setLoading(true));
+      await SignupService(payload);
+      dispatch(setLoading(false));
+      dispatch(setOpenModalSignup(false))
+      setIsModalVeritifyOpen(true)
+    } catch (error) {
+      dispatch(setLoading(false));
+      popupError('Đăng ký thất bại');
+    }
+  }
 
   const onLogout = async () => {
     const access_token = localStorage.getItem('access_token');
     dispatch(logout());
     dispatch(setOpenModalLogin(false))
+
     if(!access_token){
-
-      popupError('unAuth');
-
+      popupError('Chưa đăng nhập');
     }else{
 
       dispatch(setLoading(true));
-       await dispatch(Logout(access_token));
-       
+      await dispatch(Logout(access_token));
       dispatch(setLoading(false));
-      setUser(undefined);
       popupSuccess("Đăng xuất thành công");
       navigate('/')
     }
     
   }
+
+  
 
   return (
     <div className="AvatarDropdown ">
@@ -142,10 +189,10 @@ export default function AvatarDropdown() {
                         (
                           <>
                             <div className="flex items-center space-x-3">
-                              <Avatar imgUrl={dataItem?.data.image ? dataItem?.data.image : avatarImgs[10] } sizeClass="w-12 h-12" />
+                              <Avatar imgUrl={user?.image ? user?.image : avatarImgs[10] } sizeClass="w-12 h-12" />
                               <div className="flex-grow truncate break-all">
-                                <h4 className="font-semibold">{  dataItem?.data.username}</h4>
-                                <p className="text-xs mt-0.5 ">{  dataItem?.data.email}</p>
+                                <h4 className="font-semibold">{user.username}</h4>
+                                <p className="text-xs mt-0.5 ">{user.email}</p>
                               </div>
                             </div>
 
@@ -196,7 +243,7 @@ export default function AvatarDropdown() {
 
                         <button
                           className="flex items-center p-2 -m-3 transition duration-150 ease-in-out rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-700 focus:outline-none focus-visible:ring focus-visible:ring-orange-500 focus-visible:ring-opacity-50"
-                          onClick={() => close()}
+                          onClick={() => dispatch(setOpenModalSignup(true))}
                         >
                           <div className="flex items-center justify-center flex-shrink-0 text-neutral-500 dark:text-neutral-300">
                             <svg
@@ -222,10 +269,7 @@ export default function AvatarDropdown() {
                               />
                             </svg>
                           </div>
-                          <Link to="/signup" >  <div className="ml-4"> <p className="text-sm font-medium ">{"Đăng kí"}</p>   </div> </Link>
-                        
-                           
-                       
+                          <div >  <div className="ml-4"> <p className="text-sm font-medium ">{"Đăng kí"}</p>   </div> </div>
                         </button>
                       </>
                       :
@@ -276,59 +320,65 @@ export default function AvatarDropdown() {
                     }
 
                     {/* ------------------ 2 --------------------- */}
-                    <Link
+                    {
+                      isAuthenticated
+                      ?
+                      <Link
                       to={"/checkout"}
                       className="flex items-center p-2 -m-3 transition duration-150 ease-in-out rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-700 focus:outline-none focus-visible:ring focus-visible:ring-orange-500 focus-visible:ring-opacity-50"
                       onClick={() => close()}
-                    >
-                      <div className="flex items-center justify-center flex-shrink-0 text-neutral-500 dark:text-neutral-300">
-                        <svg
-                          width="24"
-                          height="24"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                        >
-                          <path
-                            d="M8 12.2H15"
-                            stroke="currentColor"
-                            strokeWidth="1.5"
-                            strokeMiterlimit="10"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                          <path
-                            d="M8 16.2H12.38"
-                            stroke="currentColor"
-                            strokeWidth="1.5"
-                            strokeMiterlimit="10"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                          <path
-                            d="M10 6H14C16 6 16 5 16 4C16 2 15 2 14 2H10C9 2 8 2 8 4C8 6 9 6 10 6Z"
-                            stroke="currentColor"
-                            strokeWidth="1.5"
-                            strokeMiterlimit="10"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                          <path
-                            d="M16 4.02002C19.33 4.20002 21 5.43002 21 10V16C21 20 20 22 15 22H9C4 22 3 20 3 16V10C3 5.44002 4.67 4.20002 8 4.02002"
-                            stroke="currentColor"
-                            strokeWidth="1.5"
-                            strokeMiterlimit="10"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                        </svg>
-                      </div>
-                      <div className="ml-4">
-                        <p className="text-sm font-medium ">{"Đơn hàng của tôi"}</p>
-                      </div>
-                    </Link>
+                      >
+                        <div className="flex items-center justify-center flex-shrink-0 text-neutral-500 dark:text-neutral-300">
+                          <svg
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                          >
+                            <path
+                              d="M8 12.2H15"
+                              stroke="currentColor"
+                              strokeWidth="1.5"
+                              strokeMiterlimit="10"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                            <path
+                              d="M8 16.2H12.38"
+                              stroke="currentColor"
+                              strokeWidth="1.5"
+                              strokeMiterlimit="10"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                            <path
+                              d="M10 6H14C16 6 16 5 16 4C16 2 15 2 14 2H10C9 2 8 2 8 4C8 6 9 6 10 6Z"
+                              stroke="currentColor"
+                              strokeWidth="1.5"
+                              strokeMiterlimit="10"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                            <path
+                              d="M16 4.02002C19.33 4.20002 21 5.43002 21 10V16C21 20 20 22 15 22H9C4 22 3 20 3 16V10C3 5.44002 4.67 4.20002 8 4.02002"
+                              stroke="currentColor"
+                              strokeWidth="1.5"
+                              strokeMiterlimit="10"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                        </div>
+                        <div className="ml-4">
+                          <p className="text-sm font-medium ">{"Đơn hàng của tôi"}</p>
+                        </div>
+                      </Link>
+                    :
+                    ''
+                    }
 
                     {/* ------------------ 2 --------------------- */}
-                    <Link
+                    {/* <Link
                       to={"/account-savelists"}
                       className="flex items-center p-2 -m-3 transition duration-150 ease-in-out rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-700 focus:outline-none focus-visible:ring focus-visible:ring-orange-500 focus-visible:ring-opacity-50"
                       onClick={() => close()}
@@ -352,7 +402,7 @@ export default function AvatarDropdown() {
                       <div className="ml-4">
                         <p className="text-sm font-medium ">{"Yêu thích"}</p>
                       </div>
-                    </Link>
+                    </Link> */}
 
                     <div className="w-full border-b border-neutral-200 dark:border-neutral-700" />
 
@@ -516,6 +566,7 @@ export default function AvatarDropdown() {
           </>
         )}
       </Popover>
+
       <Modal open={openModalLogin} onCancel={()=>dispatch(setOpenModalLogin(false))} footer=''>
           <div className="p-10">
             <Flex vertical gap={20}>
@@ -612,12 +663,182 @@ export default function AvatarDropdown() {
                     </Button>
                   </Form.Item>
                   <div className="flex justify-center">
-                    <span>Bạn chưa có tài khoản? <Link to={'signup'}>Đăng kí ngay</Link></span>
+                    <span>Bạn chưa có tài khoản? <Link onClick={()=>{
+                      dispatch(setOpenModalSignin(true))
+                      dispatch(setOpenModalLogin(false))
+                    }}>Đăng kí ngay</Link></span>
                   </div>
                 </Form>
             </Flex>
           </div>
       </Modal>
+
+
+      <Modal open={openModalSigup} onCancel={()=>dispatch(setOpenModalSignup(false))} footer=''>
+          <div className="p-10">
+            <Flex vertical gap={20}>
+                <h1 className="font-mono text-[24px] font-bold">
+                  Đăng kí
+                </h1>
+                <Flex justify="space-around">
+                  <button className="flex justify-center items-center gap-2 font-bold">
+                    <div>
+                      <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
+                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                        <path d="M1 1h22v22H1z" fill="none"/>
+                      </svg>
+                    </div>
+                    <span>Signin with Google</span>
+                  </button>
+                  <button className="flex justify-center items-center gap-2 font-bold">
+                    <div>
+                      <svg xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" width={24} height={24} version="1.1" id="Layer_1" x="0px" y="0px" viewBox="73 0 267 266.9" enableBackground="new 73 0 267 266.9" xmlSpace="preserve">
+                        <path id="Blue_1_" fill="#157DC3" d="M321.1,262.3c7.9,0,14.2-6.4,14.2-14.2V18.8c0-7.9-6.4-14.2-14.2-14.2H91.8  C84,4.6,77.6,11,77.6,18.8v229.3c0,7.9,6.4,14.2,14.2,14.2H321.1z"/>
+                        <path id="f" fill="#FFFFFF" d="M255.4,262.3v-99.8h33.5l5-38.9h-38.5V98.8c0-11.3,3.1-18.9,19.3-18.9l20.6,0V45  c-3.6-0.5-15.8-1.5-30-1.5c-29.7,0-50,18.1-50,51.4v28.7h-33.6v38.9h33.6v99.8H255.4z"/>
+                      </svg>
+                    </div>
+                    <span>
+                      Signin with FB
+                    </span>
+                  </button>
+                </Flex>
+                <Flex justify="center" align="center" gap={20}>
+                    <div className="border-b-[1px] flex-1"/>
+                    <span>
+                      Đăng nhập bằng
+                    </span>
+                    <div className="border-b-[1px] flex-1"/>
+                </Flex>
+                <Form 
+                  form={formSignup}
+                  name="basic"
+                  onFinish={onSignup}
+                >
+                  <div>
+                    <label htmlFor="username"  className="font-bold block mb-[0.5rem]">Tên khách hàng</label>
+
+                    <Form.Item<FieldTypeSignup>
+                      name="username"
+                      rules={[{ required: true, message: 'Tên khách hàng không được để trống' }]}
+                    >
+                      <Input id="username"/>
+                    </Form.Item>
+                  </div>
+                  <div>
+                    <label htmlFor="email"  className="font-bold block mb-[0.5rem]">Email</label>
+
+                    <Form.Item<FieldTypeSignup>
+                      name="email"
+                      rules={[{ required: true, message: 'Email không được để trống', type:'email' }]}
+                    >
+                      <Input id="email"/>
+                    </Form.Item>
+                  </div>
+                  <div>
+                    <label htmlFor="password" className="font-bold block mb-[0.5rem]">Mật khẩu</label>
+                    <Form.Item<FieldTypeSignup>
+                      name="password"
+                      rules={[
+                        { 
+                          required: true,
+                          validator: (_, value) => {
+                            if(!value){
+                              return Promise.reject(new Error('Mật khẩu phải không được để trống'));
+                            }
+                            if (value.length < 6) {
+                              return Promise.reject(new Error('Mật khẩu phải có ít nhất 6 ký tự!'));
+                            }
+                            if (!/[A-Z]/.test(value)) {
+                              return Promise.reject(new Error('Mật khẩu phải chứa ít nhất một chữ hoa!'));
+                            }
+                            if (!/[a-z]/.test(value)) {
+                              return Promise.reject(new Error('Mật khẩu phải chứa ít nhất một chữ thường!'));
+                            }
+                            if (!/[0-9]/.test(value)) {
+                              return Promise.reject(new Error('Mật khẩu phải chứa ít nhất một số!'));
+                            }
+                            return Promise.resolve();
+                          }
+                        }
+                      ]}
+                      
+                    >
+                      <Input.Password className=" py-0 px-2" id="password"/>
+                    </Form.Item>
+                  </div>
+
+                  <div>
+                    <label htmlFor="password_confirmation" className="font-bold block mb-[0.5rem]">Nhập lại mật khẩu</label>
+                    <Form.Item<FieldTypeSignup>
+                      name="password_confirmation"
+                      dependencies={['password']}
+                      rules={[
+                        { 
+                          required: true,
+                          validator: (_, value) => {
+                            if(!value){
+                              return Promise.reject(new Error('Mật khẩu phải không được để trống'));
+                            }
+                            if (value.length < 6) {
+                              return Promise.reject(new Error('Mật khẩu phải có ít nhất 6 ký tự!'));
+                            }
+                            if (!/[A-Z]/.test(value)) {
+                              return Promise.reject(new Error('Mật khẩu phải chứa ít nhất một chữ hoa!'));
+                            }
+                            if (!/[a-z]/.test(value)) {
+                              return Promise.reject(new Error('Mật khẩu phải chứa ít nhất một chữ thường!'));
+                            }
+                            if (!/[0-9]/.test(value)) {
+                              return Promise.reject(new Error('Mật khẩu phải chứa ít nhất một số!'));
+                            }
+                            return Promise.resolve();
+                          }
+                        },
+                        ({ getFieldValue }) => ({
+                          validator(_, value) {
+                            if (!value || getFieldValue('password') === value) {
+                              return Promise.resolve();
+                            }
+                            return Promise.reject(new Error('Hai mật khẩu bạn đã nhập không khớp nhau!'));
+                          },
+                        }),
+                      ]}
+                      
+                    >
+                      <Input.Password className=" py-0 px-2" id="password_confirmation"/>
+                    </Form.Item>
+                  </div>
+
+                  <Form.Item>
+                    <Link to={''}>Quên mật khẩu</Link>
+                  </Form.Item>
+
+                  <Form.Item>
+                    <Button type="primary" htmlType="submit" className=" w-full p-5">
+                    Đăng nhập
+                    </Button>
+                  </Form.Item>
+                  <div className="flex justify-center">
+                    <span>Đã có tài khoản? <Link onClick={()=>{
+                      dispatch(setOpenModalSignup(false))
+                      dispatch(setOpenModalLogin(true))
+                    }}>Đăng kí ngay</Link></span>
+                  </div>
+                </Form>
+            </Flex>
+          </div>
+      </Modal>
+
+      {
+        isModalVeritifyOpen
+        ?
+        <Verytify setIsModalVeritifyOpen={setIsModalVeritifyOpen} email={email} setUser={setUser}/>
+        :
+        ''
+      }
     </div>
   );
 }

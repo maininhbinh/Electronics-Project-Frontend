@@ -26,6 +26,7 @@ const AccountOrder = () => {
   ];
 
   const {data, isLoading} = useGetUserOrderQuery({})  
+  
 
   const renderProductItem = (product: any, index: number) => {
     const { image, thumbnail, name, price, quantity } = product;
@@ -100,7 +101,7 @@ const AccountOrder = () => {
     return (
         <div className="space-y-10 sm:space-y-12">
           {/* HEADING */}
-          <h2 className="text-2xl sm:text-3xl font-semibold">Order History</h2>
+          <h2 className="text-2xl sm:text-3xl font-semibold">Lịch sử đơn hàng</h2>
           <div className="">
           <div className="max-w-4xl mx-auto">
             <div className="flex space-x-8 md:space-x-14 overflow-x-auto hiddenScrollbar">

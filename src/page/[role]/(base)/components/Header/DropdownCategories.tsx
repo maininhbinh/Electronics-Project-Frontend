@@ -1,3 +1,4 @@
+import { useGetCategoriesQuery } from "@/page/[role]/(manager)/category/CategoryEndpoints";
 import { Popover, Transition } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/24/solid";
 import { Fragment } from "react";
@@ -7,9 +8,8 @@ import { Link } from "react-router-dom";
 interface SolutionItem {
   name: string;
   description: string;
- 
   icon: any;
-
+  link?: string
 }
 
 const CATEGORIES: SolutionItem[] = [
@@ -22,6 +22,7 @@ const CATEGORIES: SolutionItem[] = [
     </svg>
     `,
     description: "",
+    link: `iphone`
   },
   {
     name: "Tai nghe",
@@ -57,7 +58,7 @@ const CATEGORIES: SolutionItem[] = [
     description: "",
   },
   {
-    name: "",
+    name: "Nội dung",
     icon: `<svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M10.7998 3.40005L7.19982 7.70005C7.09982 7.90005 6.99982 8.20005 6.89982 8.40005L5.19982 17C5.09982 17.6 5.39982 18.3 5.89982 18.6L11.1998 21.6C11.5998 21.8 12.2998 21.8 12.6998 21.6L17.9998 18.6C18.4998 18.3 18.7998 17.6 18.6998 17L16.9998 8.40005C16.9998 8.20005 16.7998 7.90005 16.6998 7.70005L13.0998 3.40005C12.4998 2.60005 11.4998 2.60005 10.7998 3.40005Z" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
     <path d="M16.8002 8.5L12.5002 20.7C12.3002 21.1 11.7002 21.1 11.6002 20.7L7.2002 8.5" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
@@ -68,12 +69,25 @@ const CATEGORIES: SolutionItem[] = [
 ];
 
 export default function DropdownCategories() {
+  const {data, isLoading} = useGetCategoriesQuery({});
+  
+
   return (
     <div className="DropdownCategories">
       <Popover className="relative">
         {({ open, close }) => (
           <>
-            <Link to="/category"><span>Shops</span> </Link>
+            <Popover.Button
+              className={`${open ? "" : "text-opacity-90"}
+                group py-2 h-10 sm:h-12 flex items-center rounded-md text-sm sm:text-base font-medium hover:text-opacity-100 focus:outline-none focus-visible:ring-0 `}
+            >
+              <span>Shops</span>
+              <ChevronDownIcon
+                className={`${open ? "-rotate-180" : "text-opacity-70 "}
+                  ml-2 h-5 w-5 text-neutral-700 group-hover:text-opacity-80 transition ease-in-out duration-150 `}
+                aria-hidden="true"
+              />
+            </Popover.Button>
             <Transition
               as={Fragment}
               enter="transition ease-out duration-200"
@@ -86,25 +100,31 @@ export default function DropdownCategories() {
               <Popover.Panel className="absolute z-40 w-80 mt-3.5 transform -translate-x-1/2 left-1/2 sm:px-0">
                 <div className="overflow-hidden rounded-2xl shadow-lg ring-1 ring-black ring-opacity-5">
                   <div className="relative grid grid-cols-1 gap-5 bg-white dark:bg-neutral-800 p-7 ">
-                    {CATEGORIES.map((item, index) => (
-                      <Link
-                        key={index}
-                        to=""
-                        onClick={() => close()}
-                        className={`flex items-center focus:outline-none focus-visible:ring-0`}
-                      >
-                        <div
-                          dangerouslySetInnerHTML={{ __html: item.icon }}
-                          className="flex items-center justify-center flex-shrink-0 w-10 h-10 bg-primary-50 rounded-md text-primary-500 sm:h-12 sm:w-12"
-                        ></div>
-                        <div className="ml-4 space-y-0.5">
-                          <p className="text-sm font-medium ">{item.name}</p>
-                          <p className="text-xs text-neutral-500 dark:text-neutral-300">
-                            {item.description}
-                          </p>
-                        </div>
-                      </Link>
-                    ))}
+                    {
+                      data && data.data.length > 0
+                      ?
+                      data.data.map((item, index) => (
+                        <Link
+                          key={index}
+                          to={`/${item.slug}`}
+                          onClick={() => close()}
+                          className={`flex items-center focus:outline-none focus-visible:ring-0`}
+                        >
+                          {/* <div
+                            dangerouslySetInnerHTML={{ __html: item.icon }}
+                            className="flex items-center justify-center flex-shrink-0 w-10 h-10 bg-primary-50 rounded-md text-primary-500 sm:h-12 sm:w-12"
+                          ></div> */}
+                          <div className="flex items-center justify-center flex-shrink-0 w-10 h-10 bg-primary-50 rounded-md text-primary-500 sm:h-12 sm:w-12">
+                            <img src={item.image} alt="" />
+                          </div>
+                          <div className="ml-4 space-y-0.5">
+                            <p className="text-sm font-medium ">{item.name}</p>
+                          </div>
+                        </Link>
+                      ))
+                      :
+                      ''
+                    }
                   </div>
                   {/* FOOTER */}
                   <div className="p-4 bg-neutral-50 dark:bg-neutral-700">

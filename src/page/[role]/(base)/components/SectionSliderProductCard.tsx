@@ -3,7 +3,7 @@ import Heading from "./Heading/Heading";
 import Glide from "@glidejs/glide";
 import ProductCard from "./ProductCard";
 import { Product } from "../../../../data/data";
-import { useGetProductsQuery } from "../../(manager)/products/ProductsEndpoints";
+import { useFilterProductQuery, useGetProductsQuery } from "../../(manager)/products/ProductsEndpoints";
 import { IProduct } from "@/common/types/product.interface";
 import { Empty, Skeleton } from "antd";
 import { RadioChangeEvent } from "antd/lib";
@@ -25,13 +25,13 @@ const SectionSliderProductCard: FC<SectionSliderProductCardProps> = ({
   headingFontClassName,
   headingClassName,
   heading,
-  subHeading = "REY backpacks & bags",
+  subHeading = "Hôm nay",
 }) => {
   const sliderRef = useRef(null);
   const id = useId();
   const UNIQUE_CLASS = "glidejs" + id.replace(/:/g, "_");
 
-  const {data : dataItem, isLoading } = useGetProductsQuery({});
+  const {data : dataItem, isLoadingHome } = useFilterProductQuery('is_show_home');
 
   useEffect(() => {
     if (!sliderRef.current) {
@@ -72,7 +72,6 @@ const SectionSliderProductCard: FC<SectionSliderProductCardProps> = ({
       slider.destroy()
     }
   }, [sliderRef, UNIQUE_CLASS, dataItem])
-
   return (
     <>
       <div className={`nc-SectionSliderProductCard ${className}`}>
@@ -83,14 +82,14 @@ const SectionSliderProductCard: FC<SectionSliderProductCardProps> = ({
             rightDescText={subHeading}
             hasNextPrev
           >
-            {heading || `New Arrivals`}
+            {heading || `Sản phẩm nổi bật`}
           </Heading>
           {
           
-          <div className="glide__track relative" data-glide-el="track">
-            <ul className="glide__slides">
+          <div className="glide__track relative h-full" data-glide-el="track">
+            <ul className="glide__slides h-full">
               {
-                !dataItem && !dataItem?.data
+                !dataItem && !dataItem?.data || dataItem?.data.length < 1
                 ?
                 <>
                   {[1,2,3].map((item) => (
@@ -99,8 +98,8 @@ const SectionSliderProductCard: FC<SectionSliderProductCardProps> = ({
                 </>
                 :
                 dataItem?.data.map((item: IProduct, index: number) => (
-                  <li key={index} className={`glide__slide ${itemClassName}`}>
-                    {item && <ProductCard data={item} />}
+                  <li key={index} className={`glide__slide`}>
+                    {item && <ProductCard data={item} className="h-full"/>}
                   </li>
                 )) 
               }

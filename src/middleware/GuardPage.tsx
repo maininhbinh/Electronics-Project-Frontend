@@ -6,8 +6,8 @@ export default function GuardPage({children} : any){
   
     const [user] = useLocalStorage('user', undefined);
     if(!user){
-         popupError('Vui lòng đăng nhập trước!')
-         return <Navigate to="/" />;
+        popupError('Vui lòng đăng nhập trước!')
+        return <Navigate to="/" />;
     }
     return <> {children}</>
 

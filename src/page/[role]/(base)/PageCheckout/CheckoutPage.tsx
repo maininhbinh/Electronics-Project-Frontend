@@ -10,158 +10,115 @@ import { ICart } from '@/common/types/cart.interface'
 import { VND } from '@/utils/formatVietNamCurrency'
 import { getTotalPriceCart } from '@/utils/handleCart'
 import { Button, Form, Result } from 'antd'
-import { useGetCartsQuery } from '@/services/CartEndPoinst'
+import { useDeleteCartMutation, useGetCartsQuery } from '@/services/CartEndPoinst'
 import { useAppDispatch } from '@/app/hooks'
 
 import { popupError, popupSuccess } from '../../shared/Toast'
 import { useNavigate } from 'react-router-dom'
-import { IOrder } from '@/common/types/Order.interface'
-import { useAddOrderMutation, useMomoPaymentMutation, useStripePaymentMutation, useVnPaymentMutation } from '@/services/OrderEndPoints'
+import { IOrder, Payment } from '@/common/types/Order.interface'
+import { useAddOrderMutation, useGetPaymentMethodsQuery, useMomoPaymentMutation, useStripePaymentMutation, useVnPaymentMutation } from '@/services/OrderEndPoints'
 import { useCheckVoucherMutation } from '../../(manager)/voucher/VoucherEndpoint'
 import CartEmptyAnimationIcon from '../components/Icon/Cart/CartEmpty'
 import PaymentMethod from './PaymentMethod'
 import { useLocalStorage } from '@uidotdev/usehooks'
-import Joi from 'joi'
-import { useForm } from 'react-hook-form'
-import isEmpty from 'lodash/isEmpty';
-import { joiResolver } from '@hookform/resolvers/joi'
-const schema = Joi.object({
-  card_number: Joi.string().required(),
-  card_exp_month: Joi.string().required(),
-  card_exp_year: Joi.string().required(),
-  card_cvc: Joi.string().required()
-})
+import ContactInfo from './ContactInfo'
+import NcInputNumber from '../components/NcInputNumber'
+import { CartsApi } from '@/services/CartEndPoinst'
+
+interface FormValues {
+  receiver_name: string,
+  receiver_phone: string,
+  receiver_email: string,
+  receiver_city: string,
+  receiver_district: string,
+  receiver_ward: string,
+  receiver_address: string,
+  discount_code: string,
+  note: string,
+  payment_method: Payment
+}
+
 const CheckoutPage = () => {
   const navigate = useNavigate();
-  const [mothodActive, setMethodActive] = useState<
-    "Stripe" | "Momo-Banking" | "VNPay" | null
-  >(null);
-  const {register, handleSubmit,
-    getValues,
-    trigger,
-    formState: { errors, isValid }} = useForm<any>({
-    resolver : joiResolver(schema),
-    mode: 'onChange',  // Validate on change
-  })
+  const [mothodActive, setMethodActive] = useState<Payment>("vnpay");
 
   const [dataVoucher, setVoucher] = useState<any>({
     apply: false,
     error: '',
     data: {}
   })
-  useEffect(() => {
-    trigger();
-  }, [trigger]);
+
+  const [deleteCart] = useDeleteCartMutation();
   const [momoPayment, {isLoading: loadingMomo}] = useMomoPaymentMutation();
   const [stripePayment, {isLoading: loadingStripe}] = useStripePaymentMutation();
   const [vnPayment, {isLoading: loadingVnPay}] = useVnPaymentMutation();
   const dataUser = useLocalStorage('user', undefined)
   const user : any = dataUser[0];
-  const [priceAfterApply, setPriceAfterApply] = useState(0)
   const [checkVoucherData] = useCheckVoucherMutation()
   const [addOrder, { isLoading: isLoadingOrder }] = useAddOrderMutation()
-  const { data: carts } = useGetCartsQuery({})
+  const { data: carts, refetch } = useGetCartsQuery({})
 
   const [discount, setDiscount] = useState<string>('')
+  const [tabActive, setTabActive] = useState<'ContactInfo' | 'ShippingAddress' | 'PaymentMethod'>('ContactInfo')
 
-  const [tabActive, setTabActive] = useState<'ContactInfo' | 'ShippingAddress' | 'PaymentMethod'>('ShippingAddress')
+  const [form] = Form.useForm<IOrder>()
+
 
   const handleScrollToEl = (id: string) => {
     const element = document.getElementById(id)
     setTimeout(() => {
       element?.scrollIntoView({ behavior: 'smooth' })
     }, 80)
-  }
+  }  
  
-  const onFinish = async (values: IOrder | any) => {
-  
+  const onFinish = async (values: IOrder) => {
     
     const payload = {
-      receiver_name: `${values.receiver_name} `,
+      receiver_name: values.receiver_name,
       receiver_phone: values.receiver_phone,
-
-      ...(!Boolean(user.address) ? {  receiver_pronvinces: values?.receiver_pronvinces.split('-')[0],
-      receiver_district: values?.receiver_district.split('-')[0],
-      receiver_ward: values?.receiver_ward.split('-')[0],
-      receiver_address: values?.receiver_address} :{  receiver_pronvinces: user.city,
-      receiver_district: user.district,
-      receiver_ward: user.county,
-      receiver_address: user.address} ),
-      pick_up_required: false,
+      receiver_email: values.receiver_email,
+      receiver_city: values?.receiver_city,
+      receiver_district: values?.receiver_district,
+      receiver_ward: values?.receiver_ward,
+      receiver_address: values?.receiver_address,
       note: values?.note,
       discount_code: dataVoucher.apply ? dataVoucher.code : '',
-      payment_method_id : 2
+      payment_method : values?.payment_method
     }
 
+    try{
 
-    try {
-     
-      if(!mothodActive){
-        setTabActive('PaymentMethod')
-        handleScrollToEl('PaymentMethod')
-        popupError('Bạn cần phải lựa chọn phương thức thanh toán trước')
-        return false;
-      }
-      if(mothodActive === 'Stripe'){
-        
-        if(!isEmpty(errors)) {
-          setTabActive('PaymentMethod')
-          handleScrollToEl('PaymentMethod')
-          return false;
-        }
-      }
       const response = await addOrder(payload).unwrap();
-      const orderId = response.order_id;
+      refetch();
+      window.location.href = response.url;
 
-    
-      if(mothodActive === 'Momo-Banking'){
-         try {
-            const responseMomoPayment = await momoPayment(orderId).unwrap();
-            window.location.href = responseMomoPayment.url;
-            //window.open(responseMomoPayment.url, "MoMoPayment", "width=600, height=800");
-         } catch (error) {
-            popupError('Lỗi thanh toán qua Momo')
-         }
-         return true;
-      }
-
-      if(mothodActive === 'Stripe'){
-       
-               const valuesStripeForm : any = getValues();
-          const payload = {
-            data : valuesStripeForm,
-            id: orderId
-          }
-          try {
-             await stripePayment(payload).unwrap();
-             navigate(`/account/my-order/detail/${orderId}`);
-             popupSuccess('Đặt hàng thành công');
-          } catch (error) {
-             popupError('Lỗi thanh toán thông qua Stripe')
-          }
-          return true;
-       
-     }
-
-     if(mothodActive === 'VNPay'){
-     
-      try {
-         const responseVnPayment : any = await vnPayment(orderId).unwrap();
-        // console.log(responseVnPayment);
-        window.location.href = responseVnPayment.data.data;
-        // window.open(responseVnPayment.data.data, "MoMoPayment", "width=600, height=800");
-      } catch (error) {
-         popupError('Lỗi thanh toán thông qua VNPay')
-      }
-      return true;
-   }
-    } catch (error) {
-      popupError('Order error')
+    }catch(error){      
+      const err = error as Error; 
+      
+      popupError(err.data.message ?? 'Hệ thống có vấn đề vui lòng thử lại')
+      
     }
   }
   
   const renderProduct = (item: ICart, index: number) => {
-    const { image, price, thumbnail, slug, name, price_sale, quantity, variants, id } = item
+    const { image, price, thumbnail, slug, name, price_sale, quantity, variants, id, product_item_id } = item
+
+    const product = {
+      id: product_item_id,
+      price,
+      price_sale,
+      quantity,
+      image,
+      variants
+    }
+
+    const handleDelete = (id : number) => {
+      try {
+        deleteCart(id).unwrap();
+      } catch (error) {
+        popupError('Xóa khỏi giỏ hàng thành công thành công');
+      }
+    }
 
     return (
       <div key={index} className='relative flex py-7 first:pt-0 last:pb-0'>
@@ -212,16 +169,24 @@ const CheckoutPage = () => {
             </div>
           </div>
 
+          <div className="flex mt-auto pt-4 items-end justify-between text-sm">
+            <div className="hidden sm:block text-center relative">
+              <NcInputNumber className="relative z-10" item={product}/>
+            </div>
+
+            <span
+              onClick={() => handleDelete(Number(item.product_item_id))}
+              className="relative z-10 flex items-center mt-3 font-medium text-primary-6000 hover:text-primary-500 text-sm "
+            >
+              <span>Remove</span>
+            </span>
+          </div>
+
         </div>
       </div>
     )
   }
 
-  const [form] = Form.useForm()
-
-  const handleOrder = () => {
-    form.submit()
-  }
   const checkVoucher = async () => {
     try {
       const response: any = await checkVoucherData(discount).unwrap()
@@ -230,25 +195,6 @@ const CheckoutPage = () => {
           response.type === 'percent'
             ? Number(getTotalPriceCart(carts.data)) * (response.value / 100)
             : Number(getTotalPriceCart(carts.data)) - response.value
-
-        if (priceVoucher < 10000) {
-          setVoucher({
-            apply: false,
-            error: 'Tổng tiền đơn hàng của bạn nhỏ hơn Số tiền sau khi áp dụng voucher',
-            data: {}
-          })
-
-          return true
-        }
-        if (priceVoucher < response.discount_max) {
-          setVoucher({
-            apply: false,
-            error:
-              'Tổng tiền tối đa đơn hàng sau khi áp dụng voucher cho đơn hàng này là: ' + VND(response.discount_max),
-            data: {}
-          })
-          return true
-        }
         
         setVoucher({
           code : discount,
@@ -256,9 +202,9 @@ const CheckoutPage = () => {
           error: '',
           data: response
         })
-        setDiscount('')
-        setPriceAfterApply(priceVoucher)
+
       } else {
+        
         setVoucher({
           apply: false,
           error: response.message,
@@ -266,8 +212,51 @@ const CheckoutPage = () => {
         })
       }
     } catch (error) {
+        const {data} = error
+        
+        setVoucher({
+          apply: false,
+          error: data.message,
+          data: {}
+        })
       popupError('Apply voucher error')
     }
+  }
+
+  const canceVouncher = () => {
+    setDiscount('')
+    setVoucher({
+      apply: false,
+      error: '',
+      data: {}
+    })
+  }
+
+  if(!carts || !carts.data || carts?.data?.length < 1){
+    return (
+      <Result
+        icon={<CartEmptyAnimationIcon width="200px" height="200px" />}
+        title="Giỏ hàng trống"
+        extra={
+          <Link to="/"><Button type="primary" key="console" className=" bg-black !rounded-[20px]">
+            Quay về trang chủ
+          </Button> </Link>
+        }
+      />
+    )
+  }
+
+  const initialValues: FormValues = {
+    receiver_name: user.username ?? '',
+    receiver_phone: user.phone ?? '',
+    receiver_email: user.email ?? '',
+    receiver_city: user.city ?? null,
+    receiver_district: user.district ?? null,
+    receiver_ward: user.ward ?? null,
+    receiver_address: user.address ?? '',
+    discount_code: discount,
+    note: '',
+    payment_method: 'vnpay'
   }
 
   return (
@@ -275,9 +264,12 @@ const CheckoutPage = () => {
       <Helmet>
         <title>Checkout || Ciseco Ecommerce Template</title>
       </Helmet>
-
-
-      {Boolean(carts?.data?.length) ? <main className='container py-16 lg:pb-28 lg:pt-20 '>
+    <Form
+      onFinish={onFinish}
+      form={form}
+      initialValues={initialValues}
+    >
+      <main className='container py-16 lg:pb-28 lg:pt-20 '>
         <div className='mb-16'>
           <h2 className='block text-2xl sm:text-3xl lg:text-4xl font-semibold '>Checkout</h2>
           <div className='block mt-3 sm:mt-5 text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-400'>
@@ -296,7 +288,7 @@ const CheckoutPage = () => {
         <div className='flex flex-col lg:flex-row'>
           <div className='flex-1'>
             <div className='space-y-8'>
-              {/* <div id="ContactInfo" className="scroll-mt-24">
+              <div id="ContactInfo" className="scroll-mt-24">
                 <ContactInfo
                   isActive={tabActive === "ContactInfo"}
                   onOpenActive={() => {
@@ -308,7 +300,7 @@ const CheckoutPage = () => {
                     handleScrollToEl("ShippingAddress");
                   }}
                 />
-              </div> */}
+              </div>
 
               <div id='ShippingAddress' className='scroll-mt-24'>
                 <ShippingAddress
@@ -321,8 +313,8 @@ const CheckoutPage = () => {
                     setTabActive('PaymentMethod')
                     handleScrollToEl('PaymentMethod')
                   }}
-                  form={form}
                   onFinish={onFinish}
+                  form={form}
                 />
               </div>
 
@@ -334,11 +326,7 @@ const CheckoutPage = () => {
                     handleScrollToEl("PaymentMethod");
                   }}
                   onCloseActive={() => setTabActive("PaymentMethod")}
-                  errors={errors}
-                  register={register}
-                  handleSubmit={handleSubmit}
-                  mothodActive={mothodActive}
-                  setMethodActive={setMethodActive}
+                  form={form}
                 />
               </div>
             </div>
@@ -356,25 +344,52 @@ const CheckoutPage = () => {
               <div>
                 <Label className='text-sm'>Mã giảm giá</Label>
                 <div className='flex mt-1.5 mb-1'>
-                  <Input
-                    value={discount}
-                    sizeClass='h-10 px-4 py-3'
-                    className='flex-1'
-                    onChange={(e) => setDiscount(e.target.value)}
-                  />
+                  
+                  {
+                    dataVoucher.apply
+                    ?
+                    <>
+                      <Input
+                      sizeClass='h-10 px-4 py-3'
+                      value={discount}
+                      className='flex-1'
+                      onChange={(e) => setDiscount(e.target.value)}
+                      disabled
+                      />
+                      <button
+                      type='button'
+                      onClick={() => canceVouncher()}
+                      className='text-neutral-700 dark:text-neutral-200 border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-100 rounded-2xl px-4 ml-3 font-medium text-sm bg-neutral-200/70 dark:bg-neutral-700 dark:hover:bg-neutral-800 w-24 flex justify-center items-center transition-colors'
+                      >
+                        hủy
+                      </button>
+                      
+                    </>
+                    :
+                    <>
+                      <Input
+                      value={discount}
+                      sizeClass='h-10 px-4 py-3'
+                      className='flex-1'
+                      onChange={(e) => setDiscount(e.target.value)}
+                      />
+                      <button
+                      type='button'
+                      onClick={() => checkVoucher()}
+                      className='text-neutral-700 dark:text-neutral-200 border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-100 rounded-2xl px-4 ml-3 font-medium text-sm bg-neutral-200/70 dark:bg-neutral-700 dark:hover:bg-neutral-800 w-24 flex justify-center items-center transition-colors'
+                      >
+                        Áp dụng
+                      </button>
+                    </>
+                  }
 
-                  <button
-                    onClick={() => checkVoucher()}
-                    className='text-neutral-700 dark:text-neutral-200 border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-100 rounded-2xl px-4 ml-3 font-medium text-sm bg-neutral-200/70 dark:bg-neutral-700 dark:hover:bg-neutral-800 w-24 flex justify-center items-center transition-colors'
-                  >
-                    Áp dụng
-                  </button>
+                  
                 </div>
 
                 {Boolean(dataVoucher.error) && <span className='text-red-500'>* {dataVoucher.error}</span>}
               </div>
 
-              {Boolean(dataVoucher.apply) && (
+              {/* {Boolean(dataVoucher.apply) && (
                 <div>
                   <div className=' flex justify-between py-2.5'>
                     <span>Tên mã giảm giá</span>
@@ -383,7 +398,7 @@ const CheckoutPage = () => {
                   <div className=' flex justify-between py-2.5'>
                     <span>Loại</span>
                     <span className='font-semibold text-red-500 '>
-                      {dataVoucher.data.type === 'percent' && 'Giảm giá theo %'}
+                      {dataVoucher.data.code === 'percent' && 'Giảm giá theo %'}
                       {dataVoucher.data.type === 'number' && 'Giảm giá theo đơn giá'}
                       {dataVoucher.data.type === 'free_ship' && 'Giảm giá theo Free ship'}
                     </span>
@@ -396,7 +411,7 @@ const CheckoutPage = () => {
                     </span>
                   </div>
                 </div>
-              )}
+              )} */}
 
               <div className='mt-4 flex justify-between py-2.5'>
                 <span>Tạm tính</span>
@@ -404,22 +419,23 @@ const CheckoutPage = () => {
                   {carts && VND(getTotalPriceCart(carts.data))}
                 </span>
               </div>
+              {
+              dataVoucher.apply
+              ?
               <div className='flex justify-between py-2.5'>
-                <span>Ước tính vận chuyển</span>
-                <span className='font-semibold text-slate-900 dark:text-slate-200'>0đ</span>
+                <span>Áp dụng khuyến mãi</span>
+                <span className='font-semibold text-slate-900 dark:text-slate-200'>{VND(dataVoucher.data.discount)}</span>
               </div>
-              <div className='flex justify-between py-2.5'>
-                <span>Ước tính thuế</span>
-                <span className='font-semibold text-slate-900 dark:text-slate-200'>0đ</span>
-              </div>
+              :
+              ''
+              }
               <div className='flex justify-between font-semibold text-slate-900 dark:text-slate-200 text-base pt-4'>
                 <span>Tổng tiền đơn hàng</span>
 
-            {carts && dataVoucher.apply && <span>{VND(priceAfterApply)}</span> }
-               {carts && !dataVoucher.apply && <span> {VND(getTotalPriceCart(carts?.data))}</span>}
+               {carts && <span> {VND(getTotalPriceCart(carts?.data) - (dataVoucher.apply ? dataVoucher.data.discount : 0))}</span>}
               </div>
             </div>
-            <ButtonPrimary loading={isLoadingOrder || loadingMomo || loadingStripe || loadingVnPay} onClick={() => handleOrder()} className='mt-8 w-full'>
+            <ButtonPrimary loading={isLoadingOrder || loadingMomo || loadingStripe || loadingVnPay} className='mt-8 w-full'>
               Xác nhận
             </ButtonPrimary>
             <div className='mt-5 text-sm text-slate-500 dark:text-slate-400 flex items-center justify-center'>
@@ -472,15 +488,9 @@ const CheckoutPage = () => {
             </div>
           </div>
         </div>
-      </main>:  <Result
-          icon={<CartEmptyAnimationIcon width="200px" height="200px" />}
-          title="Giỏ hàng trống"
-          extra={
-            <Link to="/"><Button type="primary" key="console" className=" bg-black !rounded-[20px]">
-              Quay về trang chủ
-            </Button> </Link>
-          }
-        />}
+      </main>
+    </Form>
+      
       
     </div>
   )

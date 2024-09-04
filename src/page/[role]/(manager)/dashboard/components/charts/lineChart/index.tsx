@@ -1,21 +1,24 @@
+import { VND } from "@/utils/formatVietNamCurrency";
 import Chart from "react-apexcharts";
  
-export default function LineChart({color}: {color: string}) {
+export default function LineChart({data}: {data: Array<any>}) {
+  
+  const hours = Array.from({ length: 24 }, (_, i) => `${i}:00`);
+  const values = data ? hours.map(hour => {
+    const item = data.find(d => `${d.hour}:00` === hour);
+    return item ? item.total_value : 0;
+  }) : []
 
+  
   const chartConfig = {
     type: "area",
-    height: 250,
+    height: 300,
     series: [
       {
-        name: 'category',
-        data: [300, 150, 300, 320, 500, 350, 270, 300, 700],
+        name: 'Giá',
+        data: values,
         color: '#17c1e8',
         
-      },  
-      {
-        name: 'product',
-        data: [200, 300, 340, 620, 600, 650, 200, 230, 400],
-        color: '#3a416f'
       }
     ],
     options: {
@@ -25,16 +28,13 @@ export default function LineChart({color}: {color: string}) {
         },
       },
       title: {
-        show: "",
+        show: false,
       },
       dataLabels: {
         enabled: false,
       },
-      colors: [color],
-      stroke: {
-        lineCap: "round",
-        curve: "smooth",
-      },
+      colors: ['#17c1e8'],
+      stroke: { width: 2, curve: "smooth" },
       markers: {
         size: 0,
       },
@@ -48,50 +48,66 @@ export default function LineChart({color}: {color: string}) {
         labels: {
           show: true,
           style: {
-            colors: "gray",
-            fontSize: "12px",
-            fontFamily: "inherit",
+            colors: "",
+            fontSize: "",
+            fontFamily: "",
             fontWeight: 700,
           },
         },
         categories: [
-          "Apr",
-          "May",
-          "Jun",
-          "Jul",
-          "Aug",
-          "Sep",
-          "Oct",
-          "Nov",
-          "Dec",
+          "1:00 AM",
+          "1:00 AM",
+          "3:00 AM",
+          "4:00 AM",
+          "5:00 AM",
+          "6:00 AM",
+          "7:00 AM",
+          "8:00 AM",
+          "9:00 AM",
+          "10:00 AM",
+          "11:00 AM",
+          "12:00 PM",
+          "13:00 PM",
+          "14:00 PM",
+          "15:00 PM",
+          "16:00 PM",
+          "17:00 PM",
+          "18:00 PM",
+          "19:00 PM",
+          "20:00 PM",
+          "21:00 PM",
+          "22:00 PM",
+          "23:00 PM",
+          "24:00 PM",
         ],
       },
       yaxis: {
         labels: {
-          show: false,
+          show: true,
           style: {
-            colors: "gray",
+            colors: "",
             fontSize: "12px",
-            fontFamily: "inherit",
-            fontWeight: 700,
+            fontFamily: "",
+            fontWeight: 0,
           },
+          formatter: (value) => `${VND(value)}`, // Hiển thị giá trị dưới dạng tiền tệ
         },
         // min: 5,
         // max: 500
       },
       grid: {
-        show: false,
+        show: true,
         borderColor: "#dddddd",
         strokeDashArray: 3,
         
         xaxis: {
           lines: {
-            show: false,
+            show: true,
           },
         },
         padding: {
-          top: 0,
-          left: 0,
+          top: 5,
+          left: 15,
           bottom: 0
         },
       },
@@ -106,6 +122,9 @@ export default function LineChart({color}: {color: string}) {
       },
       tooltip: {
         theme: "light",
+        y: {
+          formatter: (value) => `${VND(value)}`, // Hiển thị giá trị dưới dạng tiền tệ trên tooltip
+        },
       },
       legend: {
         show: false,

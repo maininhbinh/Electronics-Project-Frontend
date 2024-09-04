@@ -47,7 +47,7 @@ const CommonLayout: FC<CommonLayoutProps> = () => {
     <div className="nc-CommonLayoutProps container mt-14 mb-14 sm:mt-20">
       <Row gutter={[32, 24]}>
         <Col span={5}>
-          <div className="shadow-lg p-3">
+          <div className="shadow-lg p-3 rounded-xl">
             <div className="flex items-center space-x-3 mb-2">
               <Avatar imgUrl={dataItem?.data.image || avatarImgs[10]} sizeClass="w-12 h-12" />
               <div className="flex-grow truncate break-all">
@@ -55,19 +55,20 @@ const CommonLayout: FC<CommonLayoutProps> = () => {
                 <p className="text-xs mt-0.5 ">{dataItem?.data.email}</p>
               </div>
             </div>
+            <hr/>
             <Menu
               onClick={handleClick}
               selectedKeys={[current]}
               defaultSelectedKeys={['/account']}
               mode="inline"
               items={items}
-              className="border-none"
+              className="border-none mt-5"
               style={{ borderInlineEnd: 0 }}
             />
           </div>
         </Col>
         <Col span={19}>
-          <div className="shadow-lg">
+          <div className="shadow-lg rounded-xl">
             <div className="p-5 mx-auto">
               <Outlet/>
             </div>

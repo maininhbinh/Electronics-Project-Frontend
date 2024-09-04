@@ -17,7 +17,7 @@ import { VND } from '@/utils/formatVietNamCurrency'
 import { useGetCartsQuery } from '@/services/CartEndPoinst'
 import { getTotalPriceCart } from '@/utils/handleCart'
 import { useAddOrderMutation } from '@/services/OrderEndPoints'
-import { Form, Select, SelectProps } from 'antd'
+import { Form, Select, SelectProps, FormInstance } from 'antd'
 
 import { IOrder } from '@/common/types/Order.interface'
 import { EditOutlined } from '@ant-design/icons'
@@ -26,23 +26,18 @@ interface Props {
   isActive: boolean
   onCloseActive: () => void
   onOpenActive: () => void
-  form: any
   onFinish: (payload: IOrder) => void
+  form: FormInstance
 }
 
-const ShippingAddress: FC<Props> = ({ isActive, onCloseActive, onOpenActive, form, onFinish }) => {
+const ShippingAddress: FC<Props> = ({ isActive, onCloseActive, onOpenActive, onFinish, form }) => {
   const [optionsWard, setOptionWard] = useState<SelectProps['options']>([])
   const [optionsDistrict, setOptionDistrict] = useState<SelectProps['options']>([])
   const { data: provinces, isLoading : isLoadingProvinces, isError } = useGetProvincesQuery({})
   const [getWard, { data: dataWards, isLoading: wardLoading }] = useLazyGetWardsQuery()
   const [getDistrict, { data: dataDistricts, isLoading: districtLoading }] = useLazyGetDistrictsQuery()
-  const dataUser  = useLocalStorage('user', undefined)
-   const user : any = dataUser[0];
 
   const options: SelectProps['options'] = []
-  const validateMessages = {
-    required: '${label} is required!',
-  }
 
   useEffect(() => {
     setOptionDistrict(() => {
@@ -70,8 +65,8 @@ const ShippingAddress: FC<Props> = ({ isActive, onCloseActive, onOpenActive, for
     })
   })
 
-  const onChangeProvince = async (value: string) => {
-    form.resetFields(['district', 'ward']);
+  const onChangeCity = async (value: string) => {
+    form.resetFields(['receiver_district', 'receiver_ward']);
     setOptionWard([])
     if (value) {
       const splitStr = value.split(/-(\d+)/)
@@ -83,7 +78,7 @@ const ShippingAddress: FC<Props> = ({ isActive, onCloseActive, onOpenActive, for
     }
   }
   const onChangeDistrict = async (value : any) => {
-    form.resetFields(['ward'])
+    form.resetFields(['receiver_ward'])
     if (value) {
       const splitStr = value.split(/-(\d+)/)
       const districtId = splitStr[1]
@@ -161,164 +156,89 @@ const ShippingAddress: FC<Props> = ({ isActive, onCloseActive, onOpenActive, for
           fontSize='text-sm font-medium'
           className='bg-slate-50 dark:bg-slate-800 mt-5 sm:mt-0 sm:ml-auto !rounded-lg'
           onClick={onOpenActive}
+          type={'button'}
         >
           Thay đổi
         </ButtonSecondary>
       </div>
-      
-      <Form
-        form={form}
-        layout="vertical"
-        name='nest-messages'
-        validateMessages={validateMessages}
-        onFinish={onFinish}
-        initialValues={
-           {
-            pick_up_required: 'false',
-            receiver_name: user.username,
-            receiver_phone: user?.phone,
-           }
-        }
-      >
 
       <div
-          className={`border-t border-slate-200 dark:border-slate-700 px-6 py-7  ${
-            isActive ? 'block' : 'hidden'
-          }`}
-        >
-          {/* ============ */}
-          <div className='sm:flex space-y-4 sm:space-y-0 sm:space-x-3'>
-            <div className='w-full'>
-              
-              <Form.Item name='receiver_name' label='Tên khách hàng' rules={[{ required: true }]}>
-                <Input  placeholder='Nhập tên'  />
-              </Form.Item>
-              
-            </div>
-            
-          </div>
-
-          {/* ============ */}
-          
-          <div className='sm:flex space-y-4 sm:space-y-0 sm:space-x-3'>
-            <div className='w-full'>
-              
-              <Form.Item name='receiver_phone' label='Số điện thoại' rules={[{ required: true }]}>
-                <Input  placeholder='03456789'/>
-              </Form.Item>
-            </div>
-          </div>
-
-          {/* ============ */}
-
-          {
-            Boolean(user.address) && <div className='sm:flex space-y-4 sm:space-y-0 sm:space-x-3'>
-            <div className='w-full'>
-
-              <Form.Item  label={<div className='flex gap-3'><span>Địa chỉ</span> <Link to="/account"><EditOutlined /> </Link></div>} >
-                 <Input  placeholder={user.address} readOnly  />
-              </Form.Item>
-            
-            </div>
-          </div>}
-          
-          {!Boolean(user.address) && <>  
-            <div className='grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-3'>
-            <div className='app__select--input'>
-
-              <Form.Item name='receiver_pronvinces' label='Tỉnh' rules={[{ required: true }]}>
+        className={`border-t border-slate-200 dark:border-slate-700 px-6 py-7  ${
+          isActive ? 'block' : 'hidden'
+        }`}
+      >
+        
+        <div className='grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-3'>
+          <div>
+            <Label className="text-sm">Thành phố</Label>
+            <div className='app__select--input '>
+              <Form.Item name='receiver_city' rules={[{ required: true, message: 'Vui lòng nhập trường này' }]}>
                 <Select
                   loading={isLoadingProvinces}
-                  
-                  placeholder='Lựa chọn'
+                  placeholder='Lựa chọn thành phố'
                   options={options}
-                  onChange={(value) => onChangeProvince(value)}
-                  
+                  onChange={(value) => onChangeCity(value)}
                 />
               </Form.Item>
-              
             </div>
+          </div>
+          <div>
+            <Label className="text-sm">Quận / huyện</Label>
             <div className="app__select--input">
-              <Form.Item name='receiver_district' label='Quận/ huyện' rules={[{ required: true }]}>
+              <Form.Item name='receiver_district' rules={[{ required: true, message: 'Vui lòng nhập trường này' }]}>
                 <Select
                   loading={districtLoading}
                   onChange={(value) => onChangeDistrict(value)}
-                  placeholder='Lựa chọn'
+                  placeholder='Lựa chọn quận huyện'
                   options={optionsDistrict}
-                  
                 />
               </Form.Item>
             </div>
-          </div>
-
-          <div className='sm:flex space-y-4 sm:space-y-0 sm:space-x-3'>
-            <div className='w-full app__select--input'>
-              <Form.Item name='receiver_ward' label='Xã/phường/thị trấn' rules={[{ required: true }]}>
-                <Select
-                  loading={wardLoading}
-                  placeholder='Lựa chọn'
-                  options={optionsWard}
-                 // defaultValue={user ? user?.address : ''}
-                />
-              </Form.Item>
-            </div>
-          </div>
-
-          <div className='sm:flex space-y-4 sm:space-y-0 sm:space-x-3'>
-            <div className='w-full'>
-
-              <Form.Item name='receiver_address' label='Địa chỉ' rules={[{ required: true }]}>
-                <Input  placeholder='56 Tran Duy Hung' />
-              </Form.Item>
-            
-            </div>
-          </div>
-
-          </>}
-         
-
-
-          <div className='sm:flex space-y-4 sm:space-y-0 sm:space-x-3'>
-            <div className='w-full'>
-
-              <Form.Item name='note' label='Ghi chú' rules={[{ required: true }]}>
-                <Input  placeholder='...' />
-              </Form.Item>
-        
-            </div>
-          </div>
-
-          {/* ============ */}
-          <div>
-            <Label className='text-sm'>Hình thức giao hàng</Label>
-            <Form.Item name={'pick_up_required'}>
-              <div className='mt-1.5 grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3'>
-                <Radio
-                  id='false'
-                  label={`<span class="text-sm font-medium">Vận chuyển</span></span>`}
-                  name='pick_up_required'
-                  defaultChecked
-                />
-                <Radio
-                  id='true'
-                  name='pick_up_required'
-                  label={`<span class="text-sm font-medium">Nhận tại cửa hàng</span> </span>`}
-                />
-              </div>
-            </Form.Item>
-          </div>
-
-          {/* ============ */}
-          <div className='flex flex-col sm:flex-row pt-6'>
-            <ButtonPrimary  type="button" className='sm:!px-7 shadow-none' onClick={onCloseActive}>
-              Lưu và chuyển đến thanh toán
-            </ButtonPrimary>
-            <ButtonSecondary type="button" className='mt-3 sm:mt-0 sm:ml-3' onClick={onCloseActive}>
-              Hủy
-            </ButtonSecondary>
           </div>
         </div>
-      </Form>
+
+        <div className='sm:flex space-y-4 sm:space-y-0 sm:space-x-3'>
+          
+          <div className='w-1/3'>
+            <Label className="text-sm">Xã / phường</Label>
+            <div className='app__select--input'>
+              <Form.Item name='receiver_ward' rules={[{ required: true, message: 'Vui lòng Nhập trường này' }]}>
+                <Select
+                  loading={wardLoading}
+                  placeholder='Lựa chọn Xã phường'
+                  options={optionsWard}
+                />
+              </Form.Item>
+            </div>
+          </div>
+          <div className='flex-1'>
+            <Label className="text-sm">Địa chỉ chi tiết</Label>
+            <Form.Item name='receiver_address' rules={[{ required: true, message: 'Vui lòng nhập trường này' }]}>
+              <Input className='mt-1.5' type='text' placeholder='Nhập địa chỉ chi tiết'/>
+            </Form.Item>
+          </div>
+        </div>
+
+        <div className='sm:flex space-y-4 sm:space-y-0 sm:space-x-3'>
+          <div className='w-full'>
+          <Label className="text-sm">Ghi chú</Label>
+            <Form.Item name='note'>
+              <Input  placeholder='...' className='mt-1.5' type='text'/>
+            </Form.Item>
+      
+          </div>
+        </div>
+
+        {/* ============ */}
+        <div className='flex flex-col sm:flex-row pt-6'>
+          <ButtonPrimary  type="button" className='sm:!px-7 shadow-none' onClick={onCloseActive}>
+            Lưu và chuyển đến thanh toán
+          </ButtonPrimary>
+          <ButtonSecondary type="button" className='mt-3 sm:mt-0 sm:ml-3' onClick={onCloseActive}>
+            Hủy
+          </ButtonSecondary>
+        </div>
+      </div>
     </div>
   )
 }

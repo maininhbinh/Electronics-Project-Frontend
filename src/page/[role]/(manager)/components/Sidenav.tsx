@@ -1,5 +1,5 @@
 import { Menu, Flex } from "antd";
-import logo from "../../../../assets/images/manager/logo.png";
+import logo from "../../../../assets/images/base/logo.svg"
 import UseSidenav from "../../../../feature/UseSidenav";
 import { Typography } from 'antd';
 import Tables from "./icon/Tables";
@@ -9,9 +9,17 @@ import profile from "./icon/Profile";
 import Dashboard from "./icon/Dashboard";
 import { useAppSelector } from "../../../../app/hooks";
 import { useEffect, useState } from "react";
-
+import { FaProductHunt } from "react-icons/fa";
 import type { MenuProps } from 'antd';
-
+import { FaAlignLeft } from "react-icons/fa";
+import { FaPeopleCarry } from "react-icons/fa";
+import { FaIdBadge } from "react-icons/fa";
+import { FaUserCog } from "react-icons/fa";
+import { GoTag } from "react-icons/go";
+import { FaSign } from "react-icons/fa";
+import { FaBahai } from "react-icons/fa";
+import { FaMoneyBillAlt } from "react-icons/fa";
+import { FaShoppingBasket } from "react-icons/fa";
 function Sidenav() {
   const { Text } = Typography;
 
@@ -21,7 +29,7 @@ function Sidenav() {
   const useSidenav = UseSidenav({
     components: [
 
-     
+
       {
         label: (
           <>
@@ -48,7 +56,7 @@ function Sidenav() {
               <span
                 className={`icon `}
               >
-                {<Tables color={darkColor} />}
+                <FaBahai />
               </span>
               <span className={`label font-bold text-[#344767]`}>Tiếp thị</span>
             </Flex>
@@ -59,7 +67,7 @@ function Sidenav() {
             label: (
               <>
                 <Flex align="center" gap={10} justify="center" className="children-menu">
-                  {<Tables color={'#9ca3af'} />}
+                  <FaMoneyBillAlt />
                   <span className="label font-bold text-gray-400">Mã giảm giá</span>
                 </Flex>
               </>
@@ -76,9 +84,9 @@ function Sidenav() {
               <span
                 className={`icon `}
               >
-                {<Tables color={darkColor} />}
+                <FaShoppingBasket />
               </span>
-              <span className={`label font-bold text-[#344767]`}>Mục lục</span>
+              <span className={`label font-bold text-[#344767]`}>Bán hàng</span>
             </Flex>
           </>
         ),
@@ -87,7 +95,7 @@ function Sidenav() {
             label: (
               <>
                 <Flex align="center" gap={10} justify="center" className="children-menu">
-                  {<Tables color={darkColor} />}
+                  <FaProductHunt />
                   <span className="label font-bold text-gray-400">Sản phẩm</span>
                 </Flex>
               </>
@@ -98,40 +106,62 @@ function Sidenav() {
             label: (
               <>
                 <Flex align="center" gap={10} justify="center" className="children-menu">
-                  {<Tables color={darkColor} />}
+                  <FaAlignLeft />
                   <span className="label font-bold text-gray-400">Danh mục</span>
                 </Flex>
               </>
             ),
             link: '/admin/categories'
           },
-          {
-            label: (
-              <>
-               <Flex align="center" gap={10} justify="center" className="children-menu">
-                  {<Tables color={darkColor} />}
-                  <span className="label font-bold text-gray-400">Màu sắc</span>
-                </Flex>
-              </>
-            ),
-            link: '/admin/color'
-          },
+          // {
+          //   label: (
+          //     <>
+          //      <Flex align="center" gap={10} justify="center" className="children-menu">
+          //         {<Tables color={darkColor} />}
+          //         <span className="label font-bold text-gray-400">Màu sắc</span>
+          //       </Flex>
+          //     </>
+          //   ),
+          //   link: '/admin/color'
+          // },
+          // {
+          //   label: (
+          //     <>
+          //       <Flex align="center" gap={10} justify="center" className="children-menu">
+          //         {<Tables color={darkColor} />}
+          //         <span className="label font-bold text-gray-400">Thuộc tính sản phẩm</span>
+          //       </Flex>
+          //     </>
+          //   ),
+          //   link: '/admin/attributes-product'
+          // },
+          // {
+          //   label: (
+          //     <>
+          //       <Flex align="center" gap={10} justify="center" className="children-menu">
+          //         {<Tables color={darkColor} />}
+          //         <span className="label font-bold text-gray-400">Thuộc tính</span>
+          //       </Flex>
+          //     </>
+          //   ),
+          //   link: '/admin/attributes'
+          // },
+          // {
+          //   label: (
+          //     <>
+          //       <Flex align="center" gap={10} justify="center" className="children-menu">
+          //         {<Tables color={darkColor} />}
+          //         <span className="label font-bold text-gray-400">Chi tiết</span>
+          //       </Flex>
+          //     </>
+          //   ),
+          //   link: '/admin/details'
+          // },
           {
             label: (
               <>
                 <Flex align="center" gap={10} justify="center" className="children-menu">
-                  {<Tables color={darkColor} />}
-                  <span className="label font-bold text-gray-400">Thuộc tính sản phẩm</span>
-                </Flex>
-              </>
-            ),
-            link: '/admin/attributes-produc t'
-          },
-          {
-            label: (
-              <>
-                <Flex align="center" gap={10} justify="center" className="children-menu">
-                  {<Tables color={darkColor} />}
+                  <FaPeopleCarry />
                   <span className="label font-bold text-gray-400">Thương hiệu</span>
                 </Flex>
               </>
@@ -142,45 +172,45 @@ function Sidenav() {
         ]
       },
 
-      {
-        label: (
-          <>
-            <Flex align="center" justify="center" >
-              <span
-                className={`icon `}
-              >
-                {<Tables color={darkColor} />}
-              </span>
-              <span className={`label font-bold text-[#344767]`}>Bài viết</span>
-            </Flex>
-          </>
-        ),
-        children: [
-          {
-            label: (
-              <>
-                <Flex align="center" gap={10} justify="center" className="children-menu">
-                  {<Tables color={darkColor} />}
-                  <span className="label font-bold text-gray-400">Danh mục bài viết</span>
-                </Flex>
-              </>
-            ),
-            link: '/admin/post-categories'
-          },
-          {
-            label: (
-              <>
-                <Flex align="center" gap={10} justify="center" className="children-menu">
-                  {<Tables color={darkColor} />}
-                  <span className="label font-bold text-gray-400">Bài viết</span>
-                </Flex>
-              </>
-            ),
-            link: '/admin/posts'
-          },
+      // {
+      //   label: (
+      //     <>
+      //       <Flex align="center" justify="center" >
+      //         <span
+      //           className={`icon `}
+      //         >
+      //           {<Tables color={darkColor} />}
+      //         </span>
+      //         <span className={`label font-bold text-[#344767]`}>Bài viết</span>
+      //       </Flex>
+      //     </>
+      //   ),
+      //   children: [
+      //     {
+      //       label: (
+      //         <>
+      //           <Flex align="center" gap={10} justify="center" className="children-menu">
+      //             {<Tables color={darkColor} />}
+      //             <span className="label font-bold text-gray-400">Danh mục bài viết</span>
+      //           </Flex>
+      //         </>
+      //       ),
+      //       link: '/admin/post-categories'
+      //     },
+      //     {
+      //       label: (
+      //         <>
+      //           <Flex align="center" gap={10} justify="center" className="children-menu">
+      //             {<Tables color={darkColor} />}
+      //             <span className="label font-bold text-gray-400">Bài viết</span>
+      //           </Flex>
+      //         </>
+      //       ),
+      //       link: '/admin/posts'
+      //     },
 
-        ]
-      },
+      //   ]
+      // },
 
       {
         label: (
@@ -189,7 +219,7 @@ function Sidenav() {
               <span
                 className={`icon `}
               >
-                {<Tables color={darkColor} />}
+                <FaIdBadge />
               </span>
               <span className={`label font-bold text-[#344767]`}>Người dùng</span>
             </Flex>
@@ -199,25 +229,25 @@ function Sidenav() {
           {
             label: (
               <>
-               <Flex align="center" gap={10} justify="center" className="children-menu">
-                  {<Tables color={darkColor} />}
+                <Flex align="center" gap={10} justify="center" className="children-menu">
+                  <FaUserCog />
                   <span className="label font-bold text-gray-400">Người dùng</span>
                 </Flex>
               </>
             ),
             link: '/admin/users'
           },
-          {
-            label: (
-              <>
-                <Flex align="center" gap={10} justify="center" className="children-menu">
-                  {<Tables color={darkColor} />}
-                  <span className="label font-bold text-gray-400">Quyền hạn</span>
-                </Flex>
-              </>
-            ),
-            link: '/admin/privilege'
-          },
+          // {
+          //   label: (
+          //     <>
+          //       <Flex align="center" gap={10} justify="center" className="children-menu">
+          //         {<Tables color={darkColor} />}
+          //         <span className="label font-bold text-gray-400">Quyền hạn</span>
+          //       </Flex>
+          //     </>
+          //   ),
+          //   link: '/admin/privilege'
+          // },
         ]
       },
       {
@@ -227,7 +257,7 @@ function Sidenav() {
               <span
                 className={`icon `}
               >
-                {<Tables color={darkColor} />}
+                <FaSign />
               </span>
               <span className="label font-bold text-[#344767]">Banner</span>
             </Flex>
@@ -251,8 +281,8 @@ function Sidenav() {
         ),
         link: '/admin/order'
       },
-     
-     
+
+
       {
         label: (
           <>
@@ -285,7 +315,7 @@ function Sidenav() {
         label: (
           <>
             <Text style={{ fontSize: '16px', fontWeight: '700' }} className={`text-[${bgIcon}]`}>
-            Trang tài khoản
+              Trang tài khoản
             </Text>
           </>
         ),
@@ -331,7 +361,7 @@ function Sidenav() {
   };
 
   const levelKeys = getLevelKeys(items as LevelKeysProps[]);
-  
+
 
   const onOpenChange: MenuProps['onOpenChange'] = (openKeys) => {
     const currentOpenKey = openKeys.find((key) => stateOpenKeys.indexOf(key) === -1);
@@ -354,16 +384,15 @@ function Sidenav() {
     }
   };
 
-  useEffect(()=>{
+  useEffect(() => {
     const defaultActiveString = useSidenav.getKeyActive().map(num => num.toString());
     setStateOpenKeys(defaultActiveString);
   }, []);
 
   return (
     <>
-      <Flex gap={10} className="brand" style={{ display: 'flex', alignItems: 'center' }}>
+      <Flex gap={10} className="brand" justify="center" style={{ display: 'flex', alignItems: 'center' }}>
         <img src={logo} alt="" />
-        <span className=" text-center">Bảng điều khiển</span>
       </Flex>
       <hr />
       <Menu theme="light" mode="inline" triggerSubMenuAction='click' openKeys={stateOpenKeys} defaultSelectedKeys={stateOpenKeys} items={items} onOpenChange={onOpenChange} />

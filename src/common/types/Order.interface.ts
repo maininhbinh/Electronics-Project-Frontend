@@ -1,3 +1,5 @@
+export type Payment = "stripe-payment" | "momo" | "vnpay" | "COD";
+
 export interface IOrder{
     id: number|string
     user_id?: number|string 
@@ -7,7 +9,7 @@ export interface IOrder{
     receiver_name: string
     receiver_email: string
     receiver_phone: string
-    receiver_pronvinces: string
+    receiver_city: string
     receiver_ward: string
     receiver_district: string
     receiver_address: string
@@ -16,5 +18,6 @@ export interface IOrder{
     pick_up_required: boolean
     discount_code: string
     discount_price: string
+    payment_method: Payment
     sku: string 
 }
