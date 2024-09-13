@@ -1,23 +1,18 @@
 import { Col, Flex, Row, Button, Form, Input, Drawer, Select, UploadProps, GetProp } from 'antd'
 import { useNavigate, useParams } from 'react-router-dom'
 import React, {  useEffect, useRef, useState } from 'react'
-import getRandomNumber from '@/utils/randomNumber';
-import TableVariant from './Variant/TableVariant'
-import Option from './Option/Option'
-import { useCreateProductMutation, useEditProductQuery, useGetProductQuery } from '../ProductsEndpoints';
+import { useEditProductQuery, useUpdateProductMutation } from '../ProductsEndpoints';
 import { popupError, popupSuccess } from '@/page/[role]/shared/Toast';
 import LexicalEditor from '@/components/TextEditor/LexicalEditor';
 import PermMediaOutlinedIcon from '@mui/icons-material/PermMediaOutlined';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded';
-import { useGetCategoriesQuery } from '../../category/CategoryEndpoints';
-import { useGetGalleryQuery } from '@/app/endPoint/GalleryEndPoint';
 import VariantUpdate from './Variant/VariantUpdate';
 import TableVariantDemo from './Variant/TableVariantDemo';
-import { CloudUploadOutlined, DeleteOutlined, DownOutlined, MinusCircleOutlined, PlusCircleOutlined, PlusOutlined  } from '@ant-design/icons';
+import { PlusOutlined  } from '@ant-design/icons';
 import OptionUpdate from './Option/OptionUpdate';
-
-
+import { useAppDispatch } from '@/app/hooks';
+import { setLoading, setOpenModalLogin } from "@/app/webSlice";
 interface gallery{
   id?: string
   image?: File | string
@@ -63,6 +58,10 @@ interface Detail {
   attributes: {
     id: string,
     name: string
+    values: {
+      id: string,
+      name: string
+    }[]
   }[]
 }
 
@@ -71,24 +70,30 @@ interface PayloadGallery {
   delete?: (string|number)[]
 }
 
-type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0];
 
+type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0];
 
 function EditProduct() {
   const {id} = useParams()  
-  const [addProduct, {isLoading : isLoadingAddProduct}] = useCreateProductMutation();
-  const {data: product, isLoading: isLoadingProduct} = useEditProductQuery(id)
-  const {data: dataGallery, isLoading: isLoadingGallery} = useGetGalleryQuery(id)
+
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate()
+
+  const {refetch, data: product, isLoading: isLoadingProduct} = useEditProductQuery(id)
+  const [updateProduct] = useUpdateProductMutation()
   const [editor, setEditor] = useState<string>('');
   const [payloadGallery, setPayloadGallery] = useState<PayloadGallery>({
+    add: [],
+    delete: []
   });
+  const [payloadDetail, setPayloadDetail] = useState<Array<string>>([])
+  
 
   const [imageUrl, setImageUrl] = useState<Blob>();
   const [form] = Form.useForm();
   const [gallery, setGallery] = useState<Array<gallery>>([]);
   const fileInputRef = useRef<any>(null);
   const numberFile = useRef<number>(0);
-  const navigate = useNavigate()
 
   const [category, setCategory] = useState<Category | null>(null);
 
@@ -112,15 +117,22 @@ function EditProduct() {
       const is_new = form.getFieldValue('is_new') ? 1 : 0;
       const is_show_home = form.getFieldValue('is_show_home') ? 1 : 0;   
       
-      const details = category?.details.map(item=>{
-        return {
-          id: item.id,
-          attributes: item.attributes.map(item=>({
-            id: item.id,
-            values: form.getFieldValue(`attr-${item.id}`)
-          }))
-        }
-      })
+      const details = {
+        delete: payloadDetail,
+        add: category?.details.flatMap(item=> {
+          return item.attributes.map(attr => {
+            const value = form.getFieldValue(`attr-${attr.id}-${item.id}`);
+          
+            if(!value || !value.length){
+              return null
+            }
+            return {
+              id: attr.id,
+              values: form.getFieldValue(`attr-${attr.id}-${item.id}`)
+            }
+          })
+        }).filter(item => item != null)
+      }
 
       const newProductItem = product_item.map(item=>({
         id: item.id,
@@ -137,15 +149,19 @@ function EditProduct() {
         status: item.status
       }))
 
+      console.log(newProductItem);
+      
       const productDeletes = products.filter(item=>{
         return newProductItem.findIndex(itemC => itemC.id === item.id) == -1 ? true : false
       }).map(item=>item.id)
 
-     
       const formdata = new FormData();
 
-      formdata.append('thumbnail', imageUrl ? imageUrl : '');
-      formdata.append('gallery', payloadGallery ? JSON.stringify(payloadGallery) : '');
+      if (imageUrl) {
+        formdata.append('thumbnail', imageUrl);
+      }  
+
+      formdata.append('gallery', JSON.stringify(payloadGallery));
       formdata.append('name', name);
       formdata.append('content', content);
       formdata.append('category_id', category_id);
@@ -157,8 +173,18 @@ function EditProduct() {
       formdata.append('is_show_home', String(is_show_home));
       formdata.append('product_details', JSON.stringify(details));
       formdata.append('product_items', JSON.stringify(newProductItem));    
-      formdata.append('productDeletes', JSON.stringify(productDeletes));    
-      
+      formdata.append('product_deletes', JSON.stringify(productDeletes));    
+
+      try{
+        dispatch(setLoading(true))
+        await updateProduct({id: id, newProduct: formdata});
+        dispatch(setLoading(false))
+        popupSuccess('Add category success')
+        refetch()
+        navigate('..')
+      }catch(e){
+        popupError('Cập nhật không thành công')
+      }
     }
     
   }
@@ -289,7 +315,7 @@ function EditProduct() {
 
   useEffect(()=>{
     if(product && !isLoadingProduct){
-      const {name, content, category_id, brand_id, category, products, is_active, is_hot_deal, is_good_deal, is_new, is_show_home} = product.data
+      const {name, content, category_id, brand_id, category, products, is_active, is_hot_deal, is_good_deal, is_new, is_show_home, galleries} = product.data
       const variantModels: variant[] = product.variants
       const variantSet = products.map((item)=>({
         id: item.id,
@@ -319,28 +345,10 @@ function EditProduct() {
       setEditor(`${content}`)
       setCategory(category)
       category.details.forEach((item)=>{
-        item.attributes.forEach((item)=>{
-          form.setFieldValue(`attr-${item.id}`, item.values.map((item)=>item.name))
+        item.attributes.forEach((attr)=>{
+          form.setFieldValue(`attr-${attr.id}-${item.id}`, attr.values.map((attr)=>attr.name))
         })
       })
-      setVariant([
-        ...variantModels
-      ])
-      variantModels.forEach((item: variant)=>{
-        form.setFieldValue(`input-${item.id}`, item.name)
-        item.attribute.forEach((item)=>{
-          form.setFieldValue(`attr-value-${item.id}`, item.value)
-        })
-      })
-
-      form.setFieldsValue(addForm)
-    }
-  }, [product])
-
-  useEffect(()=>{
-    if(dataGallery && !isLoadingGallery){
-      const galleries = dataGallery.data
-      
       setGallery([
         ...gallery,
         ...galleries.
@@ -354,8 +362,19 @@ function EditProduct() {
           })
         )
       ]);
+      setVariant([
+        ...variantModels
+      ])
+      variantModels.forEach((item: variant)=>{
+        form.setFieldValue(`input-${item.id}`, item.name)
+        item.attribute.forEach((item)=>{
+          form.setFieldValue(`attr-value-${item.id}`, item.value)
+        })
+      })
+
+      form.setFieldsValue(addForm)
     }
-  }, [dataGallery])  
+  }, [product])
 
   return (
     <>
@@ -518,36 +537,31 @@ function EditProduct() {
                 {/* Detail */}
                 <Flex vertical className='sm:rounded-xl p-10 bg-[#ffff]' style={{boxShadow: 'rgba(0, 0, 0, 0.05) 0rem 1.25rem 1.6875rem 0rem'}}>
                   <h2 className={`mb-5 font-bold text-[20px]`}>Thông tin chi tiết sản phẩm</h2>
-                  {category && category?.details.map((item)=>(
-                    <Flex vertical gap={20} key={item.id} className='p-5 border-[1px] rounded-xl'>
+                  <Flex vertical gap={20} className='p-5 border-[1px] rounded-xl'>
+                    {category && category?.details.map((item)=>(
+                      <Flex key={item.id} vertical gap={20} className='rounded-xl'>
                         <h2 className=' font-bold text-[16px]'>{item.name}</h2>
                         <hr />
                         <Flex align='center' wrap gap={20}>
                             {item.attributes.map((attr)=>(
-                              <Flex vertical gap={5} key={attr.id} className='w-[25%]'>
-                                <h2 className='font-bold text-[14 px] text-gray-500'>{attr.name}</h2>
+                              <Flex vertical gap={5} key={attr.id} className='w-[23%]'>
+                                <h2 className='font-bold text-[14 px]'>{attr.name}</h2>
                                 <Form.Item 
                                   className='m-0' 
-                                  name={`attr-${attr.id}`} 
-                                  rules={[
-                                    {
-                                      required: true,
-                                      message: 'Trường này không được bỏ trống'
-                                    },
-                                  ]}
-
+                                  name={`attr-${attr.id}-${item.id}`} 
                                 >
                                   <Select
-                                    mode='tags'
                                     className='custom-seclect'
+                                    mode='tags'
                                     style={{ width: '100%'}} 
                                   />
                                 </Form.Item> 
                               </Flex>
                             ))}
                         </Flex>
-                    </Flex>
-                  ))}
+                      </Flex>
+                    ))}
+                  </Flex>
                 </Flex>
                 {/* Detail */}
 

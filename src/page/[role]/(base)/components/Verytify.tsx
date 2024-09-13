@@ -15,7 +15,7 @@ interface VerifyTokenProps {
   setUser: Dispatch<SetStateAction<Iuser>>
 }
 
-export default function Verytify({setIsModalVeritifyOpen, email, setUser}: VerifyTokenProps) {
+export default function Verytify({setIsModalVeritifyOpen, email}: VerifyTokenProps) {
   type OTPProps = GetProps<typeof Input.OTP>;
   
   const [expiredOTP, setExpiredOTP] = useState(5)
@@ -32,7 +32,6 @@ export default function Verytify({setIsModalVeritifyOpen, email, setUser}: Verif
       const response = await VerifyToken(otp, email);
       dispatch(login(response.data));
       popupSuccess(`Hello ${response.data.user.username}`);
-      setUser(response.data.user)
       setIsModalVeritifyOpen(false)
       navigate("../");
     } catch (error) {

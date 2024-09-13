@@ -377,6 +377,10 @@ export default function Variant({ keyValue, detail, show, setDetail, handleRemov
                     >
                         <Select
                             style={{ width: '23%' }}
+                            showSearch
+                            filterOption={(input, option) =>
+                                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                              }
                             placeholder="Chọn hoặc thêm biến thể sản phẩm"
                             className='m-0 h-[40px]'
                             onChange={(value)=>{
@@ -506,6 +510,10 @@ export default function Variant({ keyValue, detail, show, setDetail, handleRemov
 
                                         <Select
                                             placeholder="Chọn hoặc thêm"
+                                            showSearch
+                                            filterOption={(input, option) =>
+                                                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                                              }
                                             className='h-[40px]'
                                             onChange={(e) => {
                                                 form.setFieldValue(`attr-value-${value.id}`, e)

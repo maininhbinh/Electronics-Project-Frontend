@@ -38,7 +38,6 @@ export default function ListProduct(){
     })
   };
 
-   console.log(data)
     const dataItem = data?.data.map((item : IProduct, key : number) => {
       return {
         ...item,
@@ -59,7 +58,6 @@ export default function ListProduct(){
           dataIndex: 'products',
             key: 'products',
             render: (products) => {
-              console.log(products)
               return <span> {VND(products[0].price)}</span>
             }
         },
@@ -68,7 +66,6 @@ export default function ListProduct(){
             dataIndex: 'products',
             key: 'products',
             render: (products) => {
-              console.log(products)
               return <span> {VND(products[0].price_sale)}</span>
             }
         },

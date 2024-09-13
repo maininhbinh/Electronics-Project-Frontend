@@ -89,8 +89,6 @@ function AddProduct() {
   const navigate = useNavigate()
 
   const [category, setCategory] = useState<Category | null>(null);
-  const [detailsAttr, setDetailsAttr] = useState<detailsAtrr[]>([]);
-
 
   const [variant, setVariant] = useState<Array<variant>>([{
     id: `${Date.now()}${getRandomNumber()}`,
@@ -136,24 +134,19 @@ function AddProduct() {
       });
     }       
     
-    const details = detailsAttr.reduce((acc, item) => {
-      // Tìm đối tượng idDetail hiện có trong acc hoặc tạo mới nếu không tồn tại
-        let detail = acc.find(d => d.id === item.idDetail);
-        if (!detail) {
-          detail = { id: item.idDetail, attributes: [] };
-          acc.push(detail);
+    const details = category?.details.flatMap(item=> {
+      return item.attributes.map(attr => {
+        const value = form.getFieldValue(`attr-${attr.id}-${item.id}`);
+      
+        if(!value || !value.length){
+          return null
         }
-    
-        // Thêm thuộc tính vào detail
-        detail.attributes.push({
-            id: item.id,
-            values: item.values
-        });
-    
-        return acc;
-    }, [] as ResultItem[]);    
-    
-  
+        return {
+          id: attr.id,
+          values: form.getFieldValue(`attr-${attr.id}-${item.id}`)
+        }
+      })
+    }).filter(item => item != null)
 
     const formdata = new FormData();
 
@@ -613,7 +606,7 @@ function AddProduct() {
                                   <h2 className='font-bold text-[14 px]'>{attr.name}</h2>
                                   <Form.Item 
                                     className='m-0' 
-                                    name={`attr-${attr.id}`} 
+                                    name={`attr-${attr.id}-${item.id}`} 
                                     rules={[
                                       {
                                         required: true,
@@ -624,33 +617,6 @@ function AddProduct() {
                                     <Select
                                       className='custom-seclect'
                                       mode='tags'
-                                      onChange={(e)=>{
-                                        const existingAttrIndex = detailsAttr.findIndex(item => item.id === attr.id);
-                                        if(existingAttrIndex > -1){
-                                          const newDetailAttr = detailsAttr.map((item, index) => {
-                                            if (index === existingAttrIndex) {
-                                              return {
-                                                ...item,
-                                                values: e
-                                              };
-                                            }
-                                            return item;
-                                          });
-                                          setDetailsAttr(newDetailAttr)
-                                        }else {
-                                          // Nếu mục không tồn tại, thêm mới vào mảng
-                                          const newDetailAttr = [
-                                            ...detailsAttr,
-                                            {
-                                              id: attr.id,
-                                              idDetail: item.id,
-                                              values: e
-                                            }
-                                          ];
-                                          setDetailsAttr(newDetailAttr);
-                                        }
-
-                                      }}
                                       style={{ width: '100%'}} 
                                     />
                                   </Form.Item> 

@@ -5,13 +5,10 @@ import { Flex, Form, Input, Modal, Button, Switch, Select, Drawer, Row, Col } fr
 import { useEffect, useRef, useState } from 'react';
 import ButtonEdit from '../../shared/ButtonEdit/ButtonEdit';
 import { popupError, popupSuccess } from '@/page/[role]/shared/Toast';
-import { useCreateCategoryMutation, useGetCategoriesQuery, useGetCategoryQuery } from '../CategoryEndpoints';
-import { ICategory } from '@/common/types/category.interface';
+import { useGetCategoryQuery } from '../CategoryEndpoints';
 import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded';
 import PermMediaRoundedIcon from '@mui/icons-material/PermMediaRounded';
 import EditRoundedIcon from '@mui/icons-material/EditRounded';
-import LexicalEditor from '@/components/TextEditor/LexicalEditor';
-import getRandomNumber from '@/utils/randomNumber';
 import Detail from './detail/Detail';
 import { useGetDetailsQuery } from '@/app/endPoint/DetailEndPoint';
 import { useAppDispatch, useAppSelector } from '@/app/hooks';
@@ -31,7 +28,6 @@ interface Detail {
 export default function EditCategory() {
   const params = useParams();
   const {data: listDetail, isLoading} = useGetDetailsQuery({})
-  const [createCategory, { isLoading: isLoadingCreateCategory }] = useCreateCategoryMutation();
   const {refetch, data : dataItem, isLoading : isLoadingGetCategory, isError : isErrorGetCategory} = useGetCategoryQuery(params.id)
   
   const dispatch = useAppDispatch();
@@ -126,8 +122,6 @@ export default function EditCategory() {
         id: params.id,
         formData
       }
-      console.log(attributes);
-      
       
       try {
         dispatch(setLoading(true))

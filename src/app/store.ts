@@ -6,7 +6,6 @@ import { attributesApi } from '../page/[role]/(manager)/attribute/_components/at
 import { addressApi } from '../utils/addressRTKQuery'
 
 import bannerSlice from './slices/bannerSlice'
-import categorySlice from './slices/categorySlice'
 import { valueAttributesApi } from '../page/[role]/(manager)/attribute/_components/value_attribute/ValueAttributeEndPoints'
 import postCategorySlice from './slices/postCategorySlice'
 import { privilegeGroupApi } from '@/page/[role]/(manager)/privilege/_components/privilege_group/PrivilegeGroupEndpoint'
@@ -25,7 +24,6 @@ import { voucherApi } from '@/page/[role]/(manager)/voucher/VoucherEndpoint'
 import { CommentsApi } from '@/services/CommentEndPoints'
 import { statisticalApi } from '@/page/[role]/(manager)/dashboard/StatisticalEnpoint'
 import { detailsApi } from '@/page/[role]/(manager)/details/_component/DetailsEndpoints'
-import { galleryApi } from './endPoint/GalleryEndPoint'
 import { detailApi } from './endPoint/DetailEndPoint'
 
 export const store = configureStore({
@@ -55,7 +53,6 @@ export const store = configureStore({
     [CommentsApi.reducerPath] : CommentsApi.reducer,
     [statisticalApi.reducerPath] : statisticalApi.reducer,
     [detailsApi.reducerPath] : detailsApi.reducer,
-    [galleryApi.reducerPath] : galleryApi.reducer,
     [detailApi.reducerPath]: detailApi.reducer
   },
   // middleware: (getDefaultMiddleware) => getDefaultMiddleware({ serializableCheck: false })
@@ -79,7 +76,6 @@ export const store = configureStore({
     CommentsApi.middleware, 
     statisticalApi.middleware, 
     detailsApi.middleware,
-    galleryApi.middleware,
     detailApi.middleware
   ),
 });
