@@ -39,6 +39,14 @@ export const productsApi = apiWithTag.injectEndpoints({
       query: (id) => `product/edit/${id}`,
       providesTags: (id) => [{ type: 'Products', id }],
     }),
+    updateProduct: builder.mutation({
+      query: ({id, newProduct}) => ({
+        url: `product/update/${id}`,
+        method: 'POST',
+        body: newProduct
+      }),
+      invalidatesTags: (id) => [{ type: 'Products', id },  { type: 'Products', id: 'LIST' }],
+    }),
     filterProduct: builder.query({
       query: (feat) => `product/home/${feat}`,
       providesTags: () => [{ type: 'Products', id: 'FEAT' }],
@@ -48,7 +56,6 @@ export const productsApi = apiWithTag.injectEndpoints({
         url: 'product/filter',
         method: 'POST',
         params: params,
-        
       }),
       invalidatesTags: [{ type: 'Products', id: 'LIST' }],
     }),
@@ -60,14 +67,6 @@ export const productsApi = apiWithTag.injectEndpoints({
         formData: true,
       }),
       invalidatesTags: [{ type: 'Products', id: 'LIST' }],
-    }),
-    updateProduct: builder.mutation({
-      query: (updatedProduct) => ({
-        url: `products/${updatedProduct.id}`,
-        method: 'PUT',
-        body: updatedProduct,
-      }),
-      invalidatesTags: (id) => [{ type: 'Products', id },  { type: 'Products', id: 'LIST' }],
     }),
     deleteProduct: builder.mutation({
       query: (id) => ({

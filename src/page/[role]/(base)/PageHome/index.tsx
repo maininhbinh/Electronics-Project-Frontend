@@ -46,7 +46,7 @@ function PageHome() {
         </div> */}
 
         {/* SECTION */}
-        <SectionGridFeatureItems />
+        {/* <SectionGridFeatureItems /> */}
 
         {/*  */}
         {/* <SectionPromo2 /> */}

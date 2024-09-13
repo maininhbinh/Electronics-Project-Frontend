@@ -86,7 +86,6 @@ import { useGetVouchersQuery } from "../../(manager)/voucher/VoucherEndpoint";
     const {slug} = useParams()
     
     const {data, isLoading} = useGetProductQuery(slug); 
-  
 
     const productId = data?.data?.id;
     const {data: listComments} = useGetCommentsQuery(productId, {skip: !productId,});   
@@ -705,7 +704,7 @@ import { useGetVouchersQuery } from "../../(manager)/voucher/VoucherEndpoint";
       )
     }    
 
-    const {details, name} = data.data
+    const {category, name} = data.data
 
     return (
       <div
@@ -777,7 +776,7 @@ import { useGetVouchersQuery } from "../../(manager)/voucher/VoucherEndpoint";
                   header={<div className="text-[20px] font-bold">Thông số kĩ thuật</div>}
                   footer={<div><Button onClick={()=>setOpenDetail(true)} className="w-full">Xem cấu hình chi tiết</Button></div>}
                   bordered
-                  dataSource={details.flatMap((item: IDetail) => item.attributes).slice(0,10)}
+                  dataSource={category.details.flatMap((item: IDetail) => item.attributes).slice(0,10)}
                   renderItem={(item: IAttribute) => (
                     <List.Item className=" flex justify-between">
                       
@@ -808,7 +807,7 @@ import { useGetVouchersQuery } from "../../(manager)/voucher/VoucherEndpoint";
                   open={openDetail}
                   onCancel={()=>setOpenDetail(false)}
                 >
-                  {details.map((item: IDetail, key: number)=>(
+                  {category.details.map((item: IDetail, key: number)=>(
                     <div key={key} className=" mt-4">
                       <h2 className="font-bold mb-1">{item.name}</h2>
                       <List

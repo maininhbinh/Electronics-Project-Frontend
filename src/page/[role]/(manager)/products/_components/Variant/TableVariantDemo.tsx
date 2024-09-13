@@ -109,7 +109,10 @@ export default function TableVariantDemo({variant, form}: TableVariantProps) {
 
     const handleRemove = (index) => {
         const fields = form.getFieldValue('variant');
-        fields.splice(index, 1); // Xóa mục tại chỉ số index
+        if(fields.length <= 1){
+            return
+        }
+        fields.splice(index, 1);
         form.setFieldsValue({
             variant: [...fields]
         });

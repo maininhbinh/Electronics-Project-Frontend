@@ -1,7 +1,6 @@
 import React, { FC, useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import NcImage from '../shared/NcImage/NcImage'
-import LikeButton from './LikeButton'
 import Prices from './Prices'
 import { ArrowsPointingOutIcon } from '@heroicons/react/24/outline'
 import { StarIcon } from '@heroicons/react/24/solid'
@@ -14,8 +13,6 @@ import ModalQuickView from './ModalQuickView'
 import ProductStatus from './ProductStatus'
 import { IProduct, IProductItem } from '@/common/types/product.interface'
 import { IAddCart, ICart } from '@/common/types/cart.interface'
-import { useAppDispatch } from '@/app/hooks'
-import { AddToCart } from '@/app/slices/cartSlide'
 import { useAddToCartMutation } from '@/services/CartEndPoinst'
 import { popupError } from '../../shared/Toast'
 export interface ProductCardProps {
@@ -30,6 +27,7 @@ const ProductCard: FC<ProductCardProps> = ({
   isLiked,
 }) => {
   const {
+    id,
     name,
     thumbnail,
     slug,
@@ -44,8 +42,7 @@ const ProductCard: FC<ProductCardProps> = ({
   const [image, setImage] = React.useState(thumbnail);
   const blocksRef = useRef([]);
   const [maxWidth, setMaxWidth] = useState(0);
-  
-  
+
   useEffect(() => {
     const widths = blocksRef.current.map(block => block.offsetWidth);
     const max = Math.max(...widths);
@@ -65,6 +62,8 @@ const ProductCard: FC<ProductCardProps> = ({
   const firstVariantGroup: Set<string> = new Set();
   const secondVariantGroup: Set<string> = new Set();
 
+  
+
   products.forEach((product: IProductItem) => {
     if (product.variants.length > 0) {
         firstVariantGroup.add(product.variants[0].name);
@@ -76,6 +75,10 @@ const ProductCard: FC<ProductCardProps> = ({
 
   const firstVariantArray: string[] = [...firstVariantGroup];
   const secondVariantArray: string[] = [...secondVariantGroup];
+  if(id == 7){
+    console.log(secondVariantArray);
+    
+  }
   
 
   const notifyAddTocart = async ({ second }: { second?: string | null }) => {
@@ -200,6 +203,7 @@ const ProductCard: FC<ProductCardProps> = ({
                 }
                 ${
                   products.find((product: IProductItem) => {
+                    
                     return product.variants[0].name == item && product.quantity < 1
                   }) ? 'text-gray-200 pointer-events-none' : ''
                 }

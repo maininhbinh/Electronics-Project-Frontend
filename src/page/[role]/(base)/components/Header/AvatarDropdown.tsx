@@ -835,7 +835,7 @@ export default function AvatarDropdown() {
       {
         isModalVeritifyOpen
         ?
-        <Verytify setIsModalVeritifyOpen={setIsModalVeritifyOpen} email={email} setUser={setUser}/>
+        <Verytify setIsModalVeritifyOpen={setIsModalVeritifyOpen} email={email}/>
         :
         ''
       }
