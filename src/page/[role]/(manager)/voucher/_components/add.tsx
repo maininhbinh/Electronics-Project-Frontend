@@ -163,6 +163,7 @@ export default function ModalCreateVoucher({
                 if (
                   !form.getFieldValue('start_date') ||
                   form.getFieldValue('start_date') === undefined
+                  || date <= moment(form.getFieldValue('start_date')?.format())
                 )
                   return true;
                 return (

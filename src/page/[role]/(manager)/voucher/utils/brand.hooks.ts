@@ -56,6 +56,7 @@ export default function useVoucher() {
       quantity: values.quantity,
       discount_max: values.discount_max,
       is_activate: String(values.is_activate),
+      used_count: values.used_count,
       status: values.status,
       type: values.type
     })

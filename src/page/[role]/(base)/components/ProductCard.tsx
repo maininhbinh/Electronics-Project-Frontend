@@ -36,7 +36,7 @@ const ProductCard: FC<ProductCardProps> = ({
     order_details_sum_quantity,
     is_active
   } = data;
-  const [addToCart, {isLoading}] = useAddToCartMutation();
+  const [addToCart, { isLoading }] = useAddToCartMutation();
   const [variantActive, setVariantActive] = React.useState(0);
   const [showModalQuickView, setShowModalQuickView] = React.useState(false);
   const [image, setImage] = React.useState(thumbnail);
@@ -48,28 +48,28 @@ const ProductCard: FC<ProductCardProps> = ({
     const max = Math.max(...widths);
     setMaxWidth(max);
   }, []);
-  
+
   const prices = products.map((product: IProductItem) => parseFloat(product.price));
   const price_sale = products.map((product: IProductItem) => parseFloat(product.price_sale));
   const maxPrice = Math.round(prices.reduce((accumulator, currentValue) => accumulator + currentValue, 0) / prices.length);
   const maxPriceSale = Math.round(price_sale.reduce((accumulator, currentValue) => accumulator + currentValue, 0) / price_sale.length);
-  
+
   const productVariantDetail = {
     price: maxPrice,
     price_sale: maxPriceSale
   }
-  
+
   const firstVariantGroup: Set<string> = new Set();
   const secondVariantGroup: Set<string> = new Set();
 
-  
+
 
   products.forEach((product: IProductItem) => {
     if (product.variants.length > 0) {
-        firstVariantGroup.add(product.variants[0].name);
+      firstVariantGroup.add(product.variants[0].name);
     }
     if (product.variants.length > 1) {
-        secondVariantGroup.add(product.variants[1].name);
+      secondVariantGroup.add(product.variants[1].name);
     }
   });
 
@@ -81,8 +81,8 @@ const ProductCard: FC<ProductCardProps> = ({
       return !second ? item.variants[0].name == firstVariantArray[variantActive] : item.variants[0].name == firstVariantArray[variantActive] && item.variants[1].name == second
     });
 
-    if(cart?.id){
-      
+    if (cart?.id) {
+
       try {
         const payload: IAddCart = {
           quantity: 1,
@@ -112,11 +112,11 @@ const ProductCard: FC<ProductCardProps> = ({
           { position: "top-right", id: "nc-product-notify", duration: 3000 }
         );
       } catch (error) {
-          popupError('Add to cart error!');
+        popupError('Add to cart error!');
       }
-    
+
     }
-    
+
   };
 
   const renderProductCartOnNotify = ({ second }: { second?: string | null }) => {
@@ -139,20 +139,20 @@ const ProductCard: FC<ProductCardProps> = ({
                   <span>
                     {firstVariantArray ? firstVariantArray[variantActive] : `Natural`}
                   </span>
-                  
+
                   {
-                  second
-                  ?
-                  <>
-                    <span className="mx-2 border-l border-slate-200 dark:border-slate-700 h-4"></span>
-                    <span>{second || "XL"}</span>
-                  </>
-                  :
-                  ''
+                    second
+                      ?
+                      <>
+                        <span className="mx-2 border-l border-slate-200 dark:border-slate-700 h-4"></span>
+                        <span>{second || "XL"}</span>
+                      </>
+                      :
+                      ''
                   }
                 </p>
               </div>
-              <Prices price={products.find(item => {                
+              <Prices price={products.find(item => {
                 return second ? item.variants[0].name == firstVariantArray[variantActive] && item.variants[1].name == second : item.variants[0].name == firstVariantArray[variantActive]
               })?.price || 0} className="mt-0.5" />
             </div>
@@ -188,27 +188,26 @@ const ProductCard: FC<ProductCardProps> = ({
               setImage(products.find(item => {
                 return item.variants[0].name == firstVariantArray[index]
               })?.image || thumbnail)
-              
+
               setVariantActive(index)
             }}
-            className={`relative border-[1px] overflow-hidden z-10 cursor-pointer nc-shadow-lg text-center text-nowrap py-[0.7rem] px-2 rounded-xl bg-white hover:bg-slate-900 hover:text-white transition-colors flex items-center justify-center uppercase font-semibold tracking-tight text-sm  ${
-                variantActive === index
-                  ? "text-red-400 dark:border-slate-300"
-                  : "border-gray"
-                }
-                ${
-                  !products.filter((product: IProductItem) => {
-                    return product.variants[0].name == item
-                  }).find(item => item.quantity > 1) ? 'text-gray-200 pointer-events-none' : ''
-                }
+            className={`relative border-[1px] overflow-hidden z-10 cursor-pointer nc-shadow-lg text-center text-nowrap py-[0.7rem] px-2 rounded-xl bg-white hover:bg-slate-900 hover:text-white transition-colors flex items-center justify-center uppercase font-semibold tracking-tight text-sm  ${variantActive === index
+              ? "text-red-400 dark:border-slate-300"
+              : "border-gray"
+              }
+                ${!products.filter((product: IProductItem) => {
+                return product.variants[0].name == item
+              }).find(item => item.quantity > 1) ? 'text-gray-200 pointer-events-none' : ''
+              }
               `}
             title={item}
           >
             <div className='overflow-hidden w-full'>{item}</div>
           </div>
-        ))}
-        
-      </div>
+        ))
+        }
+
+      </div >
     );
   };
 
@@ -256,7 +255,7 @@ const ProductCard: FC<ProductCardProps> = ({
               <div className='overflow-hidden w-full'>
                 {second}
               </div>
-            </div> 
+            </div>
           );
         })}
       </div>
@@ -264,15 +263,15 @@ const ProductCard: FC<ProductCardProps> = ({
   };
 
   const checkHasProduct = (variant) => {
-    
+
     const checkOutStock = products.map((item: IProductItem) => JSON.stringify(item.variants.map(item => item.name)));
     const variantEncode = JSON.stringify([firstVariantArray[variantActive], variant]);
-    
+
     return !checkOutStock.includes(variantEncode)
   }
 
   const inStockVariant = (variant: string) => {
-    
+
     return variant && products ? products?.find((item) => {
       return item.variants[0].name == firstVariantArray[variantActive] && item.variants[1].name == variant
     })?.quantity : 0
@@ -314,33 +313,33 @@ const ProductCard: FC<ProductCardProps> = ({
           <div className="flex justify-between items-center ">
             {
               maxPriceSale
-              ?
-              <>
-                <Prices price={maxPriceSale} />
-                <Prices price={maxPrice} classChildren='text-[12px] text-red-500 line-through'/>
-              </>
-              :
-              <>
-                <Prices price={maxPrice} />
-              </>
+                ?
+                <>
+                  <Prices price={maxPriceSale} />
+                  <Prices price={maxPrice} classChildren='text-[12px] text-red-500 line-through' />
+                </>
+                :
+                <>
+                  <Prices price={maxPrice} />
+                </>
             }
             <div className="flex items-center mb-0.5">
               <StarIcon className="w-5 h-5 pb-[1px] text-amber-400" />
               <span className="text-sm ml-1 text-slate-500 dark:text-slate-400">
-                {(Math.random() * 1 + 4).toFixed(1)} 
+                {(Math.random() * 1 + 4).toFixed(1)}
                 (
-                  {
-                    `${order_details_sum_quantity ? order_details_sum_quantity : 0} Đã mua`
-                  }
+                {
+                  `${order_details_sum_quantity ? order_details_sum_quantity : 0} Đã mua`
+                }
                 )
               </span>
             </div>
-          </div>
-        </div>
-      </div>
+          </div >
+        </div >
+      </div >
 
       {/* QUICKVIEW */}
-      <ModalQuickView
+      < ModalQuickView
         show={showModalQuickView}
         onCloseModalQuickView={() => setShowModalQuickView(false)}
       />

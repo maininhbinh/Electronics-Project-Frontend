@@ -31,11 +31,11 @@ const SectionSliderProductCard: FC<SectionSliderProductCardProps> = ({
   const id = useId();
   const UNIQUE_CLASS = "glidejs" + id.replace(/:/g, "_");
 
-  const {data : dataItem } = useFilterProductQuery('is_show_home');
+  const { data: dataItem } = useFilterProductQuery('is_show_home');
 
   useEffect(() => {
     if (!sliderRef.current) {
-      return () => {}
+      return () => { }
     }
 
     const OPTIONS: Glide.Options = {
@@ -84,26 +84,26 @@ const SectionSliderProductCard: FC<SectionSliderProductCardProps> = ({
             {heading || `Sản phẩm nổi bật`}
           </Heading>
           {
-          
-          <div className="glide__track relative h-full" data-glide-el="track">
-            <ul className="glide__slides h-full">
-              {
-                !dataItem && !dataItem?.data || dataItem?.data.length < 1
-                ?
-                <>
-                  {[1,2,3].map((item) => (
-                    <LoadingProduct key={item} className={className}/>
-                  ))}
-                </>
-                :
-                dataItem?.data.map((item: IProduct) => (
-                  <li key={item.id} className={`glide__slide`}>
-                    {item && <ProductCard data={item} className="h-full"/>}
-                  </li>
-                )) 
-              }
-            </ul>
-          </div>
+
+            <div className="glide__track relative h-full" data-glide-el="track">
+              <ul className="glide__slides h-full">
+                {
+                  !dataItem && !dataItem?.data || dataItem?.data?.length < 1
+                    ?
+                    <>
+                      {[1, 2, 3].map((item) => (
+                        <LoadingProduct key={item} className={className} />
+                      ))}
+                    </>
+                    :
+                    dataItem?.data.map((item: IProduct) => (
+                      <li key={item.id} className={`glide__slide`}>
+                        {item && <ProductCard data={item} className="h-full" />}
+                      </li>
+                    ))
+                }
+              </ul>
+            </div>
           }
         </div>
       </div>
