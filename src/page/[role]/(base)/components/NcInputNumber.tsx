@@ -13,6 +13,7 @@ export interface NcInputNumberProps {
   label?: string;
   desc?: string;
   item?: IProductItem;
+  maxQuantity: number;
 }
 
 const NcInputNumber: FC<NcInputNumberProps> = ({
@@ -23,40 +24,46 @@ const NcInputNumber: FC<NcInputNumberProps> = ({
   onChange,
   label,
   desc,
-  item
+  item,
+  maxQuantity
 }) => {
+  console.log(maxQuantity)
+
   const [changeCart] = useUpdateCartMutation();
   const [value, setValue] = useState(defaultValue);
 
+
+
   useEffect(() => {
     setValue(defaultValue);
+
   }, [defaultValue]);
 
   const handleClickDecrement = async () => {
     if (min >= value) return;
-    
 
-    try{
-      item && await changeCart({id : item.id, quantity : value - 1 });
+
+    try {
+      item && await changeCart({ id: item.id, quantity: value - 1 });
       setValue((state) => {
         return state - 1;
       });
       onChange && onChange(value - 1);
-    }catch(error){
+    } catch (error) {
       popupError('Update cart error');
     }
   };
   const handleClickIncrement = async () => {
     if (max && max <= value) return;
-    
-    
-    try{
-      item && await changeCart({id : item.id, quantity : value + 1 });
+
+
+    try {
+      item && await changeCart({ id: item.id, quantity: value + 1 });
       setValue((state) => {
         return state + 1;
       });
       onChange && onChange(value + 1);
-    }catch(error){
+    } catch (error) {
       popupError('Update cart error');
     }
   };
@@ -100,7 +107,7 @@ const NcInputNumber: FC<NcInputNumberProps> = ({
           className="w-8 h-8 rounded-full flex items-center justify-center border border-neutral-400 dark:border-neutral-500 bg-white dark:bg-neutral-900 focus:outline-none hover:border-neutral-700 dark:hover:border-neutral-400 disabled:hover:border-neutral-400 dark:disabled:hover:border-neutral-500 disabled:opacity-50 disabled:cursor-default"
           type="button"
           onClick={handleClickIncrement}
-          disabled={max ? max <= value : false}
+          disabled={maxQuantity <= Number(value) ? true : false}
         >
           <PlusIcon className="w-4 h-4" />
         </button>
