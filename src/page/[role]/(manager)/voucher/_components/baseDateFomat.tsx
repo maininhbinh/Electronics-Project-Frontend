@@ -1,6 +1,5 @@
 import { Col, DatePicker, Form } from 'antd';
 import { Rule } from 'antd/lib/form';
-import moment from 'moment';
 import React, { useMemo } from 'react';
 interface Props extends React.ComponentProps<typeof Form.Item> {
     labelKey?: string;
@@ -42,7 +41,7 @@ export function BaseDatePicker(props: Props) {
                     style={{ width: '100%' }}
                     format={props.dateFormat}
                     disabled={props.isEdit && props.isStaff}
-                    disabledDate={props.disableDate}
+                    disabledDate={(date) => props.disableDate(date)}
                 />
             </Form.Item>
         </Col>

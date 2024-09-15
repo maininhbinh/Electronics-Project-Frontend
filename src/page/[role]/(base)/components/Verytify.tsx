@@ -12,7 +12,7 @@ import { Iuser } from '@/common/types/user.interface';
 interface VerifyTokenProps {
   setIsModalVeritifyOpen: Dispatch<SetStateAction<boolean>>,
   email: string,
-  setUser: Dispatch<SetStateAction<Iuser>>
+  // setUser: Dispatch<SetStateAction<Iuser>>
 }
 
 export default function Verytify({setIsModalVeritifyOpen, email}: VerifyTokenProps) {
@@ -32,6 +32,7 @@ export default function Verytify({setIsModalVeritifyOpen, email}: VerifyTokenPro
       const response = await VerifyToken(otp, email);
       dispatch(login(response.data));
       popupSuccess(`Hello ${response.data.user.username}`);
+      // setUser(response.data.user)
       setIsModalVeritifyOpen(false)
       navigate("../");
     } catch (error) {
