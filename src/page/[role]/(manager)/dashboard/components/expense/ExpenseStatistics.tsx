@@ -5,19 +5,18 @@ import ReactECharts from 'echarts-for-react';
 import { useChartResize } from '../../../../../../providers/useEchartResize';
 import { useEffect, useRef, useState } from 'react';
 
-const ExpenseStatistics = ({data}: {data: Array<any>}) => {
+const ExpenseStatistics = ({ data }: { data: Array<any> }) => {
   const chartRef = useRef<ReactECharts>(null);
   const [chartData, setChartData] = useState<ExpenseDataType>([]);
   useChartResize(chartRef);
   // Fetch sales data
   useEffect(() => {
-    const cateogry = data ? data.map(item=>({
-      value: 45,
+    const cateogry = data ? data.map(item => ({
+      value: item.total_value,
       name: item.category,
       selected: true
     })) : []
-    
-    setChartData(cateogry.length < 2 ? expenseData : cateogry);
+    setChartData(cateogry);
   }, [data]);
   return (
     <ExpenseStatisticsChart chartRef={chartRef} seriesData={chartData} />
