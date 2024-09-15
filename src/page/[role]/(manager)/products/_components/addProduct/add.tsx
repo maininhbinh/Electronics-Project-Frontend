@@ -2,11 +2,11 @@ import { Col, Flex, Row, Button, Form, Input, Drawer, Select, UploadProps, GetPr
 import { useNavigate } from 'react-router-dom'
 import React, {  useEffect, useRef, useState } from 'react'
 import { CloudUploadOutlined, DeleteOutlined } from '@ant-design/icons';
-import Variant from './Variant/variant';
+import Variant from '../Variant/variant';
 import getRandomNumber from '@/utils/randomNumber';
-import TableVariant from './Variant/TableVariant'
-import Option from './Option/Option'
-import { useCreateProductMutation, useGetProductQuery } from '../ProductsEndpoints';
+import TableVariant from '../Variant/TableVariant'
+import Option from '../Option/Option'
+import { useCreateProductMutation, useGetProductQuery } from '../../ProductsEndpoints';
 import { popupError, popupSuccess } from '@/page/[role]/shared/Toast';
 import LexicalEditor from '@/components/TextEditor/LexicalEditor';
 import PermMediaOutlinedIcon from '@mui/icons-material/PermMediaOutlined';
@@ -76,7 +76,7 @@ interface Detail {
 type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0];
 
 
-function AddProduct() {
+function FormAddProduct() {
   const [addProduct, {isLoading : isLoadingAddProduct}] = useCreateProductMutation();
   const dispatch = useAppDispatch()
   
@@ -163,7 +163,6 @@ function AddProduct() {
     formdata.append('is_show_home', String(is_show_home));
     formdata.append('product_details', JSON.stringify(details));
     formdata.append('product_items', JSON.stringify(newProductItem));    
-    
         
     try {
       dispatch(setLoading(true))
@@ -428,26 +427,9 @@ function AddProduct() {
         form={form}
         name='nest-messages'
         onFinish={onFinish}
-        className='p-10 relative'
+        className='p-6 relative'
       >
-        <Flex className='mb-5' align='center' justify='space-between'>
-          <Flex justify='center' align='center' gap={20}>
-            <div>
-              <Flex className='p-3 rounded-xl bg-[#fff] cursor-pointer' style={{boxShadow: 'rgba(0, 0, 0, 0.05) 0rem 1.25rem 1.6875rem 1.6875rem', }}
-                onClick={()=>{
-                  navigate('..')
-                }}
-              >
-                <ArrowBackRoundedIcon/>
-              </Flex>
-            </div>
-            <Flex vertical>
-              <h2 className='font-bold text-[24px]'>Thêm sản phẩm</h2>
-              <span className='text-gray-500'>Quay lại trang danh sách sản phẩm</span>
-            </Flex>
-          </Flex>
-          
-        </Flex>
+        
         <Flex vertical gap={30}>
           <Row gutter={[24, 32]} align={'stretch'}>
             <Col span={19}>
@@ -607,12 +589,6 @@ function AddProduct() {
                                   <Form.Item 
                                     className='m-0' 
                                     name={`attr-${attr.id}-${item.id}`} 
-                                    rules={[
-                                      {
-                                        required: true,
-                                        message: 'Trường này không được bỏ trống'
-                                      }
-                                    ]}
                                   >
                                     <Select
                                       className='custom-seclect'
@@ -704,4 +680,4 @@ function AddProduct() {
     </>
   )
 }
-export default React.memo(AddProduct)
+export default React.memo(FormAddProduct)

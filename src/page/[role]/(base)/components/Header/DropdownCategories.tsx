@@ -1,4 +1,4 @@
-import { useGetCategoriesQuery } from "@/page/[role]/(manager)/category/CategoryEndpoints";
+import { useGetCategoriesQuery, useGetListCategoryQuery } from "@/page/[role]/(manager)/category/CategoryEndpoints";
 import { Popover, Transition } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/24/solid";
 import { Fragment } from "react";
@@ -69,7 +69,7 @@ const CATEGORIES: SolutionItem[] = [
 ];
 
 export default function DropdownCategories() {
-  const {data, isLoading} = useGetCategoriesQuery({});
+  const {data, isLoading} = useGetListCategoryQuery({});
   
 
   return (

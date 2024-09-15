@@ -8,6 +8,9 @@ import Slider from "rc-slider";
 import Radio from "../shared/Radio/Radio";
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
 import MySwitch from "./MySwitch";
+import {filter, variant} from '../CategoryPage/PageCategory'
+import { useLocation, useNavigate } from 'react-router-dom';
+import { VND } from "@/utils/formatVietNamCurrency";
 
 // DEMO DATA
 const DATA_categories = [
@@ -63,16 +66,26 @@ const DATA_sortOrderRadios = [
 
 const PRICE_RANGE = [1, 500];
 //
-const TabFilters = () => {
+const TabFilters = ({filter}: {filter: filter}) => {
+  
   const [isOpenMoreFilter, setisOpenMoreFilter] = useState(false);
   //
   const [isOnSale, setIsIsOnSale] = useState(false);
-  const [rangePrices, setRangePrices] = useState([100, 500]);
+  const [rangePrices, setRangePrices] = useState(filter.price);
   const [categoriesState, setCategoriesState] = useState<string[]>([]);
   const [colorsState, setColorsState] = useState<string[]>([]);
   const [sizesState, setSizesState] = useState<string[]>([]);
   const [sortOrderStates, setSortOrderStates] = useState<string>("");
+  const [variantState, setVariantState] = useState<{ id: string; name: string; attributes: string[] }[]>(filter.variants.map(item => ({
+    id: item.id,
+    name: item.name,
+    attributes: []
+  })))
 
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const params = new URLSearchParams(location.search);  
   //
   const closeModalMoreFilter = () => setisOpenMoreFilter(false);
   const openModalMoreFilter = () => setisOpenMoreFilter(true);
@@ -90,10 +103,21 @@ const TabFilters = () => {
       : setColorsState(colorsState.filter((i) => i !== name));
   };
 
-  const handleChangeSizes = (checked: boolean, name: string) => {
-    checked
-      ? setSizesState([...sizesState, name])
-      : setSizesState(sizesState.filter((i) => i !== name));
+  const handleChangeVariant = (checked: boolean, name: string, id: string) => {
+
+    const newVariant = variantState.map(item => ({
+      ...item,
+      attributes: item.id === id 
+        ? [...(item.attributes || []), name]  // Nếu `attributes` là null hoặc undefined, khởi tạo mảng trống
+        : [...(item.attributes || [])]        // Nếu không khớp, giữ nguyên
+    }));
+
+    const deleteVariant = variantState.map(item => ({
+      ...item,
+      attributes: item.id == id ? item.attributes.filter((i) => i !== name) : item.attributes
+    }));
+
+    setVariantState(checked ? newVariant : deleteVariant);
   };
 
   //
@@ -115,145 +139,6 @@ const TabFilters = () => {
           />
         </svg>
       </span>
-    );
-  };
-
-  // OK
-  const renderTabsCategories = () => {
-    return (
-      <Popover className="relative">
-        {({ open, close }) => (
-          <>
-            <Popover.Button
-              className={`flex items-center justify-center px-4 py-2 text-sm rounded-full border focus:outline-none select-none
-               ${
-                 open
-                   ? "!border-primary-500 "
-                   : "border-neutral-300 dark:border-neutral-700"
-               }
-                ${
-                  categoriesState.length
-                    ? "!border-primary-500 bg-primary-50 text-primary-900"
-                    : "border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 hover:border-neutral-400 dark:hover:border-neutral-500"
-                }
-                `}
-            >
-              <svg
-                className="w-4 h-4"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M8 2V5"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeMiterlimit="10"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d="M16 2V5"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeMiterlimit="10"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d="M7 13H15"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeMiterlimit="10"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d="M7 17H12"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeMiterlimit="10"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d="M16 3.5C19.33 3.68 21 4.95 21 9.65V15.83C21 19.95 20 22.01 15 22.01H9C4 22.01 3 19.95 3 15.83V9.65C3 4.95 4.67 3.69 8 3.5H16Z"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeMiterlimit="10"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-
-              <span className="ml-2">Danh mục</span>
-              {!categoriesState.length ? (
-                <ChevronDownIcon className="w-4 h-4 ml-3" />
-              ) : (
-                <span onClick={() => setCategoriesState([])}>
-                  {renderXClear()}
-                </span>
-              )}
-            </Popover.Button>
-            <Transition
-              as={Fragment}
-              enter="transition ease-out duration-200"
-              enterFrom="opacity-0 translate-y-1"
-              enterTo="opacity-100 translate-y-0"
-              leave="transition ease-in duration-150"
-              leaveFrom="opacity-100 translate-y-0"
-              leaveTo="opacity-0 translate-y-1"
-            >
-              <Popover.Panel className="absolute z-40 w-screen max-w-sm px-4 mt-3 left-0 sm:px-0 lg:max-w-md">
-                <div className="overflow-hidden rounded-2xl shadow-xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700">
-                  <div className="relative flex flex-col px-5 py-6 space-y-5">
-                    <Checkbox
-                      name="All Categories"
-                      label="All Categories"
-                      defaultChecked={categoriesState.includes(
-                        "All Categories"
-                      )}
-                      onChange={(checked) =>
-                        handleChangeCategories(checked, "All Categories")
-                      }
-                    />
-                    <div className="w-full border-b border-neutral-200 dark:border-neutral-700" />
-                    {DATA_categories.map((item) => (
-                      <div key={item.name} className="">
-                        <Checkbox
-                          name={item.name}
-                          label={item.name}
-                          defaultChecked={categoriesState.includes(item.name)}
-                          onChange={(checked) =>
-                            handleChangeCategories(checked, item.name)
-                          }
-                        />
-                      </div>
-                    ))}
-                  </div>
-                  <div className="p-5 bg-neutral-50 dark:bg-neutral-900 dark:border-t dark:border-neutral-800 flex items-center justify-between">
-                    <ButtonThird
-                      onClick={() => {
-                        close();
-                        setCategoriesState([]);
-                      }}
-                      sizeClass="px-4 py-2 sm:px-5"
-                    >
-                      Xóa
-                    </ButtonThird>
-                    <ButtonPrimary
-                      onClick={close}
-                      sizeClass="px-4 py-2 sm:px-5"
-                    >
-                      Áp dụng
-                    </ButtonPrimary>
-                  </div>
-                </div>
-              </Popover.Panel>
-            </Transition>
-          </>
-        )}
-      </Popover>
     );
   };
 
@@ -380,7 +265,7 @@ const TabFilters = () => {
   };
 
   // OK
-  const renderTabsColor = () => {
+  const renderVariant = (item: variant) => {
     return (
       <Popover className="relative">
         {({ open, close }) => (
@@ -389,7 +274,7 @@ const TabFilters = () => {
               className={`flex items-center justify-center px-4 py-2 text-sm rounded-full border focus:outline-none select-none
               ${open ? "!border-primary-500 " : ""}
                 ${
-                  colorsState.length
+                  variantState.find(variant => variant.id == item.id)?.attributes.length
                     ? "!border-primary-500 bg-primary-50 text-primary-900"
                     : "border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 hover:border-neutral-400 dark:hover:border-neutral-500"
                 }
@@ -442,11 +327,20 @@ const TabFilters = () => {
                 />
               </svg>
 
-              <span className="ml-2">Màu sắc</span>
-              {!colorsState.length ? (
+
+              <span className="ml-2">{item.name}</span>
+              {!variantState.find(variant => variant.id == item.id)?.attributes.length ? (
                 <ChevronDownIcon className="w-4 h-4 ml-3" />
               ) : (
-                <span onClick={() => setColorsState([])}>{renderXClear()}</span>
+                <span onClick={() => {
+                  setVariantState(variantState.map(variant => ({
+                    id: variant.id,
+                    name: variant.name,
+                    attributes: variant.id == item.id ? [] : variant.attributes
+                  })));
+                  params.delete(item.slug)
+                  navigate(`?${params}`)
+                }}>{renderXClear()}</span>
               )}
             </Popover.Button>
             <Transition
@@ -461,14 +355,14 @@ const TabFilters = () => {
               <Popover.Panel className="absolute z-40 w-screen max-w-sm px-4 mt-3 left-0 sm:px-0 lg:max-w-sm">
                 <div className="overflow-hidden rounded-2xl shadow-xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700">
                   <div className="relative flex flex-col px-5 py-6 space-y-5">
-                    {DATA_colors.map((item) => (
-                      <div key={item.name} className="">
+                    {item.attributes.map((attr) => (
+                      <div key={attr.value} className="">
                         <Checkbox
-                          name={item.name}
-                          label={item.name}
-                          defaultChecked={colorsState.includes(item.name)}
+                          name={attr.value}
+                          label={attr.value}
+                          defaultChecked={variantState.find(variant => variant.id == item.id)?.attributes.includes(attr.slug)}
                           onChange={(checked) =>
-                            handleChangeColors(checked, item.name)
+                            handleChangeVariant(checked, attr.slug, item.id)
                           }
                         />
                       </div>
@@ -478,124 +372,36 @@ const TabFilters = () => {
                     <ButtonThird
                       onClick={() => {
                         close();
-                        setColorsState([]);
+                        setVariantState(variantState.map(variant => ({
+                          id: variant.id,
+                          name: variant.name,
+                          attributes: variant.id == item.id ? [] : variant.attributes
+                        })));
+                        params.delete(item.slug)
+                        navigate(`?${params}`)
                       }}
                       sizeClass="px-4 py-2 sm:px-5"
                     >
                       Xóa
                     </ButtonThird>
                     <ButtonPrimary
-                      onClick={close}
-                      sizeClass="px-4 py-2 sm:px-5"
-                    >
-                      Áp dụng
-                    </ButtonPrimary>
-                  </div>
-                </div>
-              </Popover.Panel>
-            </Transition>
-          </>
-        )}
-      </Popover>
-    );
-  };
+                      onClick={()=>{
+                        close()
 
-  // OK
-  const renderTabsSize = () => {
-    return (
-      <Popover className="relative">
-        {({ open, close }) => (
-          <>
-            <Popover.Button
-              className={`flex items-center justify-center px-4 py-2 text-sm rounded-full border focus:outline-none select-none
-              ${open ? "!border-primary-500 " : ""}
-                ${
-                  sizesState.length
-                    ? "!border-primary-500 bg-primary-50 text-primary-900"
-                    : "border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 hover:border-neutral-400 dark:hover:border-neutral-500"
-                }
-                `}
-            >
-              <svg
-                className="w-4 h-4"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M21 9V3H15"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d="M3 15V21H9"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d="M21 3L13.5 10.5"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d="M10.5 13.5L3 21"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-
-              <span className="ml-2">Ram</span>
-              {!sizesState.length ? (
-                <ChevronDownIcon className="w-4 h-4 ml-3" />
-              ) : (
-                <span onClick={() => setSizesState([])}>{renderXClear()}</span>
-              )}
-            </Popover.Button>
-            <Transition
-              as={Fragment}
-              enter="transition ease-out duration-200"
-              enterFrom="opacity-0 translate-y-1"
-              enterTo="opacity-100 translate-y-0"
-              leave="transition ease-in duration-150"
-              leaveFrom="opacity-100 translate-y-0"
-              leaveTo="opacity-0 translate-y-1"
-            >
-              <Popover.Panel className="absolute z-40 w-screen max-w-sm px-4 mt-3 left-0 sm:px-0 lg:max-w-sm">
-                <div className="overflow-hidden rounded-2xl shadow-xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700">
-                  <div className="relative flex flex-col px-5 py-6 space-y-5">
-                    {DATA_sizes.map((item) => (
-                      <div key={item.name} className="">
-                        <Checkbox
-                          name={item.name}
-                          label={item.name}
-                          defaultChecked={sizesState.includes(item.name)}
-                          onChange={(checked) =>
-                            handleChangeSizes(checked, item.name)
-                          }
-                        />
-                      </div>
-                    ))}
-                  </div>
-                  <div className="p-5 bg-slate-50 dark:bg-slate-900 dark:border-t dark:border-slate-800 flex items-center justify-between">
-                    <ButtonThird
-                      onClick={() => {
-                        close();
-                        setSizesState([]);
+                        const variants = variantState.find(variant => variant.id == item.id)?.attributes.join(',');
+                        
+                        if(variants){
+                          params.set(item.slug, variants);
+                          const url = decodeURIComponent(params.toString());
+                          
+                          navigate(`?${url}`)
+                        }else{
+                          params.delete(item.slug)
+                          const url = decodeURIComponent(params.toString());
+                          
+                          navigate(`?${url}`)
+                        }
                       }}
-                      sizeClass="px-4 py-2 sm:px-5"
-                    >
-                      Xóa
-                    </ButtonThird>
-                    <ButtonPrimary
-                      onClick={close}
                       sizeClass="px-4 py-2 sm:px-5"
                     >
                       Áp dụng
@@ -648,10 +454,16 @@ const TabFilters = () => {
                 />
               </svg>
 
-              <span className="ml-2 min-w-[90px]">{`${rangePrices[0]}$ - ${rangePrices[1]}$`}</span>
-              {rangePrices[0] === PRICE_RANGE[0] &&
-              rangePrices[1] === PRICE_RANGE[1] ? null : (
-                <span onClick={() => setRangePrices(PRICE_RANGE)}>
+              <span className="ml-2 min-w-[90px]">{`${VND(parseFloat(filter.price.minPrice))} - ${VND(parseFloat(filter.price.maxPrice))}`}</span>
+              {parseFloat(rangePrices.minPrice) === parseFloat(filter.price.minPrice) &&
+              parseFloat(filter.price.maxPrice) === parseFloat(filter.price.maxPrice) ? null : (
+                <span onClick={() => {
+                  setRangePrices(filter.price)
+                  params.delete('price')
+                  const url = decodeURIComponent(params.toString());
+                  
+                  navigate(`?${url}`)
+                }}>
                   {renderXClear()}
                 </span>
               )}
@@ -669,17 +481,23 @@ const TabFilters = () => {
                 <div className="overflow-hidden rounded-2xl shadow-xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700">
                   <div className="relative flex flex-col px-5 py-6 space-y-8">
                     <div className="space-y-5">
-                      <span className="font-medium">Price range</span>
+                      <span className="font-medium">Lọc theo khoảng giá</span>
                       <Slider
                         range
-                        min={PRICE_RANGE[0]}
-                        max={PRICE_RANGE[1]}
+                        min={parseFloat(filter.price.minPrice)}
+                        max={parseFloat(filter.price.maxPrice)}
                         step={1}
-                        defaultValue={[rangePrices[0], rangePrices[1]]}
+                        defaultValue={[parseFloat(rangePrices.minPrice), parseFloat(rangePrices.maxPrice)]}
                         allowCross={false}
-                        onChange={(_input: number | number[]) =>
-                          setRangePrices(_input as number[])
-                        }
+                        onChange={(_input: number[] | number) => {
+                          if (Array.isArray(_input)) {
+                              // _input là một mảng
+                              setRangePrices({minPrice: _input[0].toString(), maxPrice: _input[1].toString()});
+                          } else {
+                              // _input là một số đơn lẻ
+                              setRangePrices({minPrice: _input.toString(), maxPrice: _input.toString()});
+                          }
+                      }}
                       />
                     </div>
 
@@ -692,16 +510,14 @@ const TabFilters = () => {
                           Giá tối thiểu
                         </label>
                         <div className="mt-1 relative rounded-md">
-                          <span className="absolute inset-y-0 right-4 flex items-center pointer-events-none text-neutral-500 sm:text-sm">
-                            $
-                          </span>
+                        
                           <input
                             type="text"
                             name="minPrice"
                             disabled
                             id="minPrice"
-                            className="block w-32 pr-10 pl-4 sm:text-sm border-neutral-200 dark:border-neutral-700 rounded-full bg-transparent"
-                            value={rangePrices[0]}
+                            className="block w-32 pr-4 pl-4 sm:text-sm border-neutral-200 dark:border-neutral-700 rounded-full bg-transparent"
+                            value={VND(parseFloat(rangePrices.minPrice))}
                           />
                         </div>
                       </div>
@@ -713,16 +529,14 @@ const TabFilters = () => {
                           Giá tối đa
                         </label>
                         <div className="mt-1 relative rounded-md">
-                          <span className="absolute inset-y-0 right-4 flex items-center pointer-events-none text-neutral-500 sm:text-sm">
-                            $
-                          </span>
+                        
                           <input
                             type="text"
                             disabled
                             name="maxPrice"
                             id="maxPrice"
-                            className="block w-32 pr-10 pl-4 sm:text-sm border-neutral-200 dark:border-neutral-700 rounded-full bg-transparent"
-                            value={rangePrices[1]}
+                            className="block w-32 pr-4 pl-4 sm:text-sm border-neutral-200 dark:border-neutral-700 rounded-full bg-transparent"
+                            value={VND(parseFloat(rangePrices.maxPrice))}
                           />
                         </div>
                       </div>
@@ -731,15 +545,35 @@ const TabFilters = () => {
                   <div className="p-5 bg-neutral-50 dark:bg-neutral-900 dark:border-t dark:border-neutral-800 flex items-center justify-between">
                     <ButtonThird
                       onClick={() => {
-                        setRangePrices(PRICE_RANGE);
+                        setRangePrices(filter.price);
                         close();
+                        params.delete('price')
+                        const url = decodeURIComponent(params.toString());
+                        
+                        navigate(`?${url}`)
                       }}
                       sizeClass="px-4 py-2 sm:px-5"
                     >
                       Xóa
                     </ButtonThird>
                     <ButtonPrimary
-                      onClick={close}
+                      onClick={()=>{
+                        close()
+                        const price = rangePrices.minPrice+'-'+rangePrices.maxPrice;
+                        const rangePriceCheck = filter.price.minPrice === rangePrices.minPrice && filter.price.maxPrice === rangePrices.maxPrice
+                        
+                        if(!rangePriceCheck){
+                          params.set('price', price);
+                          const url = decodeURIComponent(params.toString());
+                          
+                          navigate(`?${url}`)
+                        }else{
+                          params.delete('price')
+                          const url = decodeURIComponent(params.toString());
+                          
+                          navigate(`?${url}`)
+                        }
+                      }}
                       sizeClass="px-4 py-2 sm:px-5"
                     >
                       Áp dụng
@@ -1130,9 +964,15 @@ const TabFilters = () => {
       {/* FOR DESKTOP */}
       <div className="hidden lg:flex flex-1 space-x-4">
         {renderTabsPriceRage()}
-        {renderTabsCategories()}
-        {renderTabsColor()}
-        {renderTabsSize()}
+        {
+          filter.variants.map((item, key) => (
+            <div key={key}>
+              {
+                renderVariant(item)
+              }
+            </div>
+          ))
+        }
         {renderTabIsOnsale()}
         <div className="!ml-auto">{renderTabsSortOrder()}</div>
       </div>

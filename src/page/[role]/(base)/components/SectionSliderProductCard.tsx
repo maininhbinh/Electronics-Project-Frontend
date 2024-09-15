@@ -31,14 +31,13 @@ const SectionSliderProductCard: FC<SectionSliderProductCardProps> = ({
   const id = useId();
   const UNIQUE_CLASS = "glidejs" + id.replace(/:/g, "_");
 
-  const {data : dataItem, isLoadingHome } = useFilterProductQuery('is_show_home');
+  const {data : dataItem } = useFilterProductQuery('is_show_home');
 
   useEffect(() => {
     if (!sliderRef.current) {
       return () => {}
     }
 
-    // @ts-ignore
     const OPTIONS: Glide.Options = {
       perView: 4,
       gap: 32,
@@ -97,8 +96,8 @@ const SectionSliderProductCard: FC<SectionSliderProductCardProps> = ({
                   ))}
                 </>
                 :
-                dataItem?.data.map((item: IProduct, index: number) => (
-                  <li key={index} className={`glide__slide`}>
+                dataItem?.data.map((item: IProduct) => (
+                  <li key={item.id} className={`glide__slide`}>
                     {item && <ProductCard data={item} className="h-full"/>}
                   </li>
                 )) 

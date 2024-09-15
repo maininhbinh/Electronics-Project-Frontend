@@ -7,24 +7,48 @@ import { PRODUCTS } from '../../../../data/data'
 import TabFilters from '../components/TabFilters'
 import Pagination from '../shared/Pagination/Pagination'
 import ButtonPrimary from '../shared/Button/ButtonPrimary'
-import { useParams } from 'react-router-dom'
-import { useGetProductByCategoryQuery } from '../../(manager)/products/ProductsEndpoints'
+import { useNavigate, useParams, useLocation } from 'react-router-dom'
 import { IProduct } from '@/common/types/product.interface'
+import { lab } from 'chroma-js'
+import { useGetPageQuery } from '../../(manager)/category/CategoryEndpoints'
 
 export interface PageCollectionProps {
   className?: string;
 }
 
+export interface filter {
+  price: price,
+  variants: variant[]
+}
+
+export interface price {
+  maxPrice: string,
+  minPrice: string
+}
+export interface variant {
+  id: string,
+  name: string,
+  slug: string
+  attributes: attribute[]
+}
+
+interface attribute {
+  id: string,
+  value: string,
+  slug: string
+}
+
 const PageCollection: FC<PageCollectionProps> = ({ className = "" }) => {
   const {slug} = useParams();
-  const {data: products, isLoading, refetch} = useGetProductByCategoryQuery(slug)
-  // console.log(products);
-  
-  if(!products || isLoading){
+  const location = useLocation();
+  const param = location.search;
+  const {data: products, isLoading, refetch} = useGetPageQuery({slug: slug, param: param})
 
+  if(!products || isLoading){
     return ''
   }
 
+  const filter: filter = products.filter
 
   return (
     <div
@@ -42,12 +66,12 @@ const PageCollection: FC<PageCollectionProps> = ({ className = "" }) => {
           <hr className="border-slate-200 dark:border-slate-700" />
           <main>
             {/* TABS FILTER */}
-            {/* <TabFilters /> */}
+            <TabFilters filter={filter}/>
 
             {/* LOOP ITEMS */}
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-10 mt-8 lg:mt-10">
-              {products.data.map((item: IProduct, index: number) => (
-                <ProductCard data={item} key={index} />
+              {products.data.map((item: IProduct) => (
+                <ProductCard data={item} key={item.id} />
               ))}
             </div>
 

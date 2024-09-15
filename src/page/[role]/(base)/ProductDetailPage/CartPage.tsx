@@ -186,10 +186,18 @@ const CartPage = () => {
               </div>
 
               <div className="hidden flex-1 sm:flex  flex-col items-end gap-1">
-                <div className="flex flex-col gap-1">
-                <Prices price={parseFloat(price)} classChildren="text-[12px] line-through text-gray-400" />
-                <Prices price={parseFloat(price_sale)} className="mt-0.5" classChildren="text-[18px] text-red-400"/>
-                </div>
+                {
+                  price_sale
+                  ?
+                  <div className="flex flex-col gap-1">
+                    <Prices price={parseFloat(price)} classChildren="text-[12px] line-through text-gray-400" />
+                    <Prices price={parseFloat(price_sale)} className="mt-0.5" classChildren="text-[18px] text-red-400"/>
+                  </div>
+                  :
+                  <div className="flex flex-col gap-1">
+                    <Prices price={parseFloat(price)} className="mt-0.5" classChildren="text-[18px] text-red-400"/>
+                  </div>
+                }
               </div>
             </div>
           </div>
