@@ -80,17 +80,12 @@ export default function AddBrand() {
   
   }
 
-  
- 
-
-
   const navigate = useNavigate()
 
   const handleCancel = () => {
     navigate('..')
   }
 
- 
   if (isError) return <ErrorLoad />
   return (
     <>
@@ -107,8 +102,6 @@ export default function AddBrand() {
           <Form.Item name='name' label='Tên' rules={[{ required: true }]}>
             <Input type='text' placeholder='Nhập tên thương hiệu' />
           </Form.Item>
-        
-
 
           <Form.Item
             name='upload'
@@ -121,10 +114,6 @@ export default function AddBrand() {
               <Button icon={<UploadOutlined />}>Nhấn để tải lên</Button>
             </Upload>
           </Form.Item>
-
-       
-
-      
 
           <Form.Item>
             <Button loading={isLoadingCreateBrand || file.loading} disabled={isLoadingCreateBrand || file.loading} type='primary' htmlType='submit'>

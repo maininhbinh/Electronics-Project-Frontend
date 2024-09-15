@@ -158,13 +158,13 @@ const CheckoutPage = () => {
                   </select>
                   <Prices
                     contentClass='py-1 px-2 md:py-1.5 md:px-2.5 text-sm font-medium h-full'
-                    price={parseFloat(price_sale)}
+                    price={parseFloat(price_sale ?? price)}
                   />
                 </div>
               </div>
 
               <div className='hidden flex-1 sm:flex justify-end'>
-                <Prices price={parseFloat(price_sale)} className='mt-0.5' />
+                <Prices price={parseFloat(price_sale ?? price)} className='mt-0.5' />
               </div>
             </div>
           </div>

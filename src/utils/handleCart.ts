@@ -23,7 +23,7 @@ export const getTotalIconCart = (carts : ICart[]) => {
   return carts.reduce((accumulator : number, item : ICart) => accumulator + item.quantity, 0);
 }
 export const getTotalPriceCart = (carts : ICart[]) => {
-     return carts.reduce((accumulator, item) => accumulator + (item.quantity * Number(item.price_sale)), 0);
+     return carts.reduce((accumulator, item) => accumulator + (item.quantity * Number(item.price_sale ?? item.price)), 0);
 }
 export const deleteCart = (carts : ICart[], id : number) => {
      return carts.filter((item) => item.id != id);

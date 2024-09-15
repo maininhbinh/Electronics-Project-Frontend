@@ -51,8 +51,8 @@ const ProductCard: FC<ProductCardProps> = ({
 
   const prices = products.map((product: IProductItem) => parseFloat(product.price));
   const price_sale = products.map((product: IProductItem) => parseFloat(product.price_sale));
-  const maxPrice = Math.max(...prices);
-  const maxPriceSale = Math.max(...price_sale)
+  const maxPrice = Math.round(prices.reduce((accumulator, currentValue) => accumulator + currentValue, 0) / prices.length);
+  const maxPriceSale = Math.round(price_sale.reduce((accumulator, currentValue) => accumulator + currentValue, 0) / price_sale.length);
 
   const productVariantDetail = {
     price: maxPrice,
@@ -75,8 +75,6 @@ const ProductCard: FC<ProductCardProps> = ({
 
   const firstVariantArray: string[] = [...firstVariantGroup];
   const secondVariantArray: string[] = [...secondVariantGroup];
-
-
 
   const notifyAddTocart = async ({ second }: { second?: string | null }) => {
     const cart = products.find((item) => {
@@ -195,21 +193,21 @@ const ProductCard: FC<ProductCardProps> = ({
             }}
             className={`relative border-[1px] overflow-hidden z-10 cursor-pointer nc-shadow-lg text-center text-nowrap py-[0.7rem] px-2 rounded-xl bg-white hover:bg-slate-900 hover:text-white transition-colors flex items-center justify-center uppercase font-semibold tracking-tight text-sm  ${variantActive === index
               ? "text-red-400 dark:border-slate-300"
-              : "text-slate-900 border-gray"
+              : "border-gray"
               }
-                ${products.find((product: IProductItem) => {
-
-                return product.variants[0].name == item && product.quantity < 1
-              }) ? 'text-gray-200 pointer-events-none' : ''
+                ${!products.filter((product: IProductItem) => {
+                return product.variants[0].name == item
+              }).find(item => item.quantity > 1) ? 'text-gray-200 pointer-events-none' : ''
               }
               `}
             title={item}
           >
             <div className='overflow-hidden w-full'>{item}</div>
           </div>
-        ))}
+        ))
+        }
 
-      </div>
+      </div >
     );
   };
 
@@ -250,8 +248,8 @@ const ProductCard: FC<ProductCardProps> = ({
           return (
             <div
               key={index}
-              className={`nc-shadow-lg rounded-xl bg-white hover:bg-slate-900 hover:text-white transition-colors cursor-pointer flex items-center justify-center uppercase font-semibold tracking-tight text-sm text-slate-900 text-center text-nowrap py-[0.7rem] px-2
-                ${inStockVariant(second) < 1 ? 'pointer-events-none text-gray-200' : ''}`}
+              className={`nc-shadow-lg rounded-xl bg-white hover:bg-slate-900 hover:text-white transition-colors cursor-pointer flex items-center justify-center uppercase font-semibold tracking-tight text-sm  text-center text-nowrap py-[0.7rem] px-2 min-w-[20%]
+                ${inStockVariant(second) < 1 || checkHasProduct(second) ? 'pointer-events-none text-gray-200' : 'text-slate-900'}`}
               onClick={() => notifyAddTocart({ second })}
             >
               <div className='overflow-hidden w-full'>
@@ -264,7 +262,16 @@ const ProductCard: FC<ProductCardProps> = ({
     );
   };
 
+  const checkHasProduct = (variant) => {
+
+    const checkOutStock = products.map((item: IProductItem) => JSON.stringify(item.variants.map(item => item.name)));
+    const variantEncode = JSON.stringify([firstVariantArray[variantActive], variant]);
+
+    return !checkOutStock.includes(variantEncode)
+  }
+
   const inStockVariant = (variant: string) => {
+
     return variant && products ? products?.find((item) => {
       return item.variants[0].name == firstVariantArray[variantActive] && item.variants[1].name == variant
     })?.quantity : 0
@@ -304,8 +311,18 @@ const ProductCard: FC<ProductCardProps> = ({
           </div>
 
           <div className="flex justify-between items-center ">
-            <Prices price={maxPrice} />
-            <Prices price={maxPriceSale} classChildren='text-[12px] text-red-500 line-through' />
+            {
+              maxPriceSale
+                ?
+                <>
+                  <Prices price={maxPriceSale} />
+                  <Prices price={maxPrice} classChildren='text-[12px] text-red-500 line-through' />
+                </>
+                :
+                <>
+                  <Prices price={maxPrice} />
+                </>
+            }
             <div className="flex items-center mb-0.5">
               <StarIcon className="w-5 h-5 pb-[1px] text-amber-400" />
               <span className="text-sm ml-1 text-slate-500 dark:text-slate-400">
@@ -317,12 +334,12 @@ const ProductCard: FC<ProductCardProps> = ({
                 )
               </span>
             </div>
-          </div>
-        </div>
-      </div>
+          </div >
+        </div >
+      </div >
 
       {/* QUICKVIEW */}
-      <ModalQuickView
+      < ModalQuickView
         show={showModalQuickView}
         onCloseModalQuickView={() => setShowModalQuickView(false)}
       />

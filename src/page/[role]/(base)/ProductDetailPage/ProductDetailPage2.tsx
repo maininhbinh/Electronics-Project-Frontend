@@ -1,21 +1,12 @@
 import React, { FC, useEffect, useMemo, useRef, useState } from "react";
-import {
-  NoSymbolIcon,
-  ClockIcon,
-  SparklesIcon,
-} from "@heroicons/react/24/outline";
 import ButtonPrimary from "../shared/Button/ButtonPrimary";
-import ButtonSecondary from "../shared/Button/ButtonSecondary";
 import NcImage from "../shared/NcImage/NcImage";
 import ModalPhotos from "./ModalPhotos";
 import ReviewItem from "../components/ReviewItem";
-import { PRODUCTS } from "../../../../data/data";
-import IconDiscount from "../components/IconDiscount";
 import NcInputNumber from "../components/NcInputNumber";
 import BagIcon from "../components/BagIcon";
 import Policy from "./Policy";
 import toast from "react-hot-toast";
-import { StarIcon } from "@heroicons/react/24/solid";
 import SectionSliderProductCard from "../components/SectionSliderProductCard";
 import ModalViewAllReviews from "./ModalViewAllReviews";
 import NotifyAddTocart from "../components/NotifyAddTocart";
@@ -25,13 +16,11 @@ import 'swiper/css';
 import SwiperCore from 'swiper';
 import '../../../../styles/base/ant.scss'
 import { useGetProductQuery } from '../../(manager)/products/ProductsEndpoints';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { VND } from "@/utils/formatVietNamCurrency";
 import { useAddToCartMutation } from '@/services/CartEndPoinst'
 import { IAddCart } from "@/common/types/cart.interface";
 import { Button, Card, Col, Flex, List, Modal, Rate, Row, Skeleton, Typography } from "antd";
-import Meta from "antd/es/card/Meta";
-import { divide } from "lodash";
 import Joi from 'joi';
 interface CommentFormValues {
   content: string;
@@ -76,6 +65,7 @@ type variantActive = {
 const ProductDetailPage2: FC<ProductDetailPage2Props> = ({
   className = "",
 }) => {
+  const [maxQuantity, setMaxQuantity] = useState(0);
   const [user] = useLocalStorage('user', null);
   const { register, handleSubmit, setValue, reset, watch, formState: { errors } } = useForm<CommentFormValues>({
     resolver: joiResolver(commentSchema),
@@ -91,7 +81,6 @@ const ProductDetailPage2: FC<ProductDetailPage2Props> = ({
   const { data: listComments } = useGetCommentsQuery(productId, { skip: !productId, });
 
   const dataProduct = data?.data;
-  const { sizes, variants, status, allOfSizes } = PRODUCTS[0];
 
   const [variantActives, setVariantActives] = React.useState<Array<variantActive>>([])
   const [qualitySelected, setQualitySelected] = React.useState(1);
@@ -100,7 +89,7 @@ const ProductDetailPage2: FC<ProductDetailPage2Props> = ({
   const swiperRef = useRef(null);
   const [openDetail, setOpenDetail] = useState(false)
   const [openContent, setOpenContent] = useState(false)
-  const [maxQuantity, setMaxQuantity] = useState(0);
+
   const [addToCart, { isLoading: LoadingCart }] = useAddToCartMutation();
 
   const [isOpen, setIsOpen] = useState(false);
@@ -117,6 +106,7 @@ const ProductDetailPage2: FC<ProductDetailPage2Props> = ({
 
   const groupVariant = () => {
     const { products } = data.data;
+
     const groupedVariants: { [key: string]: Set<string> } = {};
 
     products.forEach((product: IProductItem) => {
@@ -136,16 +126,13 @@ const ProductDetailPage2: FC<ProductDetailPage2Props> = ({
       }
     });
 
-
-
     return result
   }
 
-
   useEffect(() => {
-    if (data) {
+    if (data && data.data) {
       const newVariantActives = groupVariant().map(item => ({
-        [item.name]: item.attribute[0]
+        [item.name]: ''
       }));
 
       setVariantActives(newVariantActives)
@@ -155,7 +142,8 @@ const ProductDetailPage2: FC<ProductDetailPage2Props> = ({
   }, [isLoading, data])
 
   useEffect(() => {
-    if (data && variantActives.length != 0) {
+    if (data && data.data && variantActives.length != 0) {
+
       const listVariants = data.data.products;
       let valueSecondVariant: null | string = null;
 
@@ -177,22 +165,29 @@ const ProductDetailPage2: FC<ProductDetailPage2Props> = ({
       })
 
 
-
-
       const { products } = data.data
 
-      const { image } = findProductVariant()(products, variantActives)
+      const product = findProductVariant()(products, variantActives)
 
-      setThumb(image || data.data.thumbnail)
+      setThumb(product?.image || data.data.thumbnail)
 
     }
     setQualitySelected(1)
   }, [variantActives])
 
-
-
   const notifyAddTocart = async () => {
     const { products, thumbnail, name } = data.data
+    const selectVariant = variantActives.findIndex(item => {
+      const name = Object.keys(item)[0];
+
+      return !item[name]
+    })
+
+    if (selectVariant >= 0) {
+      popupError('Vui lòng chọn loại sản phẩm')
+      return
+    }
+
     const product = findProductVariant()(products, variantActives)
     const { image, id } = product
 
@@ -214,6 +209,7 @@ const ProductDetailPage2: FC<ProductDetailPage2Props> = ({
       { position: "top-right", id: "nc-product-notify", duration: 3000 }
     );
   };
+
   const onSubmit = async (data: CommentFormValues) => {
     try {
       const payload = {
@@ -229,6 +225,54 @@ const ProductDetailPage2: FC<ProductDetailPage2Props> = ({
       popupError('* Lỗi bình luận sản phẩm')
     }
   };
+
+  const findVariantOutStock = (variant, value) => {
+
+    const { products } = data.data
+    const variantActive = variantActives.flatMap(item => Object.values(item));
+    const variantCheck = variantActive.findIndex(item => item)
+
+    if (variantCheck < 0) {
+      return false
+    }
+
+    if (variantActives[variantCheck] && variantActive.filter(item => item).length < 2) {
+      const keyActive = Object.keys(variantActives[variantCheck])[0];
+      if (keyActive == variant) {
+        return false
+      }
+    }
+
+    const findVariantCance = variantActive.findIndex(item => !item);
+
+    const checkOutStock = products.map((item: IProductItem) => JSON.stringify(item.variants.map(item => item.name)));
+
+    if (findVariantCance >= 0) {
+      variantActive[findVariantCance] = value
+      const variantEncode = JSON.stringify(variantActive)
+
+      return !checkOutStock.includes(variantEncode) || products.find((item: IProductItem) => JSON.stringify(item.variants.map(item => item.name)) == JSON.stringify(variantActive))?.quantity < 1;
+    }
+
+    const findVariantIndex = variantActives.findIndex(item => {
+      const key = Object.keys(item)[0];
+      return variant == key
+    })
+
+    variantActive[findVariantIndex] = value
+
+    return !checkOutStock.includes(JSON.stringify(variantActive)) || products.find((item: IProductItem) => JSON.stringify(item.variants.map(item => item.name)) == JSON.stringify(variantActive))?.quantity < 1;
+
+  }
+
+  const checkQuantity = (variant) => {
+    const { products } = data.data
+
+    const checkOutStock = products.find((item: IProductItem) => item.variants.find(item => item.name == variant) && item.quantity >= 1);
+
+    return !checkOutStock
+  }
+
   const renderVariants = (variant: GroupedVariants, key: number) => {
     if (!variant || !variant || !variant.attribute.length) {
       return null;
@@ -238,32 +282,26 @@ const ProductDetailPage2: FC<ProductDetailPage2Props> = ({
       return null
     }
 
-    const { products } = data.data
-
-
-
     return (
       <div>
-
-
-
         <div className="flex justify-between font-medium text-lg">
           <label htmlFor="">
             <span className="">
-              {variant.name}:
-              <span className="ml-1 font-semibold">{variantActives[key][variant.name]}</span>
+              {variant.name}
             </span>
           </label>
         </div>
         <div className="flex flex-wrap gap-1 mt-3">
           {variant.attribute.map((item, index) => {
             const isActive = item === variantActives[key][variant.name];
-            const sizeOutStock = !findProductVariant()(products, variantActives).quantity
+            // const sizeOutStock = isActive ? !findProductVariant()(products, variantActives).quantity : false
+            const outStock = checkQuantity(item)
+            const hasProduct = findVariantOutStock(variant.name, item)
             return (
               <div
                 key={index}
-                className={`relative h-10 sm:h-11 rounded-2xl flex items-center justify-center p-2
-                  text-sm sm:text-base uppercase font-semibold select-none overflow-hidden border-[1px] z-0 ${sizeOutStock
+                className={`relative h-10 sm:h-11 rounded-2xl flex items-center justify-center p-2 w-[25%]
+                text-sm sm:text-base uppercase font-semibold select-none overflow-hidden border-[1px] z-0 ${outStock || hasProduct
                     ? "text-opacity-20 dark:text-opacity-20 cursor-not-allowed"
                     : "cursor-pointer"
                   } ${isActive
@@ -271,20 +309,36 @@ const ProductDetailPage2: FC<ProductDetailPage2Props> = ({
                     : "border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-200 hover:bg-neutral-50 dark:hover:bg-neutral-700"
                   }`}
                 onClick={() => {
-                  if (sizeOutStock) {
-                    return;
+                  if (outStock || hasProduct) {
+                    return
                   }
-                  setVariantActives(
-                    variantActives.map(i => {
-                      if (i[variant.name]) {
-                        return {
-                          [variant.name]: item,
+                  if (variantActives[key][variant.name] && variantActives[key][variant.name] == item) {
+                    setVariantActives(
+                      variantActives.map(i => {
+                        const name = Object.keys(i)[0]
 
+                        if (name == variant.name) {
+                          return {
+                            [variant.name]: ''
+                          }
                         }
-                      }
-                      return i
-                    })
-                  );
+                        return i
+                      })
+                    );
+                  } else {
+                    setVariantActives(
+                      variantActives.map(i => {
+                        const name = Object.keys(i)[0]
+
+                        if (name == variant.name) {
+                          return {
+                            [variant.name]: item
+                          }
+                        }
+                        return i
+                      })
+                    );
+                  }
 
                   if (swiperRef.current && swiperRef.current.swiper) {
                     swiperRef.current.swiper.slideTo(0);
@@ -331,48 +385,7 @@ const ProductDetailPage2: FC<ProductDetailPage2Props> = ({
 
   }
 
-  const renderStatus = () => {
-    if (!status) {
-      return null;
-    }
-    const CLASSES =
-      "text-sm flex items-center text-slate-700 text-slate-900 dark:text-slate-300";
-    if (status === "New in") {
-      return (
-        <div className={CLASSES}>
-          <SparklesIcon className="w-3.5 h-3.5" />
-          <span className="ml-1 leading-none">{status}</span>
-        </div>
-      );
-    }
-    if (status === "50% Discount") {
-      return (
-        <div className={CLASSES}>
-          <IconDiscount className="w-3.5 h-3.5" />
-          <span className="ml-1 leading-none">{status}</span>
-        </div>
-      );
-    }
-    if (status === "Sold Out") {
-      return (
-        <div className={CLASSES}>
-          <NoSymbolIcon className="w-3.5 h-3.5" />
-          <span className="ml-1 leading-none">{status}</span>
-        </div>
-      );
-    }
-    if (status === "limited edition") {
-      return (
-        <div className={CLASSES}>
-          <ClockIcon className="w-3.5 h-3.5" />
-          <span className="ml-1 leading-none">{status}</span>
-        </div>
-      );
-    }
-    return null;
-  };
-
-  const renderSectionSidebar = useMemo(() => {
+  const renderSectionSidebar = () => {
 
     if (!data && isLoading) {
       return null
@@ -386,7 +399,13 @@ const ProductDetailPage2: FC<ProductDetailPage2Props> = ({
 
     const product = findProductVariant()(products, variantActives);
 
-    const { price, price_sale } = product
+    const prices_between = products.map((product: IProductItem) => parseFloat(product.price));
+    const price_sale_between = products.map((product: IProductItem) => parseFloat(product.price_sale));
+    const betweenPrice = Math.round(prices_between.reduce((accumulator, currentValue) => accumulator + currentValue, 0) / prices_between.length);
+    const betweenPriceSale = Math.round(price_sale_between.reduce((accumulator, currentValue) => accumulator + currentValue, 0) / price_sale_between.length);
+
+    const price = product ? product.price : betweenPrice;
+    const price_sale = product ? product.price_sale : betweenPriceSale
 
     return (
       <div className="listingSectionSidebar__wrap border-gray-100" style={{ boxShadow: 'rgba(0, 0, 0, 0.05) 0rem 1.25rem 1.6875rem 0rem' }}>
@@ -395,15 +414,24 @@ const ProductDetailPage2: FC<ProductDetailPage2Props> = ({
           <div className="">
             {/* ---------- 1 HEADING ----------  */}
             <div className="flex items-center justify-between space-x-5">
-              <div>
-                <div className="flex text-md font-semibold justify-end text-red-500 line-through">
-                  {VND(parseFloat(price))}
-                </div>
-                <div className="flex text-2xl font-semibold">
-                  {VND(parseFloat(price_sale))}
-                </div>
-
-              </div>
+              {
+                price_sale
+                  ?
+                  <div>
+                    <div className="flex text-md font-semibold justify-end text-red-500 line-through">
+                      {VND(parseFloat(price))}
+                    </div>
+                    <div className="flex text-2xl font-semibold">
+                      {VND(parseFloat(price_sale))}
+                    </div>
+                  </div>
+                  :
+                  <div>
+                    <div className="flex text-2xl font-semibold">
+                      {VND(parseFloat(price))}
+                    </div>
+                  </div>
+              }
 
               <a
                 href="#reviews"
@@ -422,13 +450,19 @@ const ProductDetailPage2: FC<ProductDetailPage2Props> = ({
 
 
             {/* ---------- 3 VARIANTS AND SIZE LIST ----------  */}
-            <div className="mt-6 space-y-7 lg:space-y-8">
-              {
-                groupVariant().map((item, key) => (
-                  <div key={key} className="">{renderVariants(item, key)}</div>
-                ))
-              }
-            </div>
+            {
+              data.data
+                ?
+                <div className="mt-6 space-y-7 lg:space-y-8">
+                  {
+                    groupVariant().map((item, key) => (
+                      <div key={key} className="">{renderVariants(item, key)}</div>
+                    ))
+                  }
+                </div>
+                :
+                ''
+            }
           </div>
           {/*  ---------- 4  QTY AND ADD TO CART BUTTON */}
           <div className="flex space-x-3.5">
@@ -453,35 +487,35 @@ const ProductDetailPage2: FC<ProductDetailPage2Props> = ({
             <div className="space-y-2.5">
               <div className="flex justify-between text-slate-600 dark:text-slate-300">
                 <span className="flex">
-                  <span>{`${VND(parseFloat(price_sale))}  `}</span>
+                  <span>{`${VND(parseFloat(price_sale ? price_sale : price))}  `}</span>
                   <span className="mx-2">x</span>
                   <span>{`${qualitySelected} `}</span>
                 </span>
 
-                <span>{`${VND((price_sale * qualitySelected))}`}</span>
+                <span>{`${VND(((price_sale ? price_sale : price) * qualitySelected))}`}</span>
               </div>
               {/* <div className="flex justify-between text-slate-600 dark:text-slate-300">
-                  <span>Thuế giá trị gia tăng</span>
-                  <span>0</span>
-                </div> */}
+                <span>Thuế giá trị gia tăng</span>
+                <span>0</span>
+              </div> */}
             </div>
             <div className="border-b border-slate-200 dark:border-slate-700"></div>
             <div className="flex justify-between font-semibold text-[24px]">
               <span>Tổng tiền</span>
-              <span>{`${VND((price_sale * qualitySelected))}`}</span>
+              <span>{`${VND(((price_sale ? price_sale : price) * qualitySelected))}`}</span>
             </div>
           </div>
         </div>
       </div>
     );
-  }, [variantActives, qualitySelected, maxQuantity])
+  }
 
   const renderSection1 = () => {
     return (
       <div >
 
         {/*  */}
-        <div className="block lg:hidden">{renderSectionSidebar}</div>
+        <div className="block lg:hidden">{renderSectionSidebar()}</div>
 
         {/*  */}
         {/* <div className="w-14 border-b border-neutral-200 dark:border-neutral-700"></div> */}
@@ -662,10 +696,7 @@ const ProductDetailPage2: FC<ProductDetailPage2Props> = ({
     )
   }
 
-
-
-
-  if (!data && isLoading) {
+  if (!data && isLoading || !data?.data) {
     return (
       <div
         className={`ListingDetailPage nc-ProductDetailPage2 mb-9 ${className}`}
@@ -743,13 +774,12 @@ const ProductDetailPage2: FC<ProductDetailPage2Props> = ({
 
   const { category, name } = data.data
 
-
   return (
     <div
       className={`ListingDetailPage nc-ProductDetailPage2 ${className} overflow-hidden`}
       data-nc-id="ProductDetailPage2"
     >
-
+      {/* SINGLE HEADER */}
       <>
         <header className="container mt-8 sm:mt-10">
           <div>
@@ -776,7 +806,7 @@ const ProductDetailPage2: FC<ProductDetailPage2Props> = ({
         <div className="flex-grow">
           <div className="hidden lg:block sticky top-28">
             {
-              renderSectionSidebar
+              renderSectionSidebar()
             }
           </div>
         </div>
@@ -814,7 +844,7 @@ const ProductDetailPage2: FC<ProductDetailPage2Props> = ({
                 header={<div className="text-[20px] font-bold">Thông số kĩ thuật</div>}
                 footer={<div><Button onClick={() => setOpenDetail(true)} className="w-full">Xem cấu hình chi tiết</Button></div>}
                 bordered
-                dataSource={category?.details?.flatMap((item: IDetail) => item.attributes).slice(0, 10)}
+                dataSource={category.details.flatMap((item: IDetail) => item.attributes).slice(0, 10)}
                 renderItem={(item: IAttribute) => (
                   <List.Item className=" flex justify-between">
 
@@ -845,7 +875,7 @@ const ProductDetailPage2: FC<ProductDetailPage2Props> = ({
                 open={openDetail}
                 onCancel={() => setOpenDetail(false)}
               >
-                {category?.details?.map((item: IDetail, key: number) => (
+                {category.details.map((item: IDetail, key: number) => (
                   <div key={key} className=" mt-4">
                     <h2 className="font-bold mb-1">{item.name}</h2>
                     <List

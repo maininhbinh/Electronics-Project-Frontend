@@ -53,7 +53,7 @@ export default function CartDropdown() {
                   
                 </p>
               </div>
-              <Prices price={parseFloat(price)} className="mt-0.5" />
+              <Prices price={parseFloat(price_sale ?? price)} className="mt-0.5" />
             </div>
           </div>
           <div className="flex flex-1 items-end justify-between text-sm">

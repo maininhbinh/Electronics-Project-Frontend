@@ -261,9 +261,7 @@ export default function EditCategory() {
                 <Flex vertical gap={10}>
                   <Flex justify='space-between' align='center'>
                     <h2 className='font-bold text-[16px]'>Thông tin sản phẩm</h2>
-                    <div>
-                      <Button className=' border-dashed ' onClick={handleSetDetail} >Thêm</Button>
-                    </div>
+                    
                   </Flex>
                   {
                     <Flex vertical gap={20}>
@@ -284,6 +282,11 @@ export default function EditCategory() {
                       ))}
                     </Flex>
                   }
+                  <Flex justify='flex-end' align='center'>
+                    <div>
+                      <Button className=' border-dashed ' onClick={handleSetDetail} >Thêm</Button>
+                    </div>
+                  </Flex>
                 </Flex>
               </Flex>
             </div>

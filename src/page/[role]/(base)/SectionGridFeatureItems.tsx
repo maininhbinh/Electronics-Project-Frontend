@@ -14,9 +14,9 @@ const SectionGridFeatureItems: FC<SectionGridFeatureItemsProps> = ({
   data = PRODUCTS,
 }) => {
   const [filter, setFilter] = React.useState('is_hot_deal');
-  const {data : dataHot, isLoadingHot } = useFilterProductQuery('is_hot_deal');
-  const {data : dataGood, isLoadingGood } = useFilterProductQuery('is_good_deal');
-  const {data : dataNew, isLoadingNew } = useFilterProductQuery('is_new');
+  const {data : dataHot, isLoading: isLoadingHot } = useFilterProductQuery('is_hot_deal');
+  const {data : dataGood, isLoading: isLoadingGood } = useFilterProductQuery('is_good_deal');
+  const {data : dataNew, isLoading: isLoadingNew } = useFilterProductQuery('is_new');
   // const {data : dataHome, isLoadingHome } = useFilterProductQuery('is_show_home');
   return (
     <>
@@ -30,7 +30,13 @@ const SectionGridFeatureItems: FC<SectionGridFeatureItemsProps> = ({
           ))}
         </div>
         <div className="flex mt-16 justify-center items-center">
-          <ButtonPrimary loading>Xem thêm</ButtonPrimary>
+          {
+            isLoadingHot
+            ?
+            <ButtonPrimary loading>Xem thêm</ButtonPrimary>
+            :
+            ''
+          }
         </div>
       </div>
       <div className="nc-SectionGridFeatureItems relative">
@@ -43,7 +49,13 @@ const SectionGridFeatureItems: FC<SectionGridFeatureItemsProps> = ({
           ))}
         </div>
         <div className="flex mt-16 justify-center items-center">
-          <ButtonPrimary loading>Xem thêm</ButtonPrimary>
+        {
+            isLoadingGood
+            ?
+            <ButtonPrimary loading>Xem thêm</ButtonPrimary>
+            :
+            ''
+          }
         </div>
       </div>
       <div className="nc-SectionGridFeatureItems relative">
@@ -56,7 +68,13 @@ const SectionGridFeatureItems: FC<SectionGridFeatureItemsProps> = ({
           ))}
         </div>
         <div className="flex mt-16 justify-center items-center">
-          <ButtonPrimary loading>Xem thêm</ButtonPrimary>
+        {
+            isLoadingNew
+            ?
+            <ButtonPrimary loading>Xem thêm</ButtonPrimary>
+            :
+            ''
+          }
         </div>
       </div>
       {/* <div className="nc-SectionGridFeatureItems relative">

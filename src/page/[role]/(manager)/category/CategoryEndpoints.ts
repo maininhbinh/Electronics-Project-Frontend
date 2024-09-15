@@ -28,6 +28,16 @@ export const categoriesApi = apiWithTag.injectEndpoints({
     getDetailCategory: builder.query({
       query: (id) => `category/show/${id}`,
     }),
+    getListCategory: builder.query({
+      query: () => 'category/list',
+      providesTags: (result) =>
+      result
+        ? [
+            ...result.data.map(({ id } : {id : number | string}) => ({ type: 'Categories' as const, id })),
+            { type: 'Categories', id: 'LIST' },
+          ]
+        : [{ type: 'Categories', id: 'LIST' }],
+    }),
     createCategory: builder.mutation({
       query: (newCategory) => ({
         
@@ -93,6 +103,16 @@ export const categoriesApi = apiWithTag.injectEndpoints({
       }),
       //invalidatesTags: [{ type: 'Categories', id: 'LIST' }],
     }),
+    getPage: builder.query({
+      query: ({slug, param}) => `category/page/${slug}${param}`,
+      providesTags: (result) =>
+      result
+        ? [
+            ...result?.data?.map(({ id } : {id : number | string}) => ({ type: 'Products' as const, id })),
+            { type: 'Products', id: 'LIST' },
+          ]
+        : [{ type: 'Products', id: 'LIST' }],
+    }),
     deleteAttribute: builder.mutation({
       query: (id) => ({
         url: `attribute/${id}`,
@@ -116,6 +136,7 @@ export const {
   useCreateAttributeMutation,
   useCreateDetailMutation,
   useDeleteDetailMutation,
-  useLazyGetCategoryQuery
-  
+  useLazyGetCategoryQuery,
+  useGetListCategoryQuery,
+  useGetPageQuery
 } = categoriesApi;
