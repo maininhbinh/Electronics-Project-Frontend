@@ -49,6 +49,7 @@ import { popupError } from "../../shared/Toast";
 import { formatDate } from "@/utils/convertCreatedLaravel";
 import { useLocalStorage } from "@uidotdev/usehooks";
 import { useGetVouchersQuery } from "../../(manager)/voucher/VoucherEndpoint";
+import SectionSliderProductCardSimilar from "./SectionSliderProductCartSimilar";
 export interface ProductDetailPage2Props {
   className?: string;
 }
@@ -914,11 +915,12 @@ const ProductDetailPage2: FC<ProductDetailPage2Props> = ({
 
         <hr className="border-slate-200 dark:border-slate-700" />
 
-        <SectionSliderProductCard
+        <SectionSliderProductCardSimilar
           heading="SẢN PHẨM TƯƠNG TỰ"
           subHeading=""
           headingFontClassName="text-2xl font-semibold"
           headingClassName="mb-10 text-neutral-900 dark:text-neutral-50"
+          idProduct={productId}
         />
       </div>
 

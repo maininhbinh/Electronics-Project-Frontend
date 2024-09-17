@@ -15,6 +15,7 @@ import { IProduct, IProductItem } from '@/common/types/product.interface'
 import { IAddCart, ICart } from '@/common/types/cart.interface'
 import { useAddToCartMutation } from '@/services/CartEndPoinst'
 import { popupError } from '../../shared/Toast'
+import { Flex } from 'antd'
 export interface ProductCardProps {
   className?: string;
   data: IProduct;
@@ -32,6 +33,7 @@ const ProductCard: FC<ProductCardProps> = ({
     thumbnail,
     slug,
     products,
+    average_rating,
     products_sum_product_itemsquantity,
     order_details_sum_quantity,
     is_active
@@ -50,7 +52,7 @@ const ProductCard: FC<ProductCardProps> = ({
   }, []);
 
   const prices = products.map((product: IProductItem) => parseFloat(product.price));
-  const price_sale = products.map((product: IProductItem) => parseFloat(product.price_sale));
+  const price_sale = products.map((product: IProductItem) => parseFloat(product.price_sale)).filter(item => item);
   const maxPrice = Math.round(prices.reduce((accumulator, currentValue) => accumulator + currentValue, 0) / prices.length);
   const maxPriceSale = Math.round(price_sale.reduce((accumulator, currentValue) => accumulator + currentValue, 0) / price_sale.length);
 
@@ -325,14 +327,19 @@ const ProductCard: FC<ProductCardProps> = ({
             }
             <div className="flex items-center mb-0.5">
               <StarIcon className="w-5 h-5 pb-[1px] text-amber-400" />
-              <span className="text-sm ml-1 text-slate-500 dark:text-slate-400">
-                {(Math.random() * 1 + 4).toFixed(1)}
-                (
-                {
-                  `${order_details_sum_quantity ? order_details_sum_quantity : 0} Đã mua`
-                }
-                )
-              </span>
+              <Flex className="text-sm ml-1 text-slate-500 dark:text-slate-400" gap={10}>
+                <span>
+                  {average_rating ? average_rating : '0'}
+                </span>
+
+                <span>
+                  (
+                    {
+                      `${order_details_sum_quantity ? order_details_sum_quantity : 0} Đã mua`
+                    }
+                  )
+                </span>
+              </Flex>
             </div>
           </div >
         </div >

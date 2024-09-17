@@ -65,6 +65,10 @@ export const productsApi = apiWithTag.injectEndpoints({
       }),
       invalidatesTags: [{ type: 'Products', id: 'LIST' }],
     }),
+    getSimilarProducts: builder.query({
+      query: (id) => `product/similar/${id}`,
+      providesTags: () => [{ type: 'Products', id: 'SIMILAR' }],
+    })
   }),
 });
 
@@ -77,4 +81,5 @@ export const {
   useDeleteProductMutation,
   useEditProductQuery,
   useCreateProductMutation,
+  useGetSimilarProductsQuery
 } = productsApi;
