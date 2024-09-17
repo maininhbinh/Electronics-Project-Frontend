@@ -597,7 +597,20 @@ const TabFilters = ({filter}: {filter: filter}) => {
             ? "border-primary-500 bg-primary-50 text-primary-900"
             : "border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 hover:border-neutral-400 dark:hover:border-neutral-500"
         }`}
-        onClick={() => setIsIsOnSale(!isOnSale)}
+        onClick={() => {
+          setIsIsOnSale(!isOnSale)
+          if(!isOnSale){
+            params.set('on_sale', 'true');
+            const url = decodeURIComponent(params.toString());
+            
+            navigate(`?${url}`)
+          }else{
+            params.delete('on_sale');
+            const url = decodeURIComponent(params.toString());
+            
+            navigate(`?${url}`)
+          }
+        }}
       >
         <svg
           className="w-4 h-4"
