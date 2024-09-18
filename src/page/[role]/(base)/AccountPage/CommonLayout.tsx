@@ -69,7 +69,7 @@ const CommonLayout: FC<CommonLayoutProps> = () => {
         </Col>
         <Col span={19}>
           <div className="shadow-lg rounded-xl">
-            <div className="p-5 mx-auto">
+            <div className="p-10 mx-auto">
               <Outlet/>
             </div>
           </div>

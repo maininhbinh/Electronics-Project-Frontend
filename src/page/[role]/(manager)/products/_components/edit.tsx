@@ -149,8 +149,6 @@ function EditProduct() {
         status: item.status
       }))
 
-      console.log(newProductItem);
-      
       const productDeletes = products.filter(item=>{
         return newProductItem.findIndex(itemC => itemC.id === item.id) == -1 ? true : false
       }).map(item=>item.id)

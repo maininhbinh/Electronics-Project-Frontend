@@ -10,6 +10,7 @@ export interface ICart {
     price_sale: string,
     image: string | null,
     variants: Ivariant[]
+    in_stock?: boolean
 }
 
 export interface Ivariant {

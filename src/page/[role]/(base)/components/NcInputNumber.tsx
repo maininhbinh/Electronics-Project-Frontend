@@ -44,10 +44,14 @@ const NcInputNumber: FC<NcInputNumberProps> = ({
 
 
     try {
-      item && await changeCart({ id: item.id, quantity: value - 1 });
-      setValue((state) => {
-        return state - 1;
-      });
+      const response = await changeCart({ id: item?.id, quantity: value - 1 });
+
+      if(response && response?.success){
+        setValue((state) => {
+          return state - 1;
+        });
+      }
+      
       onChange && onChange(value - 1);
     } catch (error) {
       popupError('Update cart error');
@@ -56,12 +60,18 @@ const NcInputNumber: FC<NcInputNumberProps> = ({
   const handleClickIncrement = async () => {
     if (max && max <= value) return;
 
-
     try {
-      item && await changeCart({ id: item.id, quantity: value + 1 });
-      setValue((state) => {
-        return state + 1;
-      });
+      const response = await changeCart({ id: item?.id, quantity: value + 1 });
+
+      if(response && response?.success == true){
+        setValue((state) => {
+          return state + 1;
+        });
+      }else{
+        const error = response.error?.data?.message
+        popupError(error)
+      }
+
       onChange && onChange(value + 1);
     } catch (error) {
       popupError('Update cart error');

@@ -95,7 +95,7 @@ const CartPage = () => {
     return (
       <div className="rounded-full flex items-center justify-center px-2.5 py-1.5 text-xs text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
         <NoSymbolIcon className="w-3.5 h-3.5" />
-        <span className="ml-1 leading-none">Sold Out</span>
+        <span className="ml-1 leading-none">Hết hàng</span>
       </div>
     );
   };
@@ -104,21 +104,22 @@ const CartPage = () => {
     return (
       <div className="rounded-full flex items-center justify-center px-2.5 py-1.5 text-xs text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
         <CheckIcon className="w-3.5 h-3.5" />
-        <span className="ml-1 leading-none">In Stock</span>
+        <span className="ml-1 leading-none">Còn hàng</span>
       </div>
     );
   };
 
   const renderProduct = (item: ICart) => {
    
-    const { image, price, name, slug, thumbnail, quantity, user_id, product_item_id, price_sale, variants, } = item;
+    const { image, price, name, slug, thumbnail, quantity, user_id, product_item_id, price_sale, variants, in_stock} = item;
     const product = {
       id: product_item_id,
       price,
       price_sale,
       quantity,
       image,
-      variants
+      variants,
+      in_stock
     }
     const handleDelete = (id : number) => {
       try {
@@ -203,7 +204,7 @@ const CartPage = () => {
           </div>
 
           <div className="flex mt-auto pt-4 items-end justify-between text-sm">
-            {quantity < 1
+            {!in_stock
               ? renderStatusSoldout()
               : renderStatusInstock()}
 

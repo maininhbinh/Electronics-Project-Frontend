@@ -3,24 +3,10 @@ import { FC, useEffect, useState } from 'react'
 import ButtonPrimary from '../shared/Button/ButtonPrimary'
 import ButtonSecondary from '../shared/Button/ButtonSecondary'
 import Input from '../shared/Input/Input'
-import Radio from '../shared/Radio/Radio'
 import { useGetProvincesQuery, useLazyGetDistrictsQuery, useLazyGetWardsQuery } from '@/utils/addressRTKQuery'
-
-import { Button, Descriptions, Modal, Result } from 'antd'
-import axios from 'axios'
-import { useLocalStorage } from '@uidotdev/usehooks'
-import { ICart } from '@/common/types/cart.interface'
-import { popupError, popupSuccess } from '../../shared/Toast'
-import { Link, useNavigate } from 'react-router-dom'
-import { DescriptionsProps } from 'antd/lib'
-import { VND } from '@/utils/formatVietNamCurrency'
-import { useGetCartsQuery } from '@/services/CartEndPoinst'
-import { getTotalPriceCart } from '@/utils/handleCart'
-import { useAddOrderMutation } from '@/services/OrderEndPoints'
 import { Form, Select, SelectProps, FormInstance } from 'antd'
 
 import { IOrder } from '@/common/types/Order.interface'
-import { EditOutlined } from '@ant-design/icons'
 
 interface Props {
   isActive: boolean
@@ -221,11 +207,10 @@ const ShippingAddress: FC<Props> = ({ isActive, onCloseActive, onOpenActive, onF
 
         <div className='sm:flex space-y-4 sm:space-y-0 sm:space-x-3'>
           <div className='w-full'>
-          <Label className="text-sm">Ghi chú</Label>
+            <Label className="text-sm">Ghi chú</Label>
             <Form.Item name='note'>
               <Input  placeholder='...' className='mt-1.5' type='text'/>
             </Form.Item>
-      
           </div>
         </div>
 

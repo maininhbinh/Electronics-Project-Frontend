@@ -19,6 +19,16 @@ export const CartsApi = apiWithTag.injectEndpoints({
           ]
         : [{ type: 'Carts', id: 'LIST' }],
     }),
+    getCartCheckout:  builder.query({
+      query: () => 'cart/checkout',
+      providesTags: (result) =>
+      result
+        ? [
+            ...result.data.map(({ id } : {id : number | string}) => ({ type: 'Carts' as const, id })),
+            { type: 'Carts', id: 'LIST' },
+          ]
+        : [{ type: 'Carts', id: 'LIST' }],
+    }),
     addToCart: builder.mutation({
       query: (payload) => ({
         url: 'cart/add',
@@ -51,5 +61,6 @@ export const {
   useDeleteCartMutation,
   useUpdateCartMutation,
   useLazyGetCartsQuery,
-  usePrefetch
+  usePrefetch,
+  useGetCartCheckoutQuery
 } = CartsApi;

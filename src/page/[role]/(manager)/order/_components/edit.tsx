@@ -1,13 +1,9 @@
 import { VND } from "@/utils/formatVietNamCurrency";
 import { Badge, Button, Card, Col, Flex, Row, Table, Tag } from "antd";
 import { TableProps } from "antd";
-import {
-    HourglassOutlined,
-    DownloadOutlined
-  } from '@ant-design/icons';
 import { exportToWord } from "@/utils/exportBillOrder";
 import { useChangeStatusOrderMutation, useGetOrderQuery } from "@/services/OrderEndPoints";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { formatTimestamp } from "@/utils/formatDate";
 import { popupError, popupSuccess } from "@/page/[role]/shared/Toast";
 import HandleAnimationIcon from "@/page/[role]/components/icon/OrderIcon/Handle";
@@ -18,6 +14,8 @@ import DoneOrderAnimationIcon from "@/page/[role]/components/icon/OrderIcon/Done
 import OrderCancelAnimationIcon from "@/page/[role]/components/icon/OrderIcon/OrderCancel";
 import DeliveringAnimationIcon from "@/page/[role]/components/icon/OrderIcon/Delivering";
 import PickupAnimationIcon from "@/page/[role]/components/icon/OrderIcon/PickUp";
+import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded';
+
 export default function EditOrder(){
   const orderIcon = [
     <HandleAnimationIcon width={60} height={60} />,
@@ -34,6 +32,7 @@ export default function EditOrder(){
   const {data, refetch} = useGetOrderQuery(params.id);
   const dataItem = data?.order_detail;
   const dataOrderStatus = data?.order_status;
+  const navigate = useNavigate()
   
 
   const dataOrderDetail = data?.order_detail.order_details?.map((item: any, index: number) => ({
@@ -52,22 +51,6 @@ export default function EditOrder(){
     return false;
   }
 
-    const handleExportBill = async  () => {
-        await exportToWord([
-            {
-              key: '1',
-              item: 'Product A',
-              quantity: 2,
-              price: 50,
-            },
-            {
-              key: '2',
-              item: 'Product B',
-              quantity: 1,
-              price: 30,
-            },
-          ])
-    }
     const columns: TableProps<any>['columns'] = [
         {
           title: 'Tên sản phẩm',
@@ -151,11 +134,19 @@ export default function EditOrder(){
     }
     return (
     <>
-      <div className="w-full flex justify-end mb-4">
-        <Button onClick={() => handleExportBill()} className="bg-black" type="primary" shape="round" icon={<DownloadOutlined />} size={'small'}>
-          Xuất hóa đơn
-        </Button>
-      </div>
+      <Flex className='mb-5' align='center' gap={20}>
+          <Flex className='p-3 rounded-xl bg-[#fff] cursor-pointer' style={{boxShadow: 'rgba(0, 0, 0, 0.05) 0rem 1.25rem 1.6875rem 0rem', }}
+            onClick={()=>{
+              navigate('..')
+            }}
+          >
+            <ArrowBackRoundedIcon/>
+          </Flex>
+          <Flex vertical>
+            <h2 className='font-bold text-[24px]'>Chi tiết đơn hàng</h2>
+            <span className='text-gray-500'>Quay lại trang danh sách đơn hàng</span>
+          </Flex>
+        </Flex>
       <Row gutter={[24,32]}>
       <Col span={24}>
           <Card title="Giao hàng" bordered={false}>
@@ -175,8 +166,8 @@ export default function EditOrder(){
             </Flex>    
           </Card>
         </Col>
-        <Col span={24}>
-          <Card className='h-full' title="Thông tin đơn hàng" bordered={false}  extra={<> <Badge color="green" text={dataItem?.order_status?.status} /></>}>
+        <Col span={12}>
+          <Card className='h-full' title="Thông tin khách hàng" bordered={false}>
               <div className="flex justify-between border-solid border-b-[1px] border-b-[#eee] py-4">
                   <b className="">Tên: </b>
                   <span className="">{dataItem?.receiver_name}</span>
@@ -193,6 +184,11 @@ export default function EditOrder(){
                   <b className="">Địa chỉ: </b>
                   <span className="">{dataItem?.receiver_address}-{dataItem?.receiver_ward}-{dataItem?.receiver_district}-{dataItem?.receiver_pronvinces}</span>
               </div>
+          </Card>
+        </Col>
+
+        <Col span={12}>
+          <Card className='h-full' title="Thông tin đơn hàng" bordered={false}  extra={<> <Badge color="green" text={dataItem?.order_status?.status} /></>}>
               <div className="flex justify-between border-solid border-b-[1px] border-b-[#eee] py-4">
                   <b className="">Mã đơn hàng : </b>
                   <span className="">{dataItem?.code}</span>
@@ -230,19 +226,15 @@ export default function EditOrder(){
 
               <div className="flex justify-between border-solid border-b-[1px] border-b-[#eee] py-4">
                   <b className="">Giảm giá : </b>
-                  <span className="">{VND(Number(dataItem?.total_price) - Number(dataItem?.discount_price))}</span>
+                  <span className="">{dataItem?.discount_price != 0 ? VND(Number(dataItem?.discount_price)) : 'Đơn hàng không áp dụng khuyến mãi'}</span>
               </div>
               <div className="flex justify-between border-solid border-b-[1px] border-b-[#eee] py-4">
                   <b className="">Kiểu thanh toán : </b>
                   <span className="">{dataItem?.payment_methods}</span>
               </div>
               <div className="flex justify-between border-solid border-b-[1px] border-b-[#eee] py-4">
-                  <b className="">Phí vận chuyển : </b>
-                  <span className="">0đ</span>
-              </div>
-              <div className="flex justify-between border-solid border-b-[1px] border-b-[#eee] py-4">
                   <b className="text-[19px]">Tổng cộng : </b>
-                  <b className="text-[19px] text-red-500">{ VND(Number(dataItem?.discount_price))}</b>
+                  <b className="text-[19px] text-red-500">{ VND(Number(dataItem?.total_price))}</b>
               </div>
           </Card>
         </Col>
