@@ -13,7 +13,7 @@ import { VND } from "@/utils/formatVietNamCurrency";
 import CartEmptyAnimationIcon from "../components/Icon/Cart/CartEmpty";
 
 const CartPage = () => {
-  const {data : carts , isLoading} = useGetCartsQuery({});
+  const { data: carts, isLoading } = useGetCartsQuery({});
 
   const [deleteCart] = useDeleteCartMutation();
 
@@ -110,8 +110,8 @@ const CartPage = () => {
   };
 
   const renderProduct = (item: ICart) => {
-   
-    const { image, price, name, slug, thumbnail, quantity, user_id, product_item_id, price_sale, variants, } = item;
+
+    const { image, price, name, slug, thumbnail, quantity, user_id, product_item_id, price_sale, variants, maxQuantity } = item;
     const product = {
       id: product_item_id,
       price,
@@ -120,7 +120,7 @@ const CartPage = () => {
       image,
       variants
     }
-    const handleDelete = (id : number) => {
+    const handleDelete = (id: number) => {
       try {
         deleteCart(id).unwrap();
       } catch (error) {
@@ -157,7 +157,7 @@ const CartPage = () => {
                       </div>
                     </div>
                   ))}
-                
+
                 </div>
 
                 <div className="mt-3 flex justify-between w-full sm:hidden relative">
@@ -182,21 +182,21 @@ const CartPage = () => {
               </div>
 
               <div className="hidden sm:block text-center relative">
-                <NcInputNumber className="relative z-10" defaultValue={quantity} item={product}/>
+                <NcInputNumber className="relative z-10" defaultValue={quantity} item={product} maxQuantity={maxQuantity} />
               </div>
 
               <div className="hidden flex-1 sm:flex  flex-col items-end gap-1">
                 {
                   price_sale
-                  ?
-                  <div className="flex flex-col gap-1">
-                    <Prices price={parseFloat(price)} classChildren="text-[12px] line-through text-gray-400" />
-                    <Prices price={parseFloat(price_sale)} className="mt-0.5" classChildren="text-[18px] text-red-400"/>
-                  </div>
-                  :
-                  <div className="flex flex-col gap-1">
-                    <Prices price={parseFloat(price)} className="mt-0.5" classChildren="text-[18px] text-red-400"/>
-                  </div>
+                    ?
+                    <div className="flex flex-col gap-1">
+                      <Prices price={parseFloat(price)} classChildren="text-[12px] line-through text-gray-400" />
+                      <Prices price={parseFloat(price_sale)} className="mt-0.5" classChildren="text-[18px] text-red-400" />
+                    </div>
+                    :
+                    <div className="flex flex-col gap-1">
+                      <Prices price={parseFloat(price)} className="mt-0.5" classChildren="text-[18px] text-red-400" />
+                    </div>
                 }
               </div>
             </div>
@@ -211,14 +211,14 @@ const CartPage = () => {
               onClick={() => handleDelete(Number(item.product_item_id))}
               className="cursor-pointer relative z-10 flex items-center mt-3 font-medium text-primary-6000 hover:text-primary-500 text-sm "
             >
-              <span>Remove</span>
+              <span>Xóa</span>
             </span>
           </div>
         </div>
       </div>
     );
   };
-  
+
   return (
     <div className="nc-CartPage">
       <Helmet>
@@ -244,98 +244,98 @@ const CartPage = () => {
         </div>
 
         <hr className="border-slate-200 dark:border-slate-700 my-10 xl:my-12" />
-        {!isLoading &&  !carts?.data.length &&   
-        <Result
-          icon={<CartEmptyAnimationIcon width="200px" height="200px" />}
-          title="Giỏ hàng trống"
-          extra={
-            <Link to="/"><Button type="primary" key="console" className=" bg-black !rounded-[20px]">
-              Quay về trang chủ
-            </Button> </Link>
-          }
-        />
-      }
+        {!isLoading && !carts?.data.length &&
+          <Result
+            icon={<CartEmptyAnimationIcon width="200px" height="200px" />}
+            title="Giỏ hàng trống"
+            extra={
+              <Link to="/"><Button type="primary" key="console" className=" bg-black !rounded-[20px]">
+                Quay về trang chủ
+              </Button> </Link>
+            }
+          />
+        }
         <div className="flex flex-col lg:flex-row">
           <div className="w-full lg:w-[60%] xl:w-[55%] divide-y divide-slate-200 dark:divide-slate-700 ">
             {isLoading ? <h1> Đang tải</h1> : carts?.data?.map(renderProduct)}
           </div>
 
-          {!isLoading &&  Boolean(carts?.data.length)  && <><div className="border-t lg:border-t-0 lg:border-l border-slate-200 dark:border-slate-700 my-10 lg:my-0 lg:mx-10 xl:mx-16 2xl:mx-20 flex-shrink-0"></div>
-          <div className="flex-1">
-            <div className="sticky top-28">
-              <h3 className="text-lg font-semibold ">Tạm tính</h3>
-              <div className="mt-7 text-sm text-slate-500 dark:text-slate-400 divide-y divide-slate-200/70 dark:divide-slate-700/80">
-                <div className="flex justify-between pb-4">
-                  <span>Giá</span>
-                  <span className="font-semibold text-slate-900 dark:text-slate-200">
-                    {carts && VND(getTotalPriceCart(carts.data))}
-                  </span>
+          {!isLoading && Boolean(carts?.data.length) && <><div className="border-t lg:border-t-0 lg:border-l border-slate-200 dark:border-slate-700 my-10 lg:my-0 lg:mx-10 xl:mx-16 2xl:mx-20 flex-shrink-0"></div>
+            <div className="flex-1">
+              <div className="sticky top-28">
+                <h3 className="text-lg font-semibold ">Tạm tính</h3>
+                <div className="mt-7 text-sm text-slate-500 dark:text-slate-400 divide-y divide-slate-200/70 dark:divide-slate-700/80">
+                  <div className="flex justify-between pb-4">
+                    <span>Giá</span>
+                    <span className="font-semibold text-slate-900 dark:text-slate-200">
+                      {carts && VND(getTotalPriceCart(carts.data))}
+                    </span>
+                  </div>
+                  <div className="flex justify-between font-semibold text-slate-900 dark:text-slate-200 text-base pt-4">
+                    <span>Tổng đơn hàng</span>
+                    <span>{carts && VND(getTotalPriceCart(carts.data))}</span>
+                  </div>
                 </div>
-                <div className="flex justify-between font-semibold text-slate-900 dark:text-slate-200 text-base pt-4">
-                  <span>Tổng đơn hàng</span>
-                  <span>{carts && VND(getTotalPriceCart(carts.data))}</span>
+                <ButtonPrimary href="/checkout" className="mt-8 w-full">
+                  Thanh toán
+                </ButtonPrimary>
+                <div className="mt-5 text-sm text-slate-500 dark:text-slate-400 flex items-center justify-center">
+                  <p className="block relative pl-5">
+                    <svg
+                      className="w-4 h-4 absolute -left-1 top-0.5"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                    >
+                      <path
+                        d="M12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22Z"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                      <path
+                        d="M12 8V13"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                      <path
+                        d="M11.9945 16H12.0035"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                    Learn more{` `}
+                    <a
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      href="##"
+                      className="text-slate-900 dark:text-slate-200 underline font-medium"
+                    >
+                      Taxes
+                    </a>
+                    <span>
+                      {` `}and{` `}
+                    </span>
+                    <a
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      href="##"
+                      className="text-slate-900 dark:text-slate-200 underline font-medium"
+                    >
+                      Shipping
+                    </a>
+                    {` `} infomation
+                  </p>
                 </div>
               </div>
-              <ButtonPrimary href="/checkout" className="mt-8 w-full">
-                Thanh toán
-              </ButtonPrimary>
-              <div className="mt-5 text-sm text-slate-500 dark:text-slate-400 flex items-center justify-center">
-                <p className="block relative pl-5">
-                  <svg
-                    className="w-4 h-4 absolute -left-1 top-0.5"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                  >
-                    <path
-                      d="M12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22Z"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M12 8V13"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M11.9945 16H12.0035"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                  Learn more{` `}
-                  <a
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    href="##"
-                    className="text-slate-900 dark:text-slate-200 underline font-medium"
-                  >
-                    Taxes
-                  </a>
-                  <span>
-                    {` `}and{` `}
-                  </span>
-                  <a
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    href="##"
-                    className="text-slate-900 dark:text-slate-200 underline font-medium"
-                  >
-                    Shipping
-                  </a>
-                  {` `} infomation
-                </p>
-              </div>
-            </div>
-          </div></>}
-          
+            </div></>}
+
         </div>
-        
+
       </main>
     </div>
   );

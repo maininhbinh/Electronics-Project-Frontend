@@ -27,7 +27,7 @@ const NcInputNumber: FC<NcInputNumberProps> = ({
   item,
   maxQuantity
 }) => {
-  console.log(maxQuantity)
+  console.log("max in here", maxQuantity, item)
 
   const [changeCart] = useUpdateCartMutation();
   const [value, setValue] = useState(defaultValue);
@@ -43,29 +43,33 @@ const NcInputNumber: FC<NcInputNumberProps> = ({
     if (min >= value) return;
 
 
-    try {
-      item && await changeCart({ id: item.id, quantity: value - 1 });
-      setValue((state) => {
-        return state - 1;
-      });
-      onChange && onChange(value - 1);
-    } catch (error) {
-      popupError('Update cart error');
+    if (item) {
+      try {
+        await changeCart({ id: item.id, quantity: value - 1 }).unwrap();
+        setValue((state) => {
+          return state - 1;
+        });
+        onChange && onChange(value - 1);
+      } catch (error) {
+        popupError('Đơn hàng vượt quá số lượng cho phép');
+      }
     }
   };
   const handleClickIncrement = async () => {
     if (max && max <= value) return;
+    if (item) {
 
-
-    try {
-      item && await changeCart({ id: item.id, quantity: value + 1 });
-      setValue((state) => {
-        return state + 1;
-      });
-      onChange && onChange(value + 1);
-    } catch (error) {
-      popupError('Update cart error');
+      try {
+        await changeCart({ id: item.id, quantity: value + 1 }).unwrap()
+        setValue((state) => {
+          return state + 1;
+        });
+        onChange && onChange(value + 1);
+      } catch (error) {
+        popupError('Đơn hàng vượt quá số lượng cho phép');
+      }
     }
+
   };
 
   const renderLabel = () => {

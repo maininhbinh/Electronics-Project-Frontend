@@ -283,57 +283,10 @@ function Sidenav() {
       },
 
 
-      {
-        label: (
-          <>
-            <Flex align="center" justify="center">
-              <span
-                className={`icon `}
-              >
-                <Billing color={darkColor} />
-              </span>
-              <span className="label font-bold text-[#344767]">thanh toán</span>
-            </Flex>
-          </>
-        ),
-        link: '/admin/billing'
-      },
-      {
-        label: (
-          <Flex align="center" justify="center">
-            <span
-              className={`icon `}
-            >
-              <Rtl color={darkColor} />
-            </span>
-            <span className="label font-bold text-[#344767]">RTL</span>
-          </Flex>
-        ),
-        link: '/admin/rtl'
-      },
-      {
-        label: (
-          <>
-            <Text style={{ fontSize: '16px', fontWeight: '700' }} className={`text-[${bgIcon}]`}>
-              Trang tài khoản
-            </Text>
-          </>
-        ),
-        type: 'group',
-      },
-      {
-        label: (
-          <Flex align="center" justify="center">
-            <span
-              className={`icon  `}
-            >
-              {profile}
-            </span>
-            <span className="label font-bold text-[#344767]">Hồ sơ</span>
-          </Flex>
-        ),
-        link: '/admin/profile'
-      }
+
+
+
+
     ]
   })
 
