@@ -1,93 +1,104 @@
+import { formatDate } from '@/utils/convertCreatedLaravel'
 import { createApi } from '@reduxjs/toolkit/query/react'
-import { baseApiConfig } from '@/api/baseApiConfig';
+import { baseApiConfig } from '@/api/baseApiConfig'
 
 const emptySplitApi = createApi({
-    reducerPath: 'ordersApi',
-    ...baseApiConfig
-  });
-const apiWithTag = emptySplitApi.enhanceEndpoints({addTagTypes: ['Orders']});
+  reducerPath: 'ordersApi',
+  ...baseApiConfig
+})
+const apiWithTag = emptySplitApi.enhanceEndpoints({ addTagTypes: ['Orders'] })
 export const ordersApi = apiWithTag.injectEndpoints({
-  
   endpoints: (builder) => ({
     getUserOrderDetail: builder.query({
       query: (id) => `order/detail/${id}`,
-      providesTags: (id) => [{ type: 'Orders', id }],
+      providesTags: (id) => [{ type: 'Orders', id }]
     }),
     getUserOrder: builder.query({
       query: () => 'order/user',
       providesTags: (result) =>
-      result
-        ? [
-            ...result?.data.map(({ id } : {id : number | string}) => ({ type: 'Orders' as const, id })),
-            { type: 'Orders', id: 'LIST' },
-          ]
-        : [{ type: 'Orders', id: 'LIST' }],
+        result
+          ? [
+              ...result?.data.map(({ id }: { id: number | string }) => ({ type: 'Orders' as const, id })),
+              { type: 'Orders', id: 'LIST' }
+            ]
+          : [{ type: 'Orders', id: 'LIST' }]
     }),
     getOrders: builder.query({
       query: () => 'order',
       providesTags: (result) =>
-      result
-        ? [
-            ...result?.data.map(({ id } : {id : number | string}) => ({ type: 'Orders' as const, id })),
-            { type: 'Orders', id: 'LIST' },
-          ]
-        : [{ type: 'Orders', id: 'LIST' }],
+        result
+          ? [
+              ...result?.data.map(({ id }: { id: number | string }) => ({ type: 'Orders' as const, id })),
+              { type: 'Orders', id: 'LIST' }
+            ]
+          : [{ type: 'Orders', id: 'LIST' }]
     }),
     addOrder: builder.mutation({
       query: (payload) => ({
         url: 'order',
         method: 'POST',
-        body: payload,
-      
+        body: payload
       }),
-      invalidatesTags: [{ type: 'Orders', id: 'LIST' }],
+      invalidatesTags: [{ type: 'Orders', id: 'LIST' }]
     }),
     getOrder: builder.query({
       query: (id) => `order/${id}`,
-      providesTags: (id) => [{ type: 'Orders', id }],
+      providesTags: (id) => [{ type: 'Orders', id }]
     }),
     changeStatusOrder: builder.mutation({
       query: (payload) => ({
         url: `order/update/status/${payload.id}`,
         method: 'PUT',
-        body: {status : payload.status},
+        body: { status: payload.status }
       }),
-      invalidatesTags: (id) => [{ type: 'Orders', id },  { type: 'Orders', id: 'LIST' }],
+      invalidatesTags: (id) => [
+        { type: 'Orders', id },
+        { type: 'Orders', id: 'LIST' }
+      ]
     }),
     momoPayment: builder.mutation({
       query: (id) => ({
         url: `payment/momo/${id}`,
-        method: 'POST',
+        method: 'POST'
       }),
-      invalidatesTags: [{ type: 'Orders', id: 'LIST' }],
+      invalidatesTags: [{ type: 'Orders', id: 'LIST' }]
     }),
     stripePayment: builder.mutation({
       query: (payload) => ({
         url: `payment/stripe/${payload.id}`,
         method: 'POST',
-        body: payload.data,
+        body: payload.data
       }),
-      invalidatesTags: [{ type: 'Orders', id: 'LIST' }],
+      invalidatesTags: [{ type: 'Orders', id: 'LIST' }]
     }),
     vnPayment: builder.mutation({
       query: (id) => ({
         url: `payment/${id}`,
-        method: 'GET',
+        method: 'GET'
       }),
-      invalidatesTags: [{ type: 'Orders', id: 'LIST' }],
+      invalidatesTags: [{ type: 'Orders', id: 'LIST' }]
     }),
     getOrderToDay: builder.query({
       query: () => 'order/today',
       providesTags: (result) =>
-      result
-        ? [
-            ...result?.data.map(({ id } : {id : number | string}) => ({ type: 'Orders' as const, id })),
-            { type: 'Orders', id: 'LIST' },
-          ]
-        : [{ type: 'Orders', id: 'LIST' }],
+        result
+          ? [
+              ...result?.data.map(({ id }: { id: number | string }) => ({ type: 'Orders' as const, id })),
+              { type: 'Orders', id: 'LIST' }
+            ]
+          : [{ type: 'Orders', id: 'LIST' }]
     }),
-  }),
-});
+    cancelOrder: builder.mutation({
+      query: (payload) => ({
+        url: 'order/cancel',
+        method: 'POST',
+        body: payload,
+        formatDate: true
+      }),
+      invalidatesTags: [{ type: 'Orders', id: 'LIST' }]
+    })
+  })
+})
 
 export const {
   useGetOrderToDayQuery,
@@ -100,5 +111,6 @@ export const {
   useChangeStatusOrderMutation,
   useMomoPaymentMutation,
   useStripePaymentMutation,
-  useVnPaymentMutation
-} = ordersApi;
+  useVnPaymentMutation,
+  useCancelOrderMutation
+} = ordersApi

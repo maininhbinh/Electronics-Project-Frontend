@@ -12,11 +12,13 @@ const ExpenseStatistics = ({ data }: { data: Array<any> }) => {
   // Fetch sales data
   useEffect(() => {
     const cateogry = data ? data.map(item => ({
-      value: item.total_value,
+      value: item.percentage,
       name: item.category,
       selected: true
     })) : []
+
     setChartData(cateogry);
+
   }, [data]);
   return (
     <ExpenseStatisticsChart chartRef={chartRef} seriesData={chartData} />

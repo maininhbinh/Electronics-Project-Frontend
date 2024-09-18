@@ -17,7 +17,7 @@ export interface SectionSliderProductCardSimilarProps {
   headingClassName?: string
   subHeading?: string
   data?: Product[]
-  idProduct: string|number
+  idProduct: string | number
 }
 
 const SectionSliderProductCardSimilar: FC<SectionSliderProductCardSimilarProps> = ({
@@ -98,7 +98,7 @@ const SectionSliderProductCardSimilar: FC<SectionSliderProductCardSimilarProps> 
                       ))}
                     </>
                     :
-                    dataItem?.data.map((item: IProduct) => (
+                    dataItem?.data?.map((item: IProduct) => (
                       <li key={item.id} className={`glide__slide`}>
                         {item && <ProductCard data={item} className="h-full" />}
                       </li>
