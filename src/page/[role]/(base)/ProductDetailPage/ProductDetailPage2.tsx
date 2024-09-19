@@ -76,7 +76,9 @@ const ProductDetailPage2: FC<ProductDetailPage2Props> = ({
   const [postComment] = usePostCommentMutation();
   const { slug } = useParams()
 
-  const { data, isLoading } = useGetProductQuery(slug);
+  const { data, isLoading, refetch } = useGetProductQuery(slug, {
+    skip: !slug,
+  });
 
   const productId = data?.data?.id;
   const { data: listComments } = useGetCommentsQuery(productId, { skip: !productId, });
@@ -105,12 +107,11 @@ const ProductDetailPage2: FC<ProductDetailPage2Props> = ({
 
   const handleCloseModal = () => setIsOpen(false);
 
-  const groupVariant = () => {
-    const { products } = data.data;
+  const groupVariant = (product) => {
 
     const groupedVariants: { [key: string]: Set<string> } = {};
-
-    products.forEach((product: IProductItem) => {
+    
+    product.products.forEach((product: IProductItem) => {
       product.variants.forEach(variant => {
         const { variant_name, name } = variant;
         if (!groupedVariants[variant_name]) {
@@ -132,15 +133,14 @@ const ProductDetailPage2: FC<ProductDetailPage2Props> = ({
 
   useEffect(() => {
     if (data && data.data) {
-      const newVariantActives = groupVariant().map(item => ({
+      const newVariantActives = groupVariant(data.data).map(item => ({
         [item.name]: ''
       }));
-
+      
       setVariantActives(newVariantActives)
       setThumb(data.data.thumbnail)
     }
-
-  }, [isLoading, data])
+  }, [data])
 
   useEffect(() => {
     if (data && data.data && variantActives.length != 0) {
@@ -279,7 +279,7 @@ const ProductDetailPage2: FC<ProductDetailPage2Props> = ({
       return null;
     }
 
-    if (!data && !isLoading) {
+    if (!data || isLoading) {
       return null
     }
 
@@ -294,6 +294,7 @@ const ProductDetailPage2: FC<ProductDetailPage2Props> = ({
         </div>
         <div className="flex flex-wrap gap-1 mt-3">
           {variant.attribute.map((item, index) => {
+            
             const isActive = item === variantActives[key][variant.name];
             // const sizeOutStock = isActive ? !findProductVariant()(products, variantActives).quantity : false
             const outStock = checkQuantity(item)
@@ -301,7 +302,7 @@ const ProductDetailPage2: FC<ProductDetailPage2Props> = ({
             return (
               <div
                 key={index}
-                className={`relative h-10 sm:h-11 rounded-2xl flex items-center justify-center p-2 w-[25%]
+                className={`relative h-10 sm:h-11 rounded-2xl flex items-center justify-center p-2 min-w-[25%]
                 text-sm sm:text-base uppercase font-semibold select-none overflow-hidden border-[1px] z-0 ${outStock || hasProduct
                     ? "text-opacity-20 dark:text-opacity-20 cursor-not-allowed"
                     : "cursor-pointer"
@@ -383,12 +384,11 @@ const ProductDetailPage2: FC<ProductDetailPage2Props> = ({
     }
 
     return findMatchingArray
-
   }
 
   const renderSectionSidebar = () => {
 
-    if (!data && isLoading) {
+    if (!data || isLoading) {
       return null
     }
 
@@ -456,7 +456,7 @@ const ProductDetailPage2: FC<ProductDetailPage2Props> = ({
                 ?
                 <div className="mt-6 space-y-7 lg:space-y-8">
                   {
-                    groupVariant().map((item, key) => (
+                    groupVariant(data.data).map((item, key) => (
                       <div key={key} className="">{renderVariants(item, key)}</div>
                     ))
                   }
@@ -526,12 +526,6 @@ const ProductDetailPage2: FC<ProductDetailPage2Props> = ({
     );
   };
 
-  const renderSection2 = () => {
-    return (
-      <Policy />
-    );
-  };
-
   const renderReviews = () => {
     return (
       <div id="reviews" className="scroll-mt-[150px]">
@@ -562,22 +556,24 @@ const ProductDetailPage2: FC<ProductDetailPage2Props> = ({
           </form> : ''}
         </div>
 
-
-
-
         {/* comment */}
         <div className="mt-10">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-y-11 gap-x-28">
-            {listComments?.map((item: any, key: any) => (
-              <ReviewItem
-                data={{
-                  comment: item.content,
-                  date: formatDate(item.created_at),
-                  name: item.user_name,
-                  starPoint: item.rating,
-                }}
-              />
-            ))}
+            {listComments?.map((item: any, key: any) => {
+              
+              return (
+                <ReviewItem
+                  key={key}
+                  data={{
+                    comment: item.content,
+                    date: formatDate(item.created_at),
+                    name: item.user_name,
+                    starPoint: item.rating,
+                    avatar: item.avatar
+                  }}
+                />
+              )
+            })}
           </div>
         </div>
       </div>
@@ -696,8 +692,9 @@ const ProductDetailPage2: FC<ProductDetailPage2Props> = ({
       </div>
     )
   }
-
-  if (!data && isLoading || !data?.data) {
+  
+  if (!data || isLoading || !data?.data) {
+    
     return (
       <div
         className={`ListingDetailPage nc-ProductDetailPage2 mb-9 ${className}`}

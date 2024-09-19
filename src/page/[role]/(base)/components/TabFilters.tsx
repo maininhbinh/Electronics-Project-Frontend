@@ -57,11 +57,8 @@ const DATA_sizes = [
 ];
 
 const DATA_sortOrderRadios = [
-  { name: "Most Popular", id: "Most-Popular" },
-  { name: "Best Rating", id: "Best-Rating" },
-  { name: "Newest", id: "Newest" },
-  { name: "Price Low - Hight", id: "Price-low-hight" },
-  { name: "Price Hight - Low", id: "Price-hight-low" },
+  { name: "Từ thấp tới cao", id: "asc" },
+  { name: "Từ cao tới thấp", id: "desc" },
 ];
 
 const PRICE_RANGE = [1, 500];
@@ -210,7 +207,13 @@ const TabFilters = ({filter}: {filter: filter}) => {
               {!sortOrderStates.length ? (
                 <ChevronDownIcon className="w-4 h-4 ml-3" />
               ) : (
-                <span onClick={() => setSortOrderStates("")}>
+                <span onClick={() => {
+                  setSortOrderStates("")
+                  params.delete('dir')
+                  const url = decodeURIComponent(params.toString());
+                  
+                  navigate(`?${url}`)
+                }}>
                   {renderXClear()}
                 </span>
               )}
@@ -234,7 +237,13 @@ const TabFilters = ({filter}: {filter: filter}) => {
                         name="radioNameSort"
                         label={item.name}
                         defaultChecked={sortOrderStates === item.id}
-                        onChange={setSortOrderStates}
+                        onChange={(value)=>{
+                          setSortOrderStates(value)
+                          params.set('dir', item.id);
+                          const url = decodeURIComponent(params.toString());
+                          
+                          navigate(`?${url}`)
+                        }}
                       />
                     ))}
                   </div>
@@ -243,6 +252,10 @@ const TabFilters = ({filter}: {filter: filter}) => {
                       onClick={() => {
                         close();
                         setSortOrderStates("");
+                        params.delete('dir')
+                        const url = decodeURIComponent(params.toString());
+                        
+                        navigate(`?${url}`)
                       }}
                       sizeClass="px-4 py-2 sm:px-5"
                     >

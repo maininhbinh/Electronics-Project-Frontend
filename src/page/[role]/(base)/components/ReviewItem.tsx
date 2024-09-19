@@ -35,7 +35,7 @@ const ReviewItem: FC<ReviewItemProps> = ({
     >
       <div className=" flex space-x-4 ">
         <div className="flex-shrink-0 pt-0.5">
-          <Avatar
+        <Avatar
             sizeClass="h-10 w-10 text-lg"
             radius="rounded-full"
             userName={data.name}
@@ -53,9 +53,11 @@ const ReviewItem: FC<ReviewItemProps> = ({
 
           <div className="mt-0.5 flex text-yellow-500">
    
-           {[...Array(data.starPoint)].map((_, i) => (
-    <StarIcon key={i} className="w-5 h-5" />
-))}
+            {
+              [...Array(data.starPoint)].map((_, i) => (
+                <StarIcon key={i} className="w-5 h-5" />
+              ))
+            }
           </div>
         </div>
       </div>

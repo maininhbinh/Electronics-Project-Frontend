@@ -20,6 +20,7 @@ export interface IProduct {
   slug: string,
   products: IProductItem[]
   details: IDetail[]
+  products_avg_price?: string
 }
 export interface IGallery {
   id?: number | string
