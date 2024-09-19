@@ -331,7 +331,7 @@ const ProductCard: FC<ProductCardProps> = ({
               <StarIcon className="w-5 h-5 pb-[1px] text-amber-400" />
               <Flex className="text-sm ml-1 text-slate-500 dark:text-slate-400" gap={10}>
                 <span>
-                  {average_rating ? parseFloat(average_rating) : '0'}
+                  {average_rating ? Math.floor(average_rating * 10) / 10 : '0'}
                 </span>
 
                 <span>
