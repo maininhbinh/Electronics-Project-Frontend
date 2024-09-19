@@ -52,6 +52,14 @@ export const usersApi = apiWithTag.injectEndpoints({
       }),
       invalidatesTags: [{ type: 'Users', id: 'LIST' }],
     }),
+    changePassword: builder.mutation({
+      query: (payload) => ({
+        url: `user/${payload.id}/password`,
+        method: 'PUT',
+        body: payload.data,
+      }),
+      invalidatesTags: (id) => [{ type: 'Users', id },  { type: 'Users', id: 'LIST' }],
+    })
   }),
 });
 
@@ -61,5 +69,6 @@ export const {
   useCreateUserMutation,
   useUpdateUserMutation,
   useDeleteUserMutation,
-  useGetProfileUserQuery
+  useGetProfileUserQuery,
+  useChangePasswordMutation
 } = usersApi;

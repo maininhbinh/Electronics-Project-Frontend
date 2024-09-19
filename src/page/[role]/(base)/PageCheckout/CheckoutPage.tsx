@@ -10,7 +10,7 @@ import { ICart } from '@/common/types/cart.interface'
 import { VND } from '@/utils/formatVietNamCurrency'
 import { getTotalPriceCart } from '@/utils/handleCart'
 import { Button, Form, Result } from 'antd'
-import { useDeleteCartMutation, useGetCartsQuery } from '@/services/CartEndPoinst'
+import { useDeleteCartMutation, useGetCartCheckoutQuery, useGetCartsQuery } from '@/services/CartEndPoinst'
 import { useAppDispatch } from '@/app/hooks'
 
 import { popupError, popupSuccess } from '../../shared/Toast'
@@ -56,7 +56,7 @@ const CheckoutPage = () => {
   const user: any = dataUser[0];
   const [checkVoucherData] = useCheckVoucherMutation()
   const [addOrder, { isLoading: isLoadingOrder }] = useAddOrderMutation()
-  const { data: carts, refetch } = useGetCartsQuery({})
+  const { data: carts, refetch } = useGetCartCheckoutQuery({})
 
   const [discount, setDiscount] = useState<string>('')
   const [tabActive, setTabActive] = useState<'ContactInfo' | 'ShippingAddress' | 'PaymentMethod'>('ContactInfo')

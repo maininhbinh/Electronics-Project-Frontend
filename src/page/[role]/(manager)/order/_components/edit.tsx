@@ -222,11 +222,7 @@ export default function EditOrder() {
   }
   return (
     <>
-      <div className="w-full flex justify-end mb-4">
-        <Button onClick={() => handleExportBill()} className="bg-black" type="primary" shape="round" icon={<DownloadOutlined />} size={'small'}>
-          Xuất hóa đơn
-        </Button>
-      </div>
+
       <Row gutter={[24, 32]}>
         <Col span={24}>
           <Card title="Giao hàng" bordered={false}>

@@ -12,6 +12,7 @@ import { GetAllCart } from '@/app/slices/cartSlide'
 import { useDebounce } from '@uidotdev/usehooks'
 import { searchProduct } from '@/services/FilterService'
 import { IProduct } from '@/common/types/product.interface'
+import { VND } from '@/utils/formatVietNamCurrency'
 
 export interface MainNav2Props {
   className?: string
@@ -21,8 +22,6 @@ const MainNav2: FC<MainNav2Props> = ({ className = '' }) => {
   const [showSearchForm, setShowSearchForm] = useState(false)
   const [searchKey, setSearchKey] = useState('')
   const [filterProducts, setFilterProducts] = useState<IProduct[]>([])
-  const dispatch = useAppDispatch()
-  const [carts, setCarts] = useState([])
   const debouncedValue = useDebounce(searchKey, 500)
 
   const navigate = useNavigate()
@@ -54,6 +53,8 @@ const MainNav2: FC<MainNav2Props> = ({ className = '' }) => {
       </svg>
     )
   }
+
+  
 
   const renderSearchForm = () => {
     return (
@@ -102,8 +103,9 @@ const MainNav2: FC<MainNav2Props> = ({ className = '' }) => {
               onChange={handleSearch}
             />
             {searchKey.length > 0 && filterProducts.length > 0 && (
+              
               <div
-                className='absolute left-0 top-10 z-10 mt-2 w-96 inline-block origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none divide-y'
+                className='absolute right-0 top-10 z-10 mt-2 w-[550px] inline-block origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none divide-y'
                 role='menu'
                 aria-orientation='vertical'
                 aria-labelledby='menu-button'
@@ -114,10 +116,12 @@ const MainNav2: FC<MainNav2Props> = ({ className = '' }) => {
                     href={`/product-detail/${item.slug}`}
                     className='flex items-center gap-2 p-3 hover:bg-slate-100'
                   >
-                    <img src={item.thumbnail} alt='thumbnail' width={100} height={100} />
+                    <div>
+                      <img src={item.thumbnail} alt='thumbnail' width={100} height={100} className='rounded-[5px]' />
+                    </div>
                     <div className='flex flex-col gap-2'>
                       <div className='text-xl font-medium'>{item.name}</div>
-                      <div>100000 đ</div>
+                      <div>{VND(parseFloat(item.products_avg_price))}</div>
                     </div>
                   </a>
                 ))}

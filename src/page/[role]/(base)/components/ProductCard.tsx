@@ -286,23 +286,25 @@ const ProductCard: FC<ProductCardProps> = ({
         data-nc-id="ProductCard"
         style={{ boxShadow: 'rgba(0, 0, 0, 0.05) 0rem 1.25rem 1.6875rem 1.6875rem' }}
       >
-        <Link to={`/product-detail/${slug}`} className="absolute inset-0"></Link>
+        <a href={`/product-detail/${slug}`} className="absolute inset-0"></a>
 
         <div className="relative flex-shrink-0  rounded-3xl overflow-hidden z-1 group">
-          <Link to={`/product-detail/${slug}`} className="block p-5">
+          <a href={`/product-detail/${slug}`} className="block p-5">
             <NcImage
               containerClassName="flex aspect-w-11 aspect-h-12 w-full h-0"
               src={image}
             />
-          </Link>
+          </a>
 
           <ProductStatus productVariantDetail={productVariantDetail} />
 
           {secondVariantArray && secondVariantArray.length ? renderSizeList() : renderGroupButtons()}
         </div>
+        <div className="space-y-4 px-3 pt-5 pb-2">
+        {renderVariants()}
+        </div>
 
-        <div className="space-y-4 px-3 pt-5 pb-2.5">
-          {renderVariants()}
+        <div className="space-y-4 px-3 pt-5 pb-2.5 mt-auto">
 
           <div>
             <h2
@@ -329,7 +331,7 @@ const ProductCard: FC<ProductCardProps> = ({
               <StarIcon className="w-5 h-5 pb-[1px] text-amber-400" />
               <Flex className="text-sm ml-1 text-slate-500 dark:text-slate-400" gap={10}>
                 <span>
-                  {average_rating ? average_rating : '0'}
+                  {average_rating ? Math.floor(average_rating * 10) / 10 : '0'}
                 </span>
 
                 <span>

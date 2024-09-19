@@ -27,7 +27,7 @@ const SectionSliderProductCardSimilar: FC<SectionSliderProductCardSimilarProps> 
   headingClassName,
   heading,
   subHeading = "Hôm nay",
-  idProduct
+  idProduct,
 }) => {
   const sliderRef = useRef(null);
   const id = useId();

@@ -27,7 +27,7 @@ const NcInputNumber: FC<NcInputNumberProps> = ({
   item,
   maxQuantity
 }) => {
-  console.log("max in here", maxQuantity, item)
+
 
   const [changeCart] = useUpdateCartMutation();
   const [value, setValue] = useState(defaultValue);

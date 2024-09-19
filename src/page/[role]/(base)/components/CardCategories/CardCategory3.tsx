@@ -26,12 +26,11 @@ export interface CardCategory3Props {
 const CardCategory3: FC<CardCategory3Props> = ({
   item,
 }) => {
-  console.log(item);
   const {code, name,end_date, type, value} = item
   
   const endDateTimestamp = dayjs(end_date).valueOf();
   const copyIt = () => {
-    const copyText = document.getElementById('copyvalue');
+    const copyText = document.getElementById(`copyvalue-${code}`);
     copyText.select();
     document.execCommand('copy');
   };
@@ -51,7 +50,7 @@ const CardCategory3: FC<CardCategory3Props> = ({
       </div>
       <div className="flex justify-between items-center mt-4 border border-gray-300 rounded-md p-2">
         <input
-          id="copyvalue"
+          id={`copyvalue-${code}`}
           type="text"
           readOnly
           value={code}

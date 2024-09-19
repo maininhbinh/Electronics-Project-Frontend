@@ -1,132 +1,163 @@
 import Label from "../components/Label/Label";
-import { FC, useEffect, useState } from "react";
-import ButtonPrimary from "../shared/Button/ButtonPrimary";
-import { Form, Input, Upload } from 'antd'
+import { FC, useEffect, useRef, useState } from "react";
+import Input from '../shared/Input/Input'
+import { Col, Flex, Form, Grid, Row, Select, Upload } from 'antd'
 import { Helmet } from "react-helmet-async";
-import { avatarImgs } from "../../../../contains/fakeData";
-import { Select as SelectAntd } from 'antd';
 import type { SelectProps } from 'antd';
 import { useNavigate } from "react-router-dom";
-import LoadingUser from "../../(manager)/user/util/Loading";
-import ErrorLoad from "../../(manager)/components/util/ErrorLoad";
-import { useGetProvincesQuery, useLazyGetDistrictsQuery } from "@/utils/addressRTKQuery";
+import { useGetProvincesQuery, useLazyGetDistrictsQuery, useLazyGetWardsQuery } from "@/utils/addressRTKQuery";
 import { popupError, popupSuccess } from "../../shared/Toast";
 import { Iuser } from "@/common/types/user.interface";
-import { useGetUserQuery, useUpdateUserMutation } from "../../(manager)/user/UsersEndpoints";
+import { useChangePasswordMutation, useGetUserQuery, useUpdateUserMutation } from "../../(manager)/user/UsersEndpoints";
+import PermMediaRoundedIcon from '@mui/icons-material/PermMediaRounded';
+import EditRoundedIcon from '@mui/icons-material/EditRounded';
+import ButtonSecondary from "../shared/Button/ButtonSecondary";
+import { useAppDispatch } from "@/app/hooks";
+import { setLoading } from "@/app/webSlice";
 
 export interface AccountPageProps {
   className?: string;
 }
 
 const AccountPage: FC<AccountPageProps> = ({ className = "" }) => {
-  const layout = {
-    labelCol: { span: 8 },
-    wrapperCol: { span: 16 }
-  }
 
-  const validateMessages = {
-    required: '${label} is required!',
-    types: {
-      email: '${label} is not a valid email!',
-      number: '${label} is not a valid number!'
-    },
-    number: {
-      range: '${label} must be between ${min} and ${max}'
-    },
-
-  }
-  const [file, setFile] = useState({
-    data: {},
-    loading: false
-  })
-  const handleUpload = async (options: any) => {
-    const { onSuccess, file } = options
-    setFile({
-      data: file,
-      loading: false
-    })
-    onSuccess('Upload successful', file)
-
-  }
   const user = JSON.parse(String(localStorage.getItem('user')));
   const { data: dataItem, isLoading: dataLoading } = useGetUserQuery(user?.id);
+  const dispatch = useAppDispatch()
 
   const [updateUser, { isLoading: loadingUpdateUser }] = useUpdateUserMutation();
+  const [changePassword] = useChangePasswordMutation()
   const [form] = Form.useForm();
+  const [formChangePass] = Form.useForm();
+  const [DisplayPic, setDisplayPic] = useState<string>();
+  const fileInputRef = useRef(null);
+  const [imageUrl, setImageUrl] = useState("")
+  const [optionsWard, setOptionWard] = useState<SelectProps['options']>([])
   const [optionsDistrict, setOptionDistrict] = useState<SelectProps['options']>([])
-  const [image, setImage] = useState("")
+  const [getWard, { data: dataWards, isLoading: wardLoading }] = useLazyGetWardsQuery()
 
   useEffect(() => {
     if (dataItem?.data) {
       localStorage.removeItem('user')
       localStorage.setItem('user', JSON.stringify(dataItem.data));
+      const initialValues = {
+        username: dataItem?.data?.username ?? '',
+        phone: dataItem?.data?.phone ?? '',
+        email: dataItem?.data?.email ?? '',
+        city: dataItem?.data?.city ?? null,
+        district: dataItem?.data?.district ?? null,
+        ward: dataItem?.data?.ward ?? null,
+        address: dataItem?.data?.address ?? '',
+      }
+
+      setDisplayPic(dataItem?.data?.image)
+
+      form.setFieldsValue(initialValues)
     }
   }, [dataItem])
 
-  const onFileChanged = (event: any) => {
-    debugger
-    if (event?.file && event?.file.originFileObj) {
-      setImage(URL.createObjectURL(event.file.originFileObj));
+  const selectedImg = (e: any) => {
+
+    const types = [
+      'jpeg',
+      'png',
+      'jpg',
+      'gif',
+    ]
+
+    const fileSelected = e.target.files[0];
+    const size = fileSelected.size;
+    const type = types.includes(fileSelected.type.replace('image/', ''));
+
+    if (size <= 1048576 && type) {
+      setImageUrl(fileSelected);
+      setDisplayPic(URL.createObjectURL(fileSelected));
     }
+
+  }
+
+  const onFinishPass = async (values: Iuser | any) => {
+    const pass = {
+      password: values.password,
+      new_password: values.new_password,
+      confirm_password: values.confirm_password
+    }
+
+    try {
+      const payload = {
+        id: user.id,
+        data: pass
+      }
+      dispatch(setLoading(true))
+      await changePassword(payload).unwrap();
+      dispatch(setLoading(false))
+      popupSuccess('Cập nhật thành công');
+      handleCancel();
+    } catch (error) {
+      popupError('Cập nhật thất bại');
+      dispatch(setLoading(false))
+    }
+
   }
 
   const onFinish = async (values: Iuser | any) => {
-    console.log(values);
-
     const formData = new FormData()
-    for (const key in values) {
-      if (String(key) == 'upload') {
-        if (values[key]) {
-          formData.append('image', values[key][0].originFileObj);
-        }
-
-        continue;
-      }
-      if (String(key) == 'is_active') {
-        if (values[key]) {
-          formData.append(key, '1')
-        } else {
-          formData.append(key, '0')
-        }
-        continue;
-      }
-      formData.append(key, values[key])
-
+    if (imageUrl) {
+      formData.append('image', imageUrl)
     }
-    formData.append('is_virtual', '0');
+    formData.append('username', values.username)
+    formData.append('email', values.email)
+    formData.append('city', values.city)
+    formData.append('district', values.district)
+    formData.append('ward', values.ward)
+    formData.append('address', values.address)
+    formData.append('phone', values.phone)
+
     try {
       const payload = {
         id: user.id,
         data: formData
       }
-      await updateUser(payload).unwrap();
+      dispatch(setLoading(true))
+
+      const data = await updateUser(payload).unwrap();
+      dispatch(setLoading(false))
+
+      if (data && data.data) {
+        localStorage.setItem('user', JSON.stringify(data.data));
+      }
       popupSuccess('Update user success');
       handleCancel();
     } catch (error) {
       popupError('Update user error');
+      dispatch(setLoading(false))
     }
 
   }
 
   const [getDistrict, { data: dataDistricts, isLoading: districtLoading }] = useLazyGetDistrictsQuery();
 
-
-
-
   useEffect(() => {
     setOptionDistrict(() => {
-      return dataDistricts?.data.map((item: { id: number, name: string }) => {
+      return dataDistricts?.data.map((item: { id: number; name: string }) => {
+        return {
+          value: `${item.name}-${item.id}`,
+          label: item.name
+        }
+      })
+    })
+    setOptionWard(() => {
+      return dataWards?.data.map((item: { id: number; name: string }) => {
         return {
           value: `${item.name}`,
           label: item.name
         }
-      });
+      })
     })
-  }, [dataDistricts])
+  }, [dataDistricts, dataWards])
 
 
   const options: SelectProps['options'] = [];
-
 
   const {
     data: provinces,
@@ -134,6 +165,21 @@ const AccountPage: FC<AccountPageProps> = ({ className = "" }) => {
     isError
   } = useGetProvincesQuery({});
 
+  const initialValuesChangePass = {
+    password: '',
+    new_password: '',
+    confirm_password: '',
+  }
+
+  const initialValues = {
+    username: dataItem?.data?.username ?? '',
+    phone: dataItem?.data?.phone ?? '',
+    email: dataItem?.data?.email ?? '',
+    city: dataItem?.data?.city ?? null,
+    district: dataItem?.data?.district ?? null,
+    ward: dataItem?.data?.ward ?? null,
+    address: dataItem?.data?.address ?? '',
+  }
 
 
   provinces?.data.forEach((item: { id: number, name: string }) => {
@@ -143,229 +189,474 @@ const AccountPage: FC<AccountPageProps> = ({ className = "" }) => {
     })
   });
 
-
-  const onChangeProvince = async (value: string) => {
-    form.resetFields(['district']);
-    if (value) {
-      const splitStr = value.split(/-(\d+)/);
-      const provinceId = splitStr[1];
-
-      await getDistrict(provinceId);
-
-
-    } else {
-      setOptionDistrict([]);
-    }
-
-
-  }
   const navigate = useNavigate()
 
   const handleCancel = () => {
     navigate('..')
   }
 
-  if (isLoading || dataLoading) return <LoadingUser />
-  if (isError) return <ErrorLoad />
+  const onChangeCity = async (value: string) => {
+    form.resetFields(['district', 'ward']);
+    setOptionWard([])
+    if (value) {
+      const splitStr = value.split(/-(\d+)/)
+      const provinceId = splitStr[1]
+
+      await getDistrict(provinceId)
+    } else {
+      setOptionDistrict([])
+    }
+  }
+
+  const onChangeDistrict = async (value: any) => {
+    form.resetFields(['ward'])
+    if (value) {
+      const splitStr = value.split(/-(\d+)/)
+      const districtId = splitStr[1]
+
+      await getWard(districtId)
+    } else {
+      setOptionWard([])
+    }
+  }
+
+  // if(isLoading || dataLoading) return <LoadingUser />
+  // if(isError) return <ErrorLoad />
   return (
     <div className={`nc-AccountPage ${className}`} data-nc-id="AccountPage">
       <Helmet>
         <title>Account || Ciseco ecommerce React Template</title>
       </Helmet>
-      <div className="space-y-10 sm:space-y-12">
-        {/* HEADING */}
-        <h2 className="text-2xl sm:text-3xl font-semibold">
-          Account infomation
-        </h2>
-        <Form
-          initialValues={dataItem?.data}
-          form={form}
-          {...layout}
-          name='nest-messages'
-          onFinish={onFinish}
-          style={{ maxWidth: 600 }}
-          validateMessages={validateMessages}
-        >
-          <div className="flex flex-col md:flex-row">
-            <div className="flex-shrink-0 flex items-start">
-              {/* AVATAR */}
-              <div className="relative rounded-full overflow-hidden flex">
-                <img
-                  src={!image ? dataItem?.data.image : image}
-                  alt=""
-                  className="w-32 h-32 rounded-full object-cover z-0"
-                />
-                <div className="absolute inset-0 bg-black bg-opacity-60 flex flex-col items-center justify-center text-neutral-50 cursor-pointer">
-                  <svg
-                    width="30"
-                    height="30"
-                    viewBox="0 0 30 30"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M17.5 5H7.5C6.83696 5 6.20107 5.26339 5.73223 5.73223C5.26339 6.20107 5 6.83696 5 7.5V20M5 20V22.5C5 23.163 5.26339 23.7989 5.73223 24.2678C6.20107 24.7366 6.83696 25 7.5 25H22.5C23.163 25 23.7989 24.7366 24.2678 24.2678C24.7366 23.7989 25 23.163 25 22.5V17.5M5 20L10.7325 14.2675C11.2013 13.7988 11.8371 13.5355 12.5 13.5355C13.1629 13.5355 13.7987 13.7988 14.2675 14.2675L17.5 17.5M25 12.5V17.5M25 17.5L23.0175 15.5175C22.5487 15.0488 21.9129 14.7855 21.25 14.7855C20.5871 14.7855 19.9513 15.0488 19.4825 15.5175L17.5 17.5M17.5 17.5L20 20M22.5 5H27.5M25 2.5V7.5M17.5 10H17.5125"
-                      stroke="currentColor"
-                      strokeWidth={1.5}
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                  <Form.Item
-                    name='upload'
-                    label='.'
-                    valuePropName='fileList'
-                    getValueFromEvent={(e) => (Array.isArray(e) ? e : e && e.fileList)}
-                  >
-                    <Upload name='image' listType='picture' showUploadList={false} onChange={onFileChanged} customRequest={handleUpload}>
-                      <span className="mt-1 text-xs text-white">Change Image</span>
-                    </Upload>
-                  </Form.Item>
-                </div>
+      {/* HEADING */}
 
+      <Row gutter={[32, 32]}>
+        <Col span={10}>
+          {/* AVATAR */}
+          <div className='border border-slate-200 dark:border-slate-700 rounded-xl h-full'>
+            <div className='p-6 flex flex-col sm:flex-row items-start'>
+              <span className='hidden sm:block'>
+                <svg
+                  className='w-6 h-6 text-slate-700 dark:text-slate-400 mt-0.5'
+                  viewBox='0 0 24 24'
+                  fill='none'
+                  xmlns='http://www.w3.org/2000/svg'
+                >
+                  <path
+                    d='M12.1401 15.0701V13.11C12.1401 10.59 14.1801 8.54004 16.7101 8.54004H18.6701'
+                    stroke='currentColor'
+                    strokeWidth='1.5'
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                  />
+                  <path
+                    d='M5.62012 8.55005H7.58014C10.1001 8.55005 12.1501 10.59 12.1501 13.12V13.7701V17.25'
+                    stroke='currentColor'
+                    strokeWidth='1.5'
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                  />
+                  <path
+                    d='M7.14008 6.75L5.34009 8.55L7.14008 10.35'
+                    stroke='currentColor'
+                    strokeWidth='1.5'
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                  />
+                  <path
+                    d='M16.8601 6.75L18.6601 8.55L16.8601 10.35'
+                    stroke='currentColor'
+                    strokeWidth='1.5'
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                  />
+                  <path
+                    d='M9 22H15C20 22 22 20 22 15V9C22 4 20 2 15 2H9C4 2 2 4 2 9V15C2 20 4 22 9 22Z'
+                    stroke='currentColor'
+                    strokeWidth='1.5'
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                  />
+                </svg>
+              </span>
+
+              <div className='sm:ml-8'>
+                <h3 className=' text-slate-700 dark:text-slate-300 flex '>
+                  <span className='uppercase'>Ảnh đại diện</span>
+                  <svg
+                    fill='none'
+                    viewBox='0 0 24 24'
+                    strokeWidth='2.5'
+                    stroke='currentColor'
+                    className='w-5 h-5 ml-3 text-slate-900 dark:text-slate-100'
+                  >
+                    <path strokeLinecap='round' strokeLinejoin='round' d='M4.5 12.75l6 6 9-13.5' />
+                  </svg>
+                </h3>
               </div>
             </div>
-            <div className="flex-grow mt-10 md:mt-0 md:pl-16 max-w-3xl space-y-6">
-              <div>
-                <Label>User name</Label>
-                <Form.Item name="username" rules={[{ required: true }]}>
-                  <Input name="username" className="mt-1.5 !rounded-l-none w-[445px]" defaultValue="Enrico Cole" />
-                </Form.Item>
-              </div>
+            <div
+              className={`border-t border-slate-200 dark:border-slate-700 px-[60px] py-10 `}
+            >
+              <div style={{ height: '11vw', boxShadow: '0 0.5rem 1.5rem 0.5rem rgba(0, 0, 0, 0.075)' }} className='border-none rounded-xl relative' >
+                {
+                  DisplayPic
+                    ?
+                    <div style={{ height: '100%', maxWidth: '100%', overflow: 'hidden' }} className='relative group border-none rounded-xl'>
+                      <img src={DisplayPic} alt="" className='object-cover h-[100%] object-center' style={{ width: '100%' }} />
+                    </div>
+                    :
+                    <Flex className='relative rounded-xl' vertical gap={10} justify='center' align='center' style={{ maxWidth: '100%', height: "100%", borderRadius: '12px', overflow: 'hidden' }}>
+                      <Flex vertical gap={10} style={{ width: '100%' }}>
+                        <Flex vertical align='center' justify='center'>
+                          <PermMediaRoundedIcon style={{ fontSize: '60px', color: 'rgb(31 41 55 / var(--tw-text-opacity))' }} className='' />
+                        </Flex>
+                      </Flex>
+                    </Flex>
+                }
 
-              {/* ---- */}
-
-              {/* ---- */}
-              <div>
-                <Label>Email</Label>
-                <div className="mt-1.5 flex">
-                  <span className="h-[40px] inline-flex items-center px-2.5 rounded-l-2xl border border-r-0 border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 text-sm">
-                    <i className="text-2xl las la-envelope"></i>
-                  </span>
-                  <Form.Item name="email">
-                    <Input
-                      name="email"
-                      className="!rounded-l-none w-[400px]"
-                      placeholder="example@email.com"
-                    />
-                  </Form.Item>
-                </div>
-              </div>
-
-              {/* ---- */}
-              {/* <div className="max-w-lg">
-                <Label>Date of birth</Label>
-                <div className="mt-1.5 flex">
-                  <span className="inline-flex items-center px-2.5 rounded-l-2xl border border-r-0 border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 text-sm">
-                    <i className="text-2xl las la-calendar"></i>
-                  </span>
-                  <Input
-                    className="!rounded-l-none"
-                    type="date"
-                    defaultValue="1990-07-22"
+                <div className='w-[30px] h-[30px] rounded-full bg-[#fff] absolute top-[-10px] right-[-10px] flex items-center justify-center hover:text-blue-500 cursor-pointer overflow-hidden' style={{ boxShadow: '0 0.5rem 1.5rem 0.5rem rgba(0, 0, 0, 0.075)' }} onClick={() => {
+                  if (fileInputRef.current) {
+                    fileInputRef.current.click();
+                  }
+                }}>
+                  <EditRoundedIcon style={{ fontSize: 20 }} />
+                  <input ref={fileInputRef} type="file" accept="image/*" name="image" id="image" className='opacity-0'
+                    style={{ display: 'none' }}
+                    onChange={selectedImg}
                   />
                 </div>
-              </div> */}
-              {/* ---- */}
-              <div>
-                <Label>Addess</Label>
-                <div className="mt-1.5 flex">
-                  <span className="h-[40px] inline-flex items-center px-2.5 rounded-l-2xl border border-r-0 border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 text-sm">
-                    <i className="text-2xl las la-map-signs"></i>
-                  </span>
-                  <Form.Item name="address">
-                    <Input
-                      name="address"
-                      className="!rounded-l-none w-[400px]"
-                      defaultValue="New york, USA"
-                    />
-                  </Form.Item>
-                </div>
               </div>
-
-              <div>
-                <Label>County</Label>
-                <Form.Item name="county" rules={[{ required: true }]}>
-                  <SelectAntd
-
-                    style={{ width: '445px', height: '40px' }}
-
-                    options={[
-
-                      { value: 'Việt Nam', label: 'VietNam' },
-
-                    ]}
-                  />
-                </Form.Item>
-              </div>
-
-              <div>
-                <Label>City</Label>
-                <Form.Item name="city" rules={[{ required: true }]}>
-                  <SelectAntd
-
-                    style={{ width: '445px', height: '40px' }}
-                    placeholder="Enter name province"
-                    options={options}
-                    onChange={(value) => onChangeProvince(value)}
-                  />
-                </Form.Item>
-              </div>
-
-              <div>
-                <Label>District</Label>
-                <Form.Item name="district" rules={[{ required: true }]}>
-                  <SelectAntd
-                    loading={districtLoading}
-                    style={{ width: '445px', height: '40px' }}
-                    placeholder="Enter name district"
-                    options={optionsDistrict}
-                  />
-                </Form.Item>
-              </div>
-
-              {/* ---- */}
-              {/* <div>
-                <Label>Gender</Label>
-                <Select className="mt-1.5">
-                  <option value="Male">Male</option>
-                  <option value="Female">Female</option>
-                  <option value="Other">Other</option>
-                </Select>
-              </div> */}
-
-              {/* ---- */}
-              <div>
-                <Label>Phone number</Label>
-                <div className="mt-1.5 flex">
-                  <span className="h-[40px] inline-flex items-center px-2.5 rounded-l-2xl border border-r-0 border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 text-sm">
-                    <i className="text-xl las la-phone-volume"></i>
-                  </span>
-                  <Form.Item name="phone" rules={[{ required: true }]}>
-                    <Input
-                      name="phone"
-                      className="!rounded-l-none w-[400px]"
-                      defaultValue="003 888 232"
-                    />
-                  </Form.Item>
-                </div>
-              </div>
-              {/* ---- */}
-              {/* <div>
-                <Label>About you</Label>
-                <Textarea className="mt-1.5" defaultValue="..." />
-              </div> */}
-              <div className="pt-2">
-                <Form.Item className='mt-3' wrapperCol={{ ...layout.wrapperCol, offset: 8 }}>
-                  <ButtonPrimary loading={loadingUpdateUser || file.loading} disabled={loadingUpdateUser || file.loading}>
-                    Update account
-                  </ButtonPrimary>
-                </Form.Item>
-              </div>
+              <Flex style={{ width: '100%' }} className='text-gray-800 mt-2' vertical justify='center' align='center'>
+                <span style={{ fontSize: '11px' }}>
+                  Kích thước tối đa: 50MB
+                </span>
+                <span style={{ fontSize: '11px' }}>
+                  JPG, PNG, GIF, SVG
+                </span>
+              </Flex>
             </div>
           </div>
-        </Form>
-      </div>
+        </Col>
+        <Col span={14}>
+          <Form
+            className="h-full"
+            onFinish={onFinishPass}
+            initialValues={initialValuesChangePass}
+            form={formChangePass}
+          >
+            <div className='border border-slate-200 dark:border-slate-700 rounded-xl h-full'>
+              <div className='p-6 flex flex-col sm:flex-row items-start'>
+                <span className='hidden sm:block'>
+                  <svg
+                    className='w-6 h-6 text-slate-700 dark:text-slate-400 mt-0.5'
+                    viewBox='0 0 24 24'
+                    fill='none'
+                    xmlns='http://www.w3.org/2000/svg'
+                  >
+                    <path
+                      d='M12.1401 15.0701V13.11C12.1401 10.59 14.1801 8.54004 16.7101 8.54004H18.6701'
+                      stroke='currentColor'
+                      strokeWidth='1.5'
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                    />
+                    <path
+                      d='M5.62012 8.55005H7.58014C10.1001 8.55005 12.1501 10.59 12.1501 13.12V13.7701V17.25'
+                      stroke='currentColor'
+                      strokeWidth='1.5'
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                    />
+                    <path
+                      d='M7.14008 6.75L5.34009 8.55L7.14008 10.35'
+                      stroke='currentColor'
+                      strokeWidth='1.5'
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                    />
+                    <path
+                      d='M16.8601 6.75L18.6601 8.55L16.8601 10.35'
+                      stroke='currentColor'
+                      strokeWidth='1.5'
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                    />
+                    <path
+                      d='M9 22H15C20 22 22 20 22 15V9C22 4 20 2 15 2H9C4 2 2 4 2 9V15C2 20 4 22 9 22Z'
+                      stroke='currentColor'
+                      strokeWidth='1.5'
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                    />
+                  </svg>
+                </span>
+
+                <div className='sm:ml-8'>
+                  <h3 className=' text-slate-700 dark:text-slate-300 flex '>
+                    <span className='uppercase'>Thay đổi mật khẩu</span>
+                    <svg
+                      fill='none'
+                      viewBox='0 0 24 24'
+                      strokeWidth='2.5'
+                      stroke='currentColor'
+                      className='w-5 h-5 ml-3 text-slate-900 dark:text-slate-100'
+                    >
+                      <path strokeLinecap='round' strokeLinejoin='round' d='M4.5 12.75l6 6 9-13.5' />
+                    </svg>
+                  </h3>
+                </div>
+                <ButtonSecondary
+                  sizeClass='py-2 px-4 '
+                  fontSize='text-sm font-medium'
+                  className='bg-slate-50 dark:bg-slate-800 mt-5 sm:mt-0 sm:ml-auto !rounded-lg'
+                  type={'submit'}
+                >
+                  Thay đổi
+                </ButtonSecondary>
+              </div>
+
+              <div
+                className={`border-t border-slate-200 dark:border-slate-700 px-10 py-7 `}
+              >
+                <div className="max-w-lg">
+                  <Label className="text-sm">Mật khẩu</Label>
+                  <Form.Item
+                    name={'password'}
+                    rules={[
+                      {
+                        required: true,
+                        message: 'Vui lòng điền vào trường này'
+                      }
+                    ]}
+                  >
+                    <Input className="mt-1.5" type={"password"} placeholder="Nhập mật khẩu" />
+                  </Form.Item>
+                </div>
+                <div className="max-w-lg">
+                  <Label className="text-sm">Mật khẩu mới</Label>
+                  <Form.Item
+                    name={'new_password'}
+                    rules={[
+                      {
+                        required: true,
+                        validator: (_, value) => {
+                          if (!value) {
+                            return Promise.reject(new Error('Mật khẩu phải không được để trống'));
+                          }
+                          if (value.length < 6) {
+                            return Promise.reject(new Error('Mật khẩu phải có ít nhất 6 ký tự!'));
+                          }
+                          if (!/[A-Z]/.test(value)) {
+                            return Promise.reject(new Error('Mật khẩu phải chứa ít nhất một chữ hoa!'));
+                          }
+                          if (!/[a-z]/.test(value)) {
+                            return Promise.reject(new Error('Mật khẩu phải chứa ít nhất một chữ thường!'));
+                          }
+                          if (!/[0-9]/.test(value)) {
+                            return Promise.reject(new Error('Mật khẩu phải chứa ít nhất một số!'));
+                          }
+                          return Promise.resolve();
+                        }
+                      }
+                    ]}
+                  >
+                    <Input className="mt-1.5" placeholder="Mật khẩu mới" type={"password"} />
+                  </Form.Item>
+                </div>
+                <div className='max-w-lg'>
+                  <Label className="text-sm">Xác nhận mật khẩu</Label>
+                  <Form.Item
+                    name='confirm_password'
+                    dependencies={['new_password']}
+                    rules={[
+                      {
+                        required: true,
+                        message: 'Vui lòng điền vào trường này'
+                      },
+                      ({ getFieldValue }) => ({
+                        validator(_, value) {
+                          if (!value || getFieldValue('new_password') === value) {
+                            return Promise.resolve();
+                          }
+                          return Promise.reject(new Error('Hai mật khẩu bạn đã nhập không khớp nhau!'));
+                        },
+                      }),
+                    ]}
+                  >
+                    <Input placeholder='Xác nhận mật khẩu' className='mt-1.5' type='password' />
+                  </Form.Item>
+                </div>
+                {/* ============ */}
+              </div>
+            </div>
+          </Form>
+        </Col>
+        <Col span={24}>
+          <Form
+            form={form}
+            initialValues={initialValues}
+            onFinish={onFinish}
+          >
+            <div className='border border-slate-200 dark:border-slate-700 rounded-xl '>
+              <div className='p-6 flex flex-col sm:flex-row items-start'>
+                <span className='hidden sm:block'>
+                  <svg
+                    className='w-6 h-6 text-slate-700 dark:text-slate-400 mt-0.5'
+                    viewBox='0 0 24 24'
+                    fill='none'
+                    xmlns='http://www.w3.org/2000/svg'
+                  >
+                    <path
+                      d='M12.1401 15.0701V13.11C12.1401 10.59 14.1801 8.54004 16.7101 8.54004H18.6701'
+                      stroke='currentColor'
+                      strokeWidth='1.5'
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                    />
+                    <path
+                      d='M5.62012 8.55005H7.58014C10.1001 8.55005 12.1501 10.59 12.1501 13.12V13.7701V17.25'
+                      stroke='currentColor'
+                      strokeWidth='1.5'
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                    />
+                    <path
+                      d='M7.14008 6.75L5.34009 8.55L7.14008 10.35'
+                      stroke='currentColor'
+                      strokeWidth='1.5'
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                    />
+                    <path
+                      d='M16.8601 6.75L18.6601 8.55L16.8601 10.35'
+                      stroke='currentColor'
+                      strokeWidth='1.5'
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                    />
+                    <path
+                      d='M9 22H15C20 22 22 20 22 15V9C22 4 20 2 15 2H9C4 2 2 4 2 9V15C2 20 4 22 9 22Z'
+                      stroke='currentColor'
+                      strokeWidth='1.5'
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                    />
+                  </svg>
+                </span>
+
+                <div className='sm:ml-8'>
+                  <h3 className=' text-slate-700 dark:text-slate-300 flex '>
+                    <span className='uppercase'>Thống tin chi tiết</span>
+                    <svg
+                      fill='none'
+                      viewBox='0 0 24 24'
+                      strokeWidth='2.5'
+                      stroke='currentColor'
+                      className='w-5 h-5 ml-3 text-slate-900 dark:text-slate-100'
+                    >
+                      <path strokeLinecap='round' strokeLinejoin='round' d='M4.5 12.75l6 6 9-13.5' />
+                    </svg>
+                  </h3>
+                </div>
+
+                <ButtonSecondary
+                  sizeClass='py-2 px-4 '
+                  fontSize='text-sm font-medium'
+                  className='bg-slate-50 dark:bg-slate-800 mt-5 sm:mt-0 sm:ml-auto !rounded-lg'
+                  type={'submit'}
+                >
+                  Thay đổi
+                </ButtonSecondary>
+              </div>
+
+              <div
+                className={`border-t border-slate-200 dark:border-slate-700 px-6 py-7 `}
+              >
+
+                <div className='sm:flex space-y-4 sm:space-y-0 sm:space-x-3'>
+                  <div className='w-full'>
+                    <Label className="text-sm">Email người dùng</Label>
+                    <Form.Item name='email'>
+                      <Input disabled className='mt-1.5' type='text' />
+                    </Form.Item>
+                  </div>
+                </div>
+
+                <div className='sm:flex space-y-4 sm:space-y-0 sm:space-x-3'>
+                  <div className='w-full'>
+                    <Label className="text-sm">Tên người dùng</Label>
+                    <Form.Item name='username'>
+                      <Input placeholder='Nhập tên người dùng' className='mt-1.5' type='text' />
+                    </Form.Item>
+                  </div>
+                </div>
+
+                <div className='sm:flex space-y-4 sm:space-y-0 sm:space-x-3'>
+                  <div className='w-full'>
+                    <Label className="text-sm">Số điện thoại</Label>
+                    <Form.Item name='phone'>
+                      <Input placeholder='Nhập số điện thoại người dùng' className='mt-1.5' type='text' />
+                    </Form.Item>
+                  </div>
+                </div>
+
+                <div className='grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-3'>
+
+                  <div>
+                    <Label className="text-sm">Thành phố</Label>
+                    <div className='app__select--input '>
+                      <Form.Item name='city' rules={[{ required: true, message: 'Vui lòng nhập trường này' }]}>
+                        <Select
+                          loading={isLoading}
+                          placeholder='Lựa chọn thành phố'
+                          options={options}
+                          onChange={(value) => onChangeCity(value)}
+                        />
+                      </Form.Item>
+                    </div>
+                  </div>
+                  <div>
+                    <Label className="text-sm">Quận / huyện</Label>
+                    <div className="app__select--input">
+                      <Form.Item name='district' rules={[{ required: true, message: 'Vui lòng nhập trường này' }]}>
+                        <Select
+                          loading={districtLoading}
+                          placeholder='Lựa chọn quận huyện'
+                          options={optionsDistrict}
+                          onChange={(value) => onChangeDistrict(value)}
+                        />
+                      </Form.Item>
+                    </div>
+                  </div>
+                </div>
+
+                <div className='sm:flex space-y-4 sm:space-y-0 sm:space-x-3'>
+
+                  <div className='w-1/3'>
+                    <Label className="text-sm">Xã / phường</Label>
+                    <div className='app__select--input'>
+                      <Form.Item name='ward' rules={[{ required: true, message: 'Vui lòng Nhập trường này' }]}>
+                        <Select
+                          loading={wardLoading}
+                          options={optionsWard}
+                          placeholder='Lựa chọn Xã phường'
+                        />
+                      </Form.Item>
+                    </div>
+                  </div>
+                  <div className='flex-1'>
+                    <Label className="text-sm">Địa chỉ chi tiết</Label>
+                    <Form.Item name='address' rules={[{ required: true, message: 'Vui lòng nhập trường này' }]}>
+                      <Input className='mt-1.5' type='text' placeholder='Nhập địa chỉ chi tiết' />
+                    </Form.Item>
+                  </div>
+                </div>
+                {/* ============ */}
+              </div>
+            </div>
+          </Form>
+        </Col>
+      </Row>
     </div>
   );
 };
