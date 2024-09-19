@@ -16,6 +16,8 @@ import { IAddCart, ICart } from '@/common/types/cart.interface'
 import { useAddToCartMutation } from '@/services/CartEndPoinst'
 import { popupError } from '../../shared/Toast'
 import { Flex } from 'antd'
+import { useAppDispatch, useAppSelector } from '@/app/hooks'
+import { setLoading, setOpenModalLogin, setOpenModalSignup } from "@/app/webSlice";
 export interface ProductCardProps {
   className?: string;
   data: IProduct;
@@ -44,6 +46,9 @@ const ProductCard: FC<ProductCardProps> = ({
   const [image, setImage] = React.useState(thumbnail);
   const blocksRef = useRef([]);
   const [maxWidth, setMaxWidth] = useState(0);
+  const { isAuthenticated } = useAppSelector(state => state.auth);
+  const dispatch = useAppDispatch()
+
 
   useEffect(() => {
     const widths = blocksRef.current.map(block => block.offsetWidth);
@@ -220,10 +225,16 @@ const ProductCard: FC<ProductCardProps> = ({
           className="shadow-lg"
           fontSize="text-xs"
           sizeClass="py-2 px-4"
-          onClick={() => notifyAddTocart({ second: null })}
+          onClick={() => {
+            if(isAuthenticated){
+              notifyAddTocart({ second: null })
+            }else{
+              dispatch(setOpenModalLogin(true))
+            }
+          }}
         >
           <BagIcon className="w-3.5 h-3.5 mb-0.5" />
-          <span className="ml-1">Add to cart</span>
+          <span className="ml-1" >Add to cart</span>
         </ButtonPrimary>
         <Link to={`/product-detail/${slug}`}>
           <ButtonSecondary

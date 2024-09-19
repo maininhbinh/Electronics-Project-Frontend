@@ -51,6 +51,8 @@ import { useLocalStorage } from "@uidotdev/usehooks";
 import { useGetVouchersQuery } from "../../(manager)/voucher/VoucherEndpoint";
 import SectionSliderProductCardSimilar from "./SectionSliderProductCartSimilar";
 import InputDetailCart from "../components/InputDetailCart";
+import { setLoading, setOpenModalLogin, setOpenModalSignup } from "@/app/webSlice";
+import { useAppDispatch, useAppSelector } from "@/app/hooks";
 export interface ProductDetailPage2Props {
   className?: string;
 }
@@ -76,6 +78,7 @@ const ProductDetailPage2: FC<ProductDetailPage2Props> = ({
 
   const [postComment] = usePostCommentMutation();
   const { slug } = useParams()
+  const { isAuthenticated } = useAppSelector(state => state.auth);
 
   const { data, isLoading, refetch } = useGetProductQuery(slug, {
     skip: !slug,
@@ -100,6 +103,7 @@ const ProductDetailPage2: FC<ProductDetailPage2Props> = ({
   const [isOpenModalViewAllReviews, setIsOpenModalViewAllReviews] =
     useState(false);
   const [openFocusIndex, setOpenFocusIndex] = useState(0);
+  const dispatch = useAppDispatch()
 
   const handleOpenModal = (index: number) => {
     setIsOpen(true);
@@ -179,9 +183,6 @@ const ProductDetailPage2: FC<ProductDetailPage2Props> = ({
     }
     setQualitySelected(1)
   }, [variantActives])
-
-
-  console.log(">>>", maxQuantity)
 
   const notifyAddTocart = async () => {
     const { products, thumbnail, name } = data.data
@@ -489,7 +490,14 @@ const ProductDetailPage2: FC<ProductDetailPage2Props> = ({
             </div>
             <ButtonPrimary
               className="flex-1 flex-shrink-0"
-              onClick={notifyAddTocart}
+              onClick={()=>{
+                if(isAuthenticated){
+                  notifyAddTocart()
+                }else{
+                  dispatch(setOpenModalLogin(true))
+                }
+    
+              }}
             >
               <BagIcon className="hidden sm:inline-block w-5 h-5 mb-0.5" />
               <span className="ml-3">Thêm vào giỏ</span>

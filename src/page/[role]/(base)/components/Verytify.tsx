@@ -18,7 +18,7 @@ interface VerifyTokenProps {
 export default function Verytify({setIsModalVeritifyOpen, email}: VerifyTokenProps) {
   type OTPProps = GetProps<typeof Input.OTP>;
   
-  const [expiredOTP, setExpiredOTP] = useState(5)
+  const [expiredOTP, setExpiredOTP] = useState(60)
   const [isVerifyToken, setIsVerifyToken] = useState<boolean>(false);
   const [otp, setOtp] = useState<string>('');
   const [resetOTP, setResetOTP] = useState(false)
