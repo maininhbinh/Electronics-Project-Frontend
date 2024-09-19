@@ -313,6 +313,9 @@ export default function EditOrder() {
               <b className="">Giảm giá : </b>
               <span className="">{VND(Number(dataItem?.total_price) - Number(dataItem?.discount_price))}</span>
             </div>
+
+
+
             <div className="flex justify-between border-solid border-b-[1px] border-b-[#eee] py-4">
               <b className="">Kiểu thanh toán : </b>
               <span className="">{dataItem?.payment_methods}</span>

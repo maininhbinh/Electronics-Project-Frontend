@@ -146,11 +146,7 @@ const AccountOrder = () => {
     <div>
       <div className="space-y-10 sm:space-y-12">
         {/* HEADING */}
-        <div className="">
-          <div className="max-w-4xl mx-auto">
-            <Tabs defaultActiveKey="1" items={items} />
-          </div>
-        </div>
+
         {order.map((item, key) => (
           renderOrder(item, key)
         ))}

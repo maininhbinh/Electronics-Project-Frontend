@@ -216,6 +216,11 @@ export default function DetailOrder() {
                         <span className="text-[12px] text-gray-500 border-r-[1px] p-3">Giảm giá : </span>
                         <span className=" px-3 w-[240px] flex justify-end items-center">{VND(Number(dataItem?.total_price) - Number(dataItem?.discount_price))}</span>
                     </div>
+
+                    <div className="flex justify-end border-solid border-b-[1px] border-b-[#eee] ">
+                        <span className="text-[12px] text-gray-500 border-r-[1px] p-3">Voucher áp dụng : </span>
+                        <span className=" px-3 w-[240px] flex justify-end items-center text-green-500"> - {VND(Number(dataItem?.discount_price))}</span>
+                    </div>
                     <div className="flex justify-end border-solid border-b-[1px] border-b-[#eee] ">
                         <span className="text-[12px] text-gray-500 border-r-[1px] p-3">Kiểu thanh toán : </span>
                         <span className=" px-3 w-[240px] flex justify-end items-center">{dataItem?.payment_methods}</span>
