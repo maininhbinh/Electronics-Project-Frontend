@@ -139,7 +139,7 @@ export default function DetailOrder() {
         return null
     }
 
-
+    console.log(dataItem)
     return (
         <>
             <Row gutter={16}>
@@ -238,7 +238,7 @@ export default function DetailOrder() {
                         <b className="text-[19px] text-red-500 p-3 w-[240px] flex justify-end">{VND(Number(dataItem.total_price))}</b>
                     </div>
                 </Col>
-                {dataItem?.order_status.id == 1 && <Col span={24} className="mt-5 ">
+                {dataItem?.order_status.id == 1 && dataItem?.payment_status != "Đã thanh toán" && <Col span={24} className="mt-5 ">
 
                     <Card size="small" title={<div className="cursor-pointer">    <Tooltip trigger="hover" placement="rightTop" title={"Đơn hàng chỉ được hủy ở trạng thái chờ xử lý"}>
                         <span>Hủy đơn hàng !</span>

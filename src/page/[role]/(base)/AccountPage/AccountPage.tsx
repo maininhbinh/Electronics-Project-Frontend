@@ -1,11 +1,11 @@
 import Label from "../components/Label/Label";
-import  { FC, useEffect, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import ButtonPrimary from "../shared/Button/ButtonPrimary";
-import { Form, Input, Upload} from 'antd'
+import { Form, Input, Upload } from 'antd'
 import { Helmet } from "react-helmet-async";
 import { avatarImgs } from "../../../../contains/fakeData";
-import {Select as SelectAntd } from 'antd';
-import type { SelectProps  } from 'antd';
+import { Select as SelectAntd } from 'antd';
+import type { SelectProps } from 'antd';
 import { useNavigate } from "react-router-dom";
 import LoadingUser from "../../(manager)/user/util/Loading";
 import ErrorLoad from "../../(manager)/components/util/ErrorLoad";
@@ -23,7 +23,7 @@ const AccountPage: FC<AccountPageProps> = ({ className = "" }) => {
     labelCol: { span: 8 },
     wrapperCol: { span: 16 }
   }
-  
+
   const validateMessages = {
     required: '${label} is required!',
     types: {
@@ -33,7 +33,7 @@ const AccountPage: FC<AccountPageProps> = ({ className = "" }) => {
     number: {
       range: '${label} must be between ${min} and ${max}'
     },
-    
+
   }
   const [file, setFile] = useState({
     data: {},
@@ -46,58 +46,58 @@ const AccountPage: FC<AccountPageProps> = ({ className = "" }) => {
       loading: false
     })
     onSuccess('Upload successful', file)
- 
+
   }
   const user = JSON.parse(String(localStorage.getItem('user')));
-  const {data : dataItem, isLoading : dataLoading } = useGetUserQuery(user?.id);
- 
-  const [updateUser, { isLoading : loadingUpdateUser }] = useUpdateUserMutation();
+  const { data: dataItem, isLoading: dataLoading } = useGetUserQuery(user?.id);
+
+  const [updateUser, { isLoading: loadingUpdateUser }] = useUpdateUserMutation();
   const [form] = Form.useForm();
   const [optionsDistrict, setOptionDistrict] = useState<SelectProps['options']>([])
   const [image, setImage] = useState("")
 
   useEffect(() => {
-    if(dataItem?.data){
+    if (dataItem?.data) {
       localStorage.removeItem('user')
       localStorage.setItem('user', JSON.stringify(dataItem.data));
     }
   }, [dataItem])
 
-  const onFileChanged = (event:any) => {
+  const onFileChanged = (event: any) => {
     debugger
     if (event?.file && event?.file.originFileObj) {
       setImage(URL.createObjectURL(event.file.originFileObj));
     }
   }
-  
+
   const onFinish = async (values: Iuser | any) => {
     console.log(values);
-    
+
     const formData = new FormData()
-    for (const key  in values ) {
-       if(String(key) == 'upload'){
-        if( values[key]){
-          formData.append('image',values[key][0].originFileObj);
+    for (const key in values) {
+      if (String(key) == 'upload') {
+        if (values[key]) {
+          formData.append('image', values[key][0].originFileObj);
         }
-       
+
         continue;
-       }
-       if(String(key) == 'is_active'){
-        if(values[key]){
-           formData.append(key,'1')
-        }else {
-           formData.append(key,'0')
+      }
+      if (String(key) == 'is_active') {
+        if (values[key]) {
+          formData.append(key, '1')
+        } else {
+          formData.append(key, '0')
         }
         continue;
-       }
-       formData.append(key,values[key])
-       
+      }
+      formData.append(key, values[key])
+
     }
-    formData.append('is_virtual','0');
+    formData.append('is_virtual', '0');
     try {
       const payload = {
-        id : user.id,
-        data : formData
+        id: user.id,
+        data: formData
       }
       await updateUser(payload).unwrap();
       popupSuccess('Update user success');
@@ -105,87 +105,87 @@ const AccountPage: FC<AccountPageProps> = ({ className = "" }) => {
     } catch (error) {
       popupError('Update user error');
     }
-    
+
   }
 
-  const [getDistrict, { data : dataDistricts , isLoading : districtLoading}] = useLazyGetDistrictsQuery();
+  const [getDistrict, { data: dataDistricts, isLoading: districtLoading }] = useLazyGetDistrictsQuery();
 
 
 
 
   useEffect(() => {
     setOptionDistrict(() => {
-          return dataDistricts?.data.map((item : {id : number, name : string}) => {
-               return {
-                value : `${item.name}`,
-                label : item.name
-              }
-           });
+      return dataDistricts?.data.map((item: { id: number, name: string }) => {
+        return {
+          value: `${item.name}`,
+          label: item.name
+        }
+      });
     })
- }, [dataDistricts])
+  }, [dataDistricts])
 
 
   const options: SelectProps['options'] = [];
-  
+
 
   const {
-    data : provinces,
+    data: provinces,
     isLoading,
     isError
   } = useGetProvincesQuery({});
 
-  
-   
-  provinces?.data.forEach((item : {id : number, name : string}) => {
+
+
+  provinces?.data.forEach((item: { id: number, name: string }) => {
     options.push({
-      value : `${item.name}-${item.id}`,
-      label : item.name
-     })
+      value: `${item.name}-${item.id}`,
+      label: item.name
+    })
   });
 
 
-  const onChangeProvince = async (value : string) => {
+  const onChangeProvince = async (value: string) => {
     form.resetFields(['district']);
-    if(value){
+    if (value) {
       const splitStr = value.split(/-(\d+)/);
       const provinceId = splitStr[1];
-      
-      await getDistrict(provinceId);
-     
-      
-    }else {
-       setOptionDistrict([]);
-    }
-    
 
-}
+      await getDistrict(provinceId);
+
+
+    } else {
+      setOptionDistrict([]);
+    }
+
+
+  }
   const navigate = useNavigate()
 
   const handleCancel = () => {
     navigate('..')
   }
 
-  if(isLoading || dataLoading) return <LoadingUser />
-  if(isError) return <ErrorLoad />
+  if (isLoading || dataLoading) return <LoadingUser />
+  if (isError) return <ErrorLoad />
   return (
     <div className={`nc-AccountPage ${className}`} data-nc-id="AccountPage">
       <Helmet>
         <title>Account || Ciseco ecommerce React Template</title>
       </Helmet>
-        <div className="space-y-10 sm:space-y-12">
-          {/* HEADING */}
-          <h2 className="text-2xl sm:text-3xl font-semibold">
-            Account infomation
-          </h2>
-          <Form
-            initialValues={dataItem?.data}
-            form={form}
-            {...layout}
-            name='nest-messages'
-            onFinish={onFinish}
-            style={{ maxWidth: 600 }}
-            validateMessages={validateMessages}
-          >
+      <div className="space-y-10 sm:space-y-12">
+        {/* HEADING */}
+        <h2 className="text-2xl sm:text-3xl font-semibold">
+          Account infomation
+        </h2>
+        <Form
+          initialValues={dataItem?.data}
+          form={form}
+          {...layout}
+          name='nest-messages'
+          onFinish={onFinish}
+          style={{ maxWidth: 600 }}
+          validateMessages={validateMessages}
+        >
           <div className="flex flex-col md:flex-row">
             <div className="flex-shrink-0 flex items-start">
               {/* AVATAR */}
@@ -212,23 +212,23 @@ const AccountPage: FC<AccountPageProps> = ({ className = "" }) => {
                     />
                   </svg>
                   <Form.Item
-                  name='upload'
-                  label='.'
-                  valuePropName='fileList'
-                  getValueFromEvent={(e) => (Array.isArray(e) ? e : e && e.fileList)}
-                >
-                  <Upload name='image' listType='picture' showUploadList={false} onChange={onFileChanged} customRequest={handleUpload}>
-                    <span className="mt-1 text-xs text-white">Change Image</span>
-                  </Upload>
-                </Form.Item>
+                    name='upload'
+                    label='.'
+                    valuePropName='fileList'
+                    getValueFromEvent={(e) => (Array.isArray(e) ? e : e && e.fileList)}
+                  >
+                    <Upload name='image' listType='picture' showUploadList={false} onChange={onFileChanged} customRequest={handleUpload}>
+                      <span className="mt-1 text-xs text-white">Change Image</span>
+                    </Upload>
+                  </Form.Item>
                 </div>
-                
+
               </div>
             </div>
             <div className="flex-grow mt-10 md:mt-0 md:pl-16 max-w-3xl space-y-6">
               <div>
                 <Label>User name</Label>
-                <Form.Item name="username" rules={[{required: true }]}>
+                <Form.Item name="username" rules={[{ required: true }]}>
                   <Input name="username" className="mt-1.5 !rounded-l-none w-[445px]" defaultValue="Enrico Cole" />
                 </Form.Item>
               </div>
@@ -285,42 +285,42 @@ const AccountPage: FC<AccountPageProps> = ({ className = "" }) => {
 
               <div>
                 <Label>County</Label>
-                <Form.Item name="county" rules={[{required: true }]}>
+                <Form.Item name="county" rules={[{ required: true }]}>
                   <SelectAntd
-                
-                      style={{ width: '445px', height:'40px'}}
-                    
-                      options={[
-                    
-                        { value: 'Việt Nam', label: 'VietNam' },
-                      
-                      ]}
-                    />
+
+                    style={{ width: '445px', height: '40px' }}
+
+                    options={[
+
+                      { value: 'Việt Nam', label: 'VietNam' },
+
+                    ]}
+                  />
                 </Form.Item>
-              </div>         
+              </div>
 
               <div>
                 <Label>City</Label>
-                <Form.Item name="city" rules={[{required: true }]}>
+                <Form.Item name="city" rules={[{ required: true }]}>
                   <SelectAntd
-                      
-                      style={{ width: '445px', height:'40px'}}
-                      placeholder="Enter name province"
-                      options={options}
-                      onChange={(value) => onChangeProvince(value)}
-                    />
+
+                    style={{ width: '445px', height: '40px' }}
+                    placeholder="Enter name province"
+                    options={options}
+                    onChange={(value) => onChangeProvince(value)}
+                  />
                 </Form.Item>
               </div>
 
               <div>
                 <Label>District</Label>
-                <Form.Item name="district" rules={[{required: true }]}>
-                      <SelectAntd
-                          loading={districtLoading}                      
-                          style={{ width: '445px', height:'40px'}}
-                          placeholder="Enter name district"
-                          options={optionsDistrict}
-                        />
+                <Form.Item name="district" rules={[{ required: true }]}>
+                  <SelectAntd
+                    loading={districtLoading}
+                    style={{ width: '445px', height: '40px' }}
+                    placeholder="Enter name district"
+                    options={optionsDistrict}
+                  />
                 </Form.Item>
               </div>
 
@@ -341,7 +341,7 @@ const AccountPage: FC<AccountPageProps> = ({ className = "" }) => {
                   <span className="h-[40px] inline-flex items-center px-2.5 rounded-l-2xl border border-r-0 border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 text-sm">
                     <i className="text-xl las la-phone-volume"></i>
                   </span>
-                  <Form.Item name="phone" rules={[{required: true }]}>
+                  <Form.Item name="phone" rules={[{ required: true }]}>
                     <Input
                       name="phone"
                       className="!rounded-l-none w-[400px]"
@@ -364,8 +364,8 @@ const AccountPage: FC<AccountPageProps> = ({ className = "" }) => {
               </div>
             </div>
           </div>
-          </Form>
-        </div>
+        </Form>
+      </div>
     </div>
   );
 };
