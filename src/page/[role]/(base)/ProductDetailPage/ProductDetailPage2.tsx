@@ -50,6 +50,7 @@ import { formatDate } from "@/utils/convertCreatedLaravel";
 import { useLocalStorage } from "@uidotdev/usehooks";
 import { useGetVouchersQuery } from "../../(manager)/voucher/VoucherEndpoint";
 import SectionSliderProductCardSimilar from "./SectionSliderProductCartSimilar";
+import InputDetailCart from "../components/InputDetailCart";
 export interface ProductDetailPage2Props {
   className?: string;
 }
@@ -156,9 +157,12 @@ const ProductDetailPage2: FC<ProductDetailPage2Props> = ({
         const keyFromSecond = keys[0]; // Assume the key you get from the database
         valueSecondVariant = variantActives[1][keyFromSecond];
       }
-
+      // console.log(valueFirstVariant, valueSecondVariant)
       listVariants.map((item: any) => {
+
         if (item.variants[0] && item.variants[1] && (item.variants[0].name == valueFirstVariant && item.variants[1].name == valueSecondVariant) || (item.variants[0].name == valueSecondVariant && item.variants[1].name == valueFirstVariant)) {
+          console.log(item.quantity)
+
           setMaxQuantity(item.quantity)
         } else if (!item.variants[1] && item.variants[0].name == valueFirstVariant) {
           setMaxQuantity(item.quantity)
@@ -175,6 +179,9 @@ const ProductDetailPage2: FC<ProductDetailPage2Props> = ({
     }
     setQualitySelected(1)
   }, [variantActives])
+
+
+  console.log(">>>", maxQuantity)
 
   const notifyAddTocart = async () => {
     const { products, thumbnail, name } = data.data
@@ -196,19 +203,24 @@ const ProductDetailPage2: FC<ProductDetailPage2Props> = ({
       quantity: qualitySelected,
       product_item_id: id,
     }
-    await addToCart(payload).unwrap();
-    toast.custom(
-      (t) => (
-        <NotifyAddTocart
-          productImage={image || thumbnail}
-          qualitySelected={qualitySelected}
-          show={t.visible}
-          product={product}
-          name={name}
-        />
-      ),
-      { position: "top-right", id: "nc-product-notify", duration: 3000 }
-    );
+    try {
+      await addToCart(payload).unwrap();
+      toast.custom(
+        (t) => (
+          <NotifyAddTocart
+            productImage={image || thumbnail}
+            qualitySelected={qualitySelected}
+            show={t.visible}
+            product={product}
+            name={name}
+          />
+        ),
+        { position: "top-right", id: "nc-product-notify", duration: 3000 }
+      );
+    } catch (error) {
+      popupError('Đơn hàng vượt quá số lượng cho phép')
+    }
+
   };
 
   const onSubmit = async (data: CommentFormValues) => {
@@ -468,11 +480,12 @@ const ProductDetailPage2: FC<ProductDetailPage2Props> = ({
           {/*  ---------- 4  QTY AND ADD TO CART BUTTON */}
           <div className="flex space-x-3.5">
             <div className="flex items-center justify-center bg-slate-100/70 dark:bg-slate-800/70 px-2 py-3 sm:p-3.5 rounded-full">
-              <NcInputNumber
-                defaultValue={qualitySelected}
+              {/* <NcInputNumber
+                
+              /> */}
+              <InputDetailCart defaultValue={qualitySelected}
                 onChange={setQualitySelected}
-                maxQuantity={maxQuantity}
-              />
+                maxQuantity={maxQuantity} />
             </div>
             <ButtonPrimary
               className="flex-1 flex-shrink-0"

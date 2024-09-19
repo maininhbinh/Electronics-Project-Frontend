@@ -20,38 +20,38 @@ import OrderAnimationIcon from '@/page/[role]/components/icon/OrderIcon/Order'
 export default function ListOrder() {
 
   const [changeStatus] = useChangeStatusOrderMutation();
-  const {searchText,setSearchText,setSearchedColumn, searchedColumn, searchInput, handleSearch, handleReset } = useQuerySearch();
+  const { searchText, setSearchText, setSearchedColumn, searchedColumn, searchInput, handleSearch, handleReset } = useQuerySearch();
 
-  const {  Content } = Layout
-  const {data : dataItem, isLoading : isLoadingOrders} = useGetOrdersQuery({})
+  const { Content } = Layout
+  const { data: dataItem, isLoading: isLoadingOrders } = useGetOrdersQuery({})
 
-  const handleTotalSuccess = useCallback((typeOfStatus : number) => {
+  const handleTotalSuccess = useCallback((typeOfStatus: number) => {
 
-    if(dataItem){
+    if (dataItem) {
       let total = 0;
       for (const item of dataItem?.data) {
-       if(item.order_status_id == typeOfStatus){
-         total ++;
-       }
+        if (item.order_status_id == typeOfStatus) {
+          total++;
+        }
       }
       const percent = (total / dataItem?.data?.length) * 100;
       return [total, percent];
-    }else {
+    } else {
       return [0, 0]
     }
-  
+
   }, [])
 
   const handleDisableSelect = (statusCurrent: number, statusOrder: number) => {
-    if(statusOrder === 8 || (statusCurrent === 8 && statusOrder === 7)) return true;
-    if(statusOrder === 3 && statusCurrent === 7) return false;
-    if(statusCurrent === 8 && statusOrder === 1) return false;
-     if(statusOrder + 1 === statusCurrent) return false;
-     return true;
+    if (statusOrder === 8 || (statusCurrent === 8 && statusOrder === 7)) return true;
+    if (statusOrder === 3 && statusCurrent === 7) return false;
+    if (statusCurrent === 8 && statusOrder === 1) return false;
+    if (statusOrder + 1 === statusCurrent) return false;
+    return true;
   }
   const handleOnChangeStatus = async (status: number, order_id: number) => {
     const payload = {
-      id : order_id,
+      id: order_id,
       status: status
     }
     try {
@@ -71,14 +71,14 @@ export default function ListOrder() {
       align: 'center',
       ...getColumnSearchProps(
         'sku',
-         handleSearch,
-         handleReset,
-         searchText,
-         setSearchText,
-         searchedColumn,
-         setSearchedColumn,
-         searchInput
-        ),
+        handleSearch,
+        handleReset,
+        searchText,
+        setSearchText,
+        searchedColumn,
+        setSearchedColumn,
+        searchInput
+      ),
     },
     {
       title: 'Ngày giờ tạo',
@@ -101,14 +101,14 @@ export default function ListOrder() {
       render: (text) => <>{text}</>,
       ...getColumnSearchProps(
         'receiver_name',
-         handleSearch,
-         handleReset,
-         searchText,
-         setSearchText,
-         searchedColumn,
-         setSearchedColumn,
-         searchInput
-        ),
+        handleSearch,
+        handleReset,
+        searchText,
+        setSearchText,
+        searchedColumn,
+        setSearchedColumn,
+        searchInput
+      ),
     },
     {
       title: 'Số điện thoại',
@@ -119,14 +119,14 @@ export default function ListOrder() {
       render: (text) => <>{text}</>,
       ...getColumnSearchProps(
         'receiver_phone',
-         handleSearch,
-         handleReset,
-         searchText,
-         setSearchText,
-         searchedColumn,
-         setSearchedColumn,
-         searchInput
-        ),
+        handleSearch,
+        handleReset,
+        searchText,
+        setSearchText,
+        searchedColumn,
+        setSearchedColumn,
+        searchInput
+      ),
     },
     {
       title: 'Trạng thái',
@@ -169,10 +169,11 @@ export default function ListOrder() {
   const handleExportExcelFile = () => {
     exportToExcel(newData, 'report-order');
   }
+
   return (
     <>
       <Content
-        
+
         className='h-full'
       >
         <div className='lable font-bold text-[24px] text-[#344767]'>Đơn hàng</div>
@@ -194,12 +195,12 @@ export default function ListOrder() {
             </Card>
           </Col>
           <Col span={8}>
-            <Card title='Tổng đơn hàng' bordered={false} extra={<OrderAnimationIcon width={70} height={70}/>} className='h-full'>
+            <Card title='Tổng đơn hàng' bordered={false} extra={<OrderAnimationIcon width={70} height={70} />} className='h-full'>
               <div className='text-[25px]'>
                 <b> {dataItem?.data.length} </b>
-               
+
               </div>
-             
+
             </Card>
           </Col>
         </Row>
@@ -215,7 +216,7 @@ export default function ListOrder() {
               <div className='lable font-bold text-[17px] text-[#344767]'>Danh sách đơn hàng</div>
             </Flex>
             <Table
-              pagination={{ pageSize: 8 }}
+
               columns={columns}
               size='middle'
               sticky={{ offsetHeader: 0 }}

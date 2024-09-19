@@ -29,8 +29,8 @@ type FieldTypeSignup = {
 };
 
 export default function AvatarDropdown() {
-  const {isAuthenticated} = useAppSelector(state => state.auth);  
-  const {refetch, isSuccess } = useGetCartsQuery({}, {skip: !isAuthenticated});
+  const { isAuthenticated } = useAppSelector(state => state.auth);
+  const { refetch, isSuccess } = useGetCartsQuery({}, { skip: !isAuthenticated });
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const [isModalVeritifyOpen, setIsModalVeritifyOpen] = useState(false);
@@ -38,18 +38,18 @@ export default function AvatarDropdown() {
 
   const [form] = Form.useForm()
   const [formSignup] = Form.useForm()
- 
-  const {openModalLogin, openModalSigup} = useAppSelector(state => state.web);
+
+  const { openModalLogin, openModalSigup } = useAppSelector(state => state.web);
 
   const item = localStorage.getItem('user');
   const user = item && isValidJSON(item) ? JSON.parse(item) : '';
 
-  const onSignin = async (value :ISignin) => {
+  const onSignin = async (value: ISignin) => {
     dispatch(setLoading(true));
     const result = await dispatch(Signin(value));
     dispatch(setLoading(false));
 
-    if(result?.success == false){
+    if (result?.success == false) {
       form.setFields([
 
         {
@@ -58,7 +58,7 @@ export default function AvatarDropdown() {
         }
       ])
       popupError("Email hoặc mật khẩu không chính xác");
-    }else{
+    } else {
       form.setFields([
         {
           name: 'email',
@@ -72,21 +72,21 @@ export default function AvatarDropdown() {
       dispatch(login(result))
       dispatch(setOpenModalLogin(false))
       popupSuccess("Xin chào " + result.user.username);
-      if(isSuccess){
+      if (isSuccess) {
         refetch();
       }
       navigate('/')
     }
-  }  
+  }
 
-  const onSignup = async(value: FieldTypeSignup) => {
+  const onSignup = async (value: FieldTypeSignup) => {
 
     setEmail(value.email ?? '')
     const payload = {
-      username : value.username,
-      email : value.email,
-      password : value.password,
-      password_confirmation : value.password_confirmation
+      username: value.username,
+      email: value.email,
+      password: value.password,
+      password_confirmation: value.password_confirmation
     }
 
     formSignup.setFields([
@@ -107,7 +107,7 @@ export default function AvatarDropdown() {
         value: ''
       },
     ])
-    
+
     try {
       dispatch(setLoading(true));
       await SignupService(payload);
@@ -125,9 +125,9 @@ export default function AvatarDropdown() {
     dispatch(logout());
     dispatch(setOpenModalLogin(false))
 
-    if(!access_token){
+    if (!access_token) {
       popupError('Chưa đăng nhập');
-    }else{
+    } else {
 
       dispatch(setLoading(true));
       await dispatch(Logout(access_token));
@@ -135,10 +135,10 @@ export default function AvatarDropdown() {
       popupSuccess("Đăng xuất thành công");
       navigate('/')
     }
-    
+
   }
 
-  
+
 
   return (
     <div className="AvatarDropdown ">
@@ -182,14 +182,14 @@ export default function AvatarDropdown() {
               <Popover.Panel className="absolute z-10 w-screen max-w-[260px] px-4 mt-3.5 -right-10 sm:right-0 sm:px-0">
                 <div className="overflow-hidden rounded-3xl shadow-lg ring-1 ring-black ring-opacity-5">
                   <div className="relative grid grid-cols-1 gap-6 bg-white dark:bg-neutral-800 py-7 px-6">
-                      
-                      {
-                        isAuthenticated
+
+                    {
+                      isAuthenticated
                         ?
                         (
                           <>
                             <div className="flex items-center space-x-3">
-                              <Avatar imgUrl={user?.image ? user?.image : avatarImgs[10] } sizeClass="w-12 h-12" />
+                              <Avatar imgUrl={user?.image ? user?.image : avatarImgs[10]} sizeClass="w-12 h-12" />
                               <div className="flex-grow truncate break-all">
                                 <h4 className="font-semibold">{user.username}</h4>
                                 <p className="text-xs mt-0.5 ">{user.email}</p>
@@ -201,88 +201,174 @@ export default function AvatarDropdown() {
                         )
                         :
                         ''
-                      }
+                    }
 
                     {/* ------------------ 1 --------------------- */}
                     {
                       !isAuthenticated
-                      ?
-                      <>
-                        <button
-                          className="flex items-center p-2 -m-3 transition duration-150 ease-in-out rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-700 focus:outline-none focus-visible:ring focus-visible:ring-orange-500 focus-visible:ring-opacity-50"
-                          onClick={() => dispatch(setOpenModalLogin(true))}
-                        >
-                          <div className="flex items-center justify-center flex-shrink-0 text-neutral-500 dark:text-neutral-300">
-                            <svg
-                              width="24"
-                              height="24"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                d="M12.1601 10.87C12.0601 10.86 11.9401 10.86 11.8301 10.87C9.45006 10.79 7.56006 8.84 7.56006 6.44C7.56006 3.99 9.54006 2 12.0001 2C14.4501 2 16.4401 3.99 16.4401 6.44C16.4301 8.84 14.5401 10.79 12.1601 10.87Z"
-                                stroke="currentColor"
-                                strokeWidth="1.5"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                              <path
-                                d="M7.15997 14.56C4.73997 16.18 4.73997 18.82 7.15997 20.43C9.90997 22.27 14.42 22.27 17.17 20.43C19.59 18.81 19.59 16.17 17.17 14.56C14.43 12.73 9.91997 12.73 7.15997 14.56Z"
-                                stroke="currentColor"
-                                strokeWidth="1.5"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                            </svg>
-                          </div>
-                          <div className="ml-4">
-                            <p className="text-sm font-medium ">{"Đăng nhập"}</p>
-                          </div>
-                        </button>
+                        ?
+                        <>
+                          <button
+                            className="flex items-center p-2 -m-3 transition duration-150 ease-in-out rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-700 focus:outline-none focus-visible:ring focus-visible:ring-orange-500 focus-visible:ring-opacity-50"
+                            onClick={() => dispatch(setOpenModalLogin(true))}
+                          >
+                            <div className="flex items-center justify-center flex-shrink-0 text-neutral-500 dark:text-neutral-300">
+                              <svg
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                xmlns="http://www.w3.org/2000/svg"
+                              >
+                                <path
+                                  d="M12.1601 10.87C12.0601 10.86 11.9401 10.86 11.8301 10.87C9.45006 10.79 7.56006 8.84 7.56006 6.44C7.56006 3.99 9.54006 2 12.0001 2C14.4501 2 16.4401 3.99 16.4401 6.44C16.4301 8.84 14.5401 10.79 12.1601 10.87Z"
+                                  stroke="currentColor"
+                                  strokeWidth="1.5"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                                <path
+                                  d="M7.15997 14.56C4.73997 16.18 4.73997 18.82 7.15997 20.43C9.90997 22.27 14.42 22.27 17.17 20.43C19.59 18.81 19.59 16.17 17.17 14.56C14.43 12.73 9.91997 12.73 7.15997 14.56Z"
+                                  stroke="currentColor"
+                                  strokeWidth="1.5"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                              </svg>
+                            </div>
+                            <div className="ml-4">
+                              <p className="text-sm font-medium ">{"Đăng nhập"}</p>
+                            </div>
+                          </button>
 
-                        <button
-                          className="flex items-center p-2 -m-3 transition duration-150 ease-in-out rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-700 focus:outline-none focus-visible:ring focus-visible:ring-orange-500 focus-visible:ring-opacity-50"
-                          onClick={() => dispatch(setOpenModalSignup(true))}
-                        >
-                          <div className="flex items-center justify-center flex-shrink-0 text-neutral-500 dark:text-neutral-300">
-                            <svg
-                              width="24"
-                              height="24"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                d="M12.1601 10.87C12.0601 10.86 11.9401 10.86 11.8301 10.87C9.45006 10.79 7.56006 8.84 7.56006 6.44C7.56006 3.99 9.54006 2 12.0001 2C14.4501 2 16.4401 3.99 16.4401 6.44C16.4301 8.84 14.5401 10.79 12.1601 10.87Z"
-                                stroke="currentColor"
-                                strokeWidth="1.5"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                              <path
-                                d="M7.15997 14.56C4.73997 16.18 4.73997 18.82 7.15997 20.43C9.90997 22.27 14.42 22.27 17.17 20.43C19.59 18.81 19.59 16.17 17.17 14.56C14.43 12.73 9.91997 12.73 7.15997 14.56Z"
-                                stroke="currentColor"
-                                strokeWidth="1.5"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                            </svg>
-                          </div>
-                          <div >  <div className="ml-4"> <p className="text-sm font-medium ">{"Đăng kí"}</p>   </div> </div>
-                        </button>
-                      </>
-                      :
+                          <button
+                            className="flex items-center p-2 -m-3 transition duration-150 ease-in-out rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-700 focus:outline-none focus-visible:ring focus-visible:ring-orange-500 focus-visible:ring-opacity-50"
+                            onClick={() => dispatch(setOpenModalSignup(true))}
+                          >
+                            <div className="flex items-center justify-center flex-shrink-0 text-neutral-500 dark:text-neutral-300">
+                              <svg
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                xmlns="http://www.w3.org/2000/svg"
+                              >
+                                <path
+                                  d="M12.1601 10.87C12.0601 10.86 11.9401 10.86 11.8301 10.87C9.45006 10.79 7.56006 8.84 7.56006 6.44C7.56006 3.99 9.54006 2 12.0001 2C14.4501 2 16.4401 3.99 16.4401 6.44C16.4301 8.84 14.5401 10.79 12.1601 10.87Z"
+                                  stroke="currentColor"
+                                  strokeWidth="1.5"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                                <path
+                                  d="M7.15997 14.56C4.73997 16.18 4.73997 18.82 7.15997 20.43C9.90997 22.27 14.42 22.27 17.17 20.43C19.59 18.81 19.59 16.17 17.17 14.56C14.43 12.73 9.91997 12.73 7.15997 14.56Z"
+                                  stroke="currentColor"
+                                  strokeWidth="1.5"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                              </svg>
+                            </div>
+                            <div >  <div className="ml-4"> <p className="text-sm font-medium ">{"Đăng kí"}</p>   </div> </div>
+                          </button>
+                        </>
+                        :
 
-                      ''
+                        ''
                     }
 
                     {
                       isAuthenticated
-                      ?
-                      (
+                        ?
+                        (
+                          <Link
+                            to={"/account"}
+                            className="flex items-center p-2 -m-3 transition duration-150 ease-in-out rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-700 focus:outline-none focus-visible:ring focus-visible:ring-orange-500 focus-visible:ring-opacity-50"
+                            onClick={() => close()}
+                          >
+                            <div className="flex items-center justify-center flex-shrink-0 text-neutral-500 dark:text-neutral-300">
+                              <svg
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                xmlns="http://www.w3.org/2000/svg"
+                              >
+                                <path
+                                  d="M12.1601 10.87C12.0601 10.86 11.9401 10.86 11.8301 10.87C9.45006 10.79 7.56006 8.84 7.56006 6.44C7.56006 3.99 9.54006 2 12.0001 2C14.4501 2 16.4401 3.99 16.4401 6.44C16.4301 8.84 14.5401 10.79 12.1601 10.87Z"
+                                  stroke="currentColor"
+                                  strokeWidth="1.5"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                                <path
+                                  d="M7.15997 14.56C4.73997 16.18 4.73997 18.82 7.15997 20.43C9.90997 22.27 14.42 22.27 17.17 20.43C19.59 18.81 19.59 16.17 17.17 14.56C14.43 12.73 9.91997 12.73 7.15997 14.56Z"
+                                  stroke="currentColor"
+                                  strokeWidth="1.5"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                              </svg>
+                            </div>
+                            <div className="ml-4">
+                              <p className="text-sm font-medium ">{"My Account"}</p>
+                            </div>
+
+                          </Link>
+                        )
+                        :
+                        ''
+                    }
+
+                    {
+                      isAuthenticated && user?.role_id == 1
+                        ?
+                        (
+                          <Link
+                            to={"/admin/dashboard"}
+                            className="flex items-center p-2 -m-3 transition duration-150 ease-in-out rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-700 focus:outline-none focus-visible:ring focus-visible:ring-orange-500 focus-visible:ring-opacity-50"
+                            onClick={() => close()}
+                          >
+                            <div className="flex items-center justify-center flex-shrink-0 text-neutral-500 dark:text-neutral-300">
+                              <svg
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                xmlns="http://www.w3.org/2000/svg"
+                              >
+                                <path
+                                  d="M12.1601 10.87C12.0601 10.86 11.9401 10.86 11.8301 10.87C9.45006 10.79 7.56006 8.84 7.56006 6.44C7.56006 3.99 9.54006 2 12.0001 2C14.4501 2 16.4401 3.99 16.4401 6.44C16.4301 8.84 14.5401 10.79 12.1601 10.87Z"
+                                  stroke="currentColor"
+                                  strokeWidth="1.5"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                                <path
+                                  d="M7.15997 14.56C4.73997 16.18 4.73997 18.82 7.15997 20.43C9.90997 22.27 14.42 22.27 17.17 20.43C19.59 18.81 19.59 16.17 17.17 14.56C14.43 12.73 9.91997 12.73 7.15997 14.56Z"
+                                  stroke="currentColor"
+                                  strokeWidth="1.5"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                              </svg>
+                            </div>
+                            <div className="ml-4">
+                              <p className="text-sm font-medium ">{"Dashboard"}</p>
+                            </div>
+
+                          </Link>
+                        )
+                        :
+                        ''
+                    }
+
+                    {/* ------------------ 2 --------------------- */}
+                    {
+                      isAuthenticated
+                        ?
                         <Link
-                          to={"/account"}
+                          to={"/checkout"}
                           className="flex items-center p-2 -m-3 transition duration-150 ease-in-out rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-700 focus:outline-none focus-visible:ring focus-visible:ring-orange-500 focus-visible:ring-opacity-50"
                           onClick={() => close()}
                         >
@@ -292,89 +378,47 @@ export default function AvatarDropdown() {
                               height="24"
                               viewBox="0 0 24 24"
                               fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
                             >
                               <path
-                                d="M12.1601 10.87C12.0601 10.86 11.9401 10.86 11.8301 10.87C9.45006 10.79 7.56006 8.84 7.56006 6.44C7.56006 3.99 9.54006 2 12.0001 2C14.4501 2 16.4401 3.99 16.4401 6.44C16.4301 8.84 14.5401 10.79 12.1601 10.87Z"
+                                d="M8 12.2H15"
                                 stroke="currentColor"
                                 strokeWidth="1.5"
+                                strokeMiterlimit="10"
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
                               />
                               <path
-                                d="M7.15997 14.56C4.73997 16.18 4.73997 18.82 7.15997 20.43C9.90997 22.27 14.42 22.27 17.17 20.43C19.59 18.81 19.59 16.17 17.17 14.56C14.43 12.73 9.91997 12.73 7.15997 14.56Z"
+                                d="M8 16.2H12.38"
                                 stroke="currentColor"
                                 strokeWidth="1.5"
+                                strokeMiterlimit="10"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                              <path
+                                d="M10 6H14C16 6 16 5 16 4C16 2 15 2 14 2H10C9 2 8 2 8 4C8 6 9 6 10 6Z"
+                                stroke="currentColor"
+                                strokeWidth="1.5"
+                                strokeMiterlimit="10"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                              <path
+                                d="M16 4.02002C19.33 4.20002 21 5.43002 21 10V16C21 20 20 22 15 22H9C4 22 3 20 3 16V10C3 5.44002 4.67 4.20002 8 4.02002"
+                                stroke="currentColor"
+                                strokeWidth="1.5"
+                                strokeMiterlimit="10"
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
                               />
                             </svg>
                           </div>
                           <div className="ml-4">
-                            <p className="text-sm font-medium ">{"My Account"}</p>
+                            <p className="text-sm font-medium ">{"Đơn hàng của tôi"}</p>
                           </div>
                         </Link>
-                      )
-                      :
-                      ''
-                    }
-
-                    {/* ------------------ 2 --------------------- */}
-                    {
-                      isAuthenticated
-                      ?
-                      <Link
-                      to={"/checkout"}
-                      className="flex items-center p-2 -m-3 transition duration-150 ease-in-out rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-700 focus:outline-none focus-visible:ring focus-visible:ring-orange-500 focus-visible:ring-opacity-50"
-                      onClick={() => close()}
-                      >
-                        <div className="flex items-center justify-center flex-shrink-0 text-neutral-500 dark:text-neutral-300">
-                          <svg
-                            width="24"
-                            height="24"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                          >
-                            <path
-                              d="M8 12.2H15"
-                              stroke="currentColor"
-                              strokeWidth="1.5"
-                              strokeMiterlimit="10"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            />
-                            <path
-                              d="M8 16.2H12.38"
-                              stroke="currentColor"
-                              strokeWidth="1.5"
-                              strokeMiterlimit="10"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            />
-                            <path
-                              d="M10 6H14C16 6 16 5 16 4C16 2 15 2 14 2H10C9 2 8 2 8 4C8 6 9 6 10 6Z"
-                              stroke="currentColor"
-                              strokeWidth="1.5"
-                              strokeMiterlimit="10"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            />
-                            <path
-                              d="M16 4.02002C19.33 4.20002 21 5.43002 21 10V16C21 20 20 22 15 22H9C4 22 3 20 3 16V10C3 5.44002 4.67 4.20002 8 4.02002"
-                              stroke="currentColor"
-                              strokeWidth="1.5"
-                              strokeMiterlimit="10"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            />
-                          </svg>
-                        </div>
-                        <div className="ml-4">
-                          <p className="text-sm font-medium ">{"Đơn hàng của tôi"}</p>
-                        </div>
-                      </Link>
-                    :
-                    ''
+                        :
+                        ''
                     }
 
                     {/* ------------------ 2 --------------------- */}
@@ -448,116 +492,56 @@ export default function AvatarDropdown() {
                     </div>
 
                     {/* ------------------ 2 --------------------- */}
-                    <Link
-                      to={"/#"}
-                      className="flex items-center p-2 -m-3 transition duration-150 ease-in-out rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-700 focus:outline-none focus-visible:ring focus-visible:ring-orange-500 focus-visible:ring-opacity-50"
-                      onClick={() => close()}
-                    >
-                      <div className="flex items-center justify-center flex-shrink-0 text-neutral-500 dark:text-neutral-300">
-                        <svg
-                          width="24"
-                          height="24"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M11.97 22C17.4928 22 21.97 17.5228 21.97 12C21.97 6.47715 17.4928 2 11.97 2C6.44715 2 1.97 6.47715 1.97 12C1.97 17.5228 6.44715 22 11.97 22Z"
-                            stroke="currentColor"
-                            strokeWidth="1.5"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                          <path
-                            d="M12 16.5C14.4853 16.5 16.5 14.4853 16.5 12C16.5 9.51472 14.4853 7.5 12 7.5C9.51472 7.5 7.5 9.51472 7.5 12C7.5 14.4853 9.51472 16.5 12 16.5Z"
-                            stroke="currentColor"
-                            strokeWidth="1.5"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                          <path
-                            d="M4.89999 4.92993L8.43999 8.45993"
-                            stroke="currentColor"
-                            strokeWidth="1.5"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                          <path
-                            d="M4.89999 19.07L8.43999 15.54"
-                            stroke="currentColor"
-                            strokeWidth="1.5"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                          <path
-                            d="M19.05 19.07L15.51 15.54"
-                            stroke="currentColor"
-                            strokeWidth="1.5"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                          <path
-                            d="M19.05 4.92993L15.51 8.45993"
-                            stroke="currentColor"
-                            strokeWidth="1.5"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                        </svg>
-                      </div>
-                      <div className="ml-4">
-                        <p className="text-sm font-medium ">{"Trợ giúp"}</p>
-                      </div>
-                    </Link>
+
 
                     {/* ------------------ 2 --------------------- */}
-                    
+
                     {
                       isAuthenticated
-                      ?
-                      (
-                        <button
-                          className="flex items-center p-2 -m-3 transition duration-150 ease-in-out rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-700 focus:outline-none focus-visible:ring focus-visible:ring-orange-500 focus-visible:ring-opacity-50"
-                          onClick={onLogout}
-                        >
-                          <div className="flex items-center justify-center flex-shrink-0 text-neutral-500 dark:text-neutral-300">
-                            <svg
-                              width="24"
-                              height="24"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                d="M8.90002 7.55999C9.21002 3.95999 11.06 2.48999 15.11 2.48999H15.24C19.71 2.48999 21.5 4.27999 21.5 8.74999V15.27C21.5 19.74 19.71 21.53 15.24 21.53H15.11C11.09 21.53 9.24002 20.08 8.91002 16.54"
-                                stroke="currentColor"
-                                strokeWidth="1.5"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                              <path
-                                d="M15 12H3.62"
-                                stroke="currentColor"
-                                strokeWidth="1.5"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                              <path
-                                d="M5.85 8.6499L2.5 11.9999L5.85 15.3499"
-                                stroke="currentColor"
-                                strokeWidth="1.5"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                            </svg>
-                          </div>
-                          <div className="ml-4">
-                            <p className="text-sm font-medium ">{"Đăng xuất"}</p>
-                          </div>
-                        </button>
-                      )
-                      :
-                      ''
+                        ?
+                        (
+                          <button
+                            className="flex items-center p-2 -m-3 transition duration-150 ease-in-out rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-700 focus:outline-none focus-visible:ring focus-visible:ring-orange-500 focus-visible:ring-opacity-50"
+                            onClick={onLogout}
+                          >
+                            <div className="flex items-center justify-center flex-shrink-0 text-neutral-500 dark:text-neutral-300">
+                              <svg
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                xmlns="http://www.w3.org/2000/svg"
+                              >
+                                <path
+                                  d="M8.90002 7.55999C9.21002 3.95999 11.06 2.48999 15.11 2.48999H15.24C19.71 2.48999 21.5 4.27999 21.5 8.74999V15.27C21.5 19.74 19.71 21.53 15.24 21.53H15.11C11.09 21.53 9.24002 20.08 8.91002 16.54"
+                                  stroke="currentColor"
+                                  strokeWidth="1.5"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                                <path
+                                  d="M15 12H3.62"
+                                  stroke="currentColor"
+                                  strokeWidth="1.5"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                                <path
+                                  d="M5.85 8.6499L2.5 11.9999L5.85 15.3499"
+                                  stroke="currentColor"
+                                  strokeWidth="1.5"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                              </svg>
+                            </div>
+                            <div className="ml-4">
+                              <p className="text-sm font-medium ">{"Đăng xuất"}</p>
+                            </div>
+                          </button>
+                        )
+                        :
+                        ''
                     }
                   </div>
                 </div>
@@ -567,277 +551,217 @@ export default function AvatarDropdown() {
         )}
       </Popover>
 
-      <Modal open={openModalLogin} onCancel={()=>dispatch(setOpenModalLogin(false))} footer=''>
-          <div className="p-10">
-            <Flex vertical gap={20}>
-                <h1 className="font-mono text-[24px] font-bold">
-                  Wecome to
-                </h1>
-                <Flex justify="space-around">
-                  <button className="flex justify-center items-center gap-2 font-bold">
-                    <div>
-                      <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
-                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-                        <path d="M1 1h22v22H1z" fill="none"/>
-                      </svg>
-                    </div>
-                    <span>Signin with Google</span>
-                  </button>
-                  <button className="flex justify-center items-center gap-2 font-bold">
-                    <div>
-                      <svg xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" width={24} height={24} version="1.1" id="Layer_1" x="0px" y="0px" viewBox="73 0 267 266.9" enableBackground="new 73 0 267 266.9" xmlSpace="preserve">
-                        <path id="Blue_1_" fill="#157DC3" d="M321.1,262.3c7.9,0,14.2-6.4,14.2-14.2V18.8c0-7.9-6.4-14.2-14.2-14.2H91.8  C84,4.6,77.6,11,77.6,18.8v229.3c0,7.9,6.4,14.2,14.2,14.2H321.1z"/>
-                        <path id="f" fill="#FFFFFF" d="M255.4,262.3v-99.8h33.5l5-38.9h-38.5V98.8c0-11.3,3.1-18.9,19.3-18.9l20.6,0V45  c-3.6-0.5-15.8-1.5-30-1.5c-29.7,0-50,18.1-50,51.4v28.7h-33.6v38.9h33.6v99.8H255.4z"/>
-                      </svg>
-                    </div>
-                    <span>
-                      Signin with FB
-                    </span>
-                  </button>
-                </Flex>
-                <Flex justify="center" align="center" gap={20}>
-                    <div className="border-b-[1px] flex-1"/>
-                    <span>
-                      Đăng nhập bằng
-                    </span>
-                    <div className="border-b-[1px] flex-1"/>
-                </Flex>
-                <Form 
-                  form={form}
-                  name="basic"
-                  onFinish={onSignin}
+      <Modal open={openModalLogin} onCancel={() => dispatch(setOpenModalLogin(false))} footer=''>
+        <div className="p-10">
+          <Flex vertical gap={20}>
+            <h1 className="font-mono text-[24px] font-bold">
+              Wecome to
+            </h1>
+
+
+            <Form
+              form={form}
+              name="basic"
+              onFinish={onSignin}
+            >
+              <div>
+                <label htmlFor="email" className="font-bold block mb-[0.5rem]">Email</label>
+
+                <Form.Item<FieldType>
+                  name="email"
+                  rules={[{ required: true, message: 'Email không được để trống', type: 'email' }]}
                 >
-                  <div>
-                    <label htmlFor="email"  className="font-bold block mb-[0.5rem]">Email</label>
-
-                    <Form.Item<FieldType>
-                      name="email"
-                      rules={[{ required: true, message: 'Email không được để trống', type:'email' }]}
-                    >
-                      <Input id="email"/>
-                    </Form.Item>
-                  </div>
-                  <div>
-                    <label htmlFor="password" className="font-bold block mb-[0.5rem]">Mật khẩu</label>
-                    <Form.Item<FieldType>
-                      name="password"
-                      rules={[
-                        { 
-                          required: true,
-                          validator: (_, value) => {
-                            if(!value){
-                              return Promise.reject(new Error('Mật khẩu phải không được để trống'));
-                            }
-                            if (value.length < 6) {
-                              return Promise.reject(new Error('Mật khẩu phải có ít nhất 6 ký tự!'));
-                            }
-                            if (!/[A-Z]/.test(value)) {
-                              return Promise.reject(new Error('Mật khẩu phải chứa ít nhất một chữ hoa!'));
-                            }
-                            if (!/[a-z]/.test(value)) {
-                              return Promise.reject(new Error('Mật khẩu phải chứa ít nhất một chữ thường!'));
-                            }
-                            if (!/[0-9]/.test(value)) {
-                              return Promise.reject(new Error('Mật khẩu phải chứa ít nhất một số!'));
-                            }
-                            return Promise.resolve();
-                          }
+                  <Input id="email" />
+                </Form.Item>
+              </div>
+              <div>
+                <label htmlFor="password" className="font-bold block mb-[0.5rem]">Mật khẩu</label>
+                <Form.Item<FieldType>
+                  name="password"
+                  rules={[
+                    {
+                      required: true,
+                      validator: (_, value) => {
+                        if (!value) {
+                          return Promise.reject(new Error('Mật khẩu phải không được để trống'));
                         }
-                      ]}
-                      
-                    >
-                      <Input.Password className=" py-0 px-2" id="password"/>
-                    </Form.Item>
-                  </div>
+                        if (value.length < 6) {
+                          return Promise.reject(new Error('Mật khẩu phải có ít nhất 6 ký tự!'));
+                        }
+                        if (!/[A-Z]/.test(value)) {
+                          return Promise.reject(new Error('Mật khẩu phải chứa ít nhất một chữ hoa!'));
+                        }
+                        if (!/[a-z]/.test(value)) {
+                          return Promise.reject(new Error('Mật khẩu phải chứa ít nhất một chữ thường!'));
+                        }
+                        if (!/[0-9]/.test(value)) {
+                          return Promise.reject(new Error('Mật khẩu phải chứa ít nhất một số!'));
+                        }
+                        return Promise.resolve();
+                      }
+                    }
+                  ]}
 
-                  <Form.Item>
-                    <Link to={''}>Quên mật khẩu</Link>
-                  </Form.Item>
+                >
+                  <Input.Password className=" py-0 px-2" id="password" />
+                </Form.Item>
+              </div>
 
-                  <Form.Item>
-                    <Button type="primary" htmlType="submit" className=" w-full p-5">
-                    Đăng nhập
-                    </Button>
-                  </Form.Item>
-                  <div className="flex justify-center">
-                    <span>Bạn chưa có tài khoản? <Link onClick={()=>{
-                      dispatch(setOpenModalSignin(true))
-                      dispatch(setOpenModalLogin(false))
-                    }}>Đăng kí ngay</Link></span>
-                  </div>
-                </Form>
-            </Flex>
-          </div>
+              <Form.Item>
+                <Link to={''}>Quên mật khẩu</Link>
+              </Form.Item>
+
+              <Form.Item>
+                <Button type="primary" htmlType="submit" className=" w-full p-5">
+                  Đăng nhập
+                </Button>
+              </Form.Item>
+              <div className="flex justify-center">
+                <span>Bạn chưa có tài khoản? <Link onClick={() => {
+                  dispatch(setOpenModalSignin(true))
+                  dispatch(setOpenModalLogin(false))
+                }}>Đăng kí ngay</Link></span>
+              </div>
+            </Form>
+          </Flex>
+        </div>
       </Modal>
 
 
-      <Modal open={openModalSigup} onCancel={()=>dispatch(setOpenModalSignup(false))} footer=''>
-          <div className="p-10">
-            <Flex vertical gap={20}>
-                <h1 className="font-mono text-[24px] font-bold">
-                  Đăng kí
-                </h1>
-                <Flex justify="space-around">
-                  <button className="flex justify-center items-center gap-2 font-bold">
-                    <div>
-                      <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
-                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-                        <path d="M1 1h22v22H1z" fill="none"/>
-                      </svg>
-                    </div>
-                    <span>Signin with Google</span>
-                  </button>
-                  <button className="flex justify-center items-center gap-2 font-bold">
-                    <div>
-                      <svg xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" width={24} height={24} version="1.1" id="Layer_1" x="0px" y="0px" viewBox="73 0 267 266.9" enableBackground="new 73 0 267 266.9" xmlSpace="preserve">
-                        <path id="Blue_1_" fill="#157DC3" d="M321.1,262.3c7.9,0,14.2-6.4,14.2-14.2V18.8c0-7.9-6.4-14.2-14.2-14.2H91.8  C84,4.6,77.6,11,77.6,18.8v229.3c0,7.9,6.4,14.2,14.2,14.2H321.1z"/>
-                        <path id="f" fill="#FFFFFF" d="M255.4,262.3v-99.8h33.5l5-38.9h-38.5V98.8c0-11.3,3.1-18.9,19.3-18.9l20.6,0V45  c-3.6-0.5-15.8-1.5-30-1.5c-29.7,0-50,18.1-50,51.4v28.7h-33.6v38.9h33.6v99.8H255.4z"/>
-                      </svg>
-                    </div>
-                    <span>
-                      Signin with FB
-                    </span>
-                  </button>
-                </Flex>
-                <Flex justify="center" align="center" gap={20}>
-                    <div className="border-b-[1px] flex-1"/>
-                    <span>
-                      Đăng nhập bằng
-                    </span>
-                    <div className="border-b-[1px] flex-1"/>
-                </Flex>
-                <Form 
-                  form={formSignup}
-                  name="basic"
-                  onFinish={onSignup}
+      <Modal open={openModalSigup} onCancel={() => dispatch(setOpenModalSignup(false))} footer=''>
+        <div className="p-10">
+          <Flex vertical gap={20}>
+            <h1 className="font-mono text-[24px] font-bold">
+              Đăng kí
+            </h1>
+
+
+            <Form
+              form={formSignup}
+              name="basic"
+              onFinish={onSignup}
+            >
+              <div>
+                <label htmlFor="username" className="font-bold block mb-[0.5rem]">Tên khách hàng</label>
+
+                <Form.Item<FieldTypeSignup>
+                  name="username"
+                  rules={[{ required: true, message: 'Tên khách hàng không được để trống' }]}
                 >
-                  <div>
-                    <label htmlFor="username"  className="font-bold block mb-[0.5rem]">Tên khách hàng</label>
+                  <Input id="username" />
+                </Form.Item>
+              </div>
+              <div>
+                <label htmlFor="email" className="font-bold block mb-[0.5rem]">Email</label>
 
-                    <Form.Item<FieldTypeSignup>
-                      name="username"
-                      rules={[{ required: true, message: 'Tên khách hàng không được để trống' }]}
-                    >
-                      <Input id="username"/>
-                    </Form.Item>
-                  </div>
-                  <div>
-                    <label htmlFor="email"  className="font-bold block mb-[0.5rem]">Email</label>
-
-                    <Form.Item<FieldTypeSignup>
-                      name="email"
-                      rules={[{ required: true, message: 'Email không được để trống', type:'email' }]}
-                    >
-                      <Input id="email"/>
-                    </Form.Item>
-                  </div>
-                  <div>
-                    <label htmlFor="password" className="font-bold block mb-[0.5rem]">Mật khẩu</label>
-                    <Form.Item<FieldTypeSignup>
-                      name="password"
-                      rules={[
-                        { 
-                          required: true,
-                          validator: (_, value) => {
-                            if(!value){
-                              return Promise.reject(new Error('Mật khẩu phải không được để trống'));
-                            }
-                            if (value.length < 6) {
-                              return Promise.reject(new Error('Mật khẩu phải có ít nhất 6 ký tự!'));
-                            }
-                            if (!/[A-Z]/.test(value)) {
-                              return Promise.reject(new Error('Mật khẩu phải chứa ít nhất một chữ hoa!'));
-                            }
-                            if (!/[a-z]/.test(value)) {
-                              return Promise.reject(new Error('Mật khẩu phải chứa ít nhất một chữ thường!'));
-                            }
-                            if (!/[0-9]/.test(value)) {
-                              return Promise.reject(new Error('Mật khẩu phải chứa ít nhất một số!'));
-                            }
-                            return Promise.resolve();
-                          }
+                <Form.Item<FieldTypeSignup>
+                  name="email"
+                  rules={[{ required: true, message: 'Email không được để trống', type: 'email' }]}
+                >
+                  <Input id="email" />
+                </Form.Item>
+              </div>
+              <div>
+                <label htmlFor="password" className="font-bold block mb-[0.5rem]">Mật khẩu</label>
+                <Form.Item<FieldTypeSignup>
+                  name="password"
+                  rules={[
+                    {
+                      required: true,
+                      validator: (_, value) => {
+                        if (!value) {
+                          return Promise.reject(new Error('Mật khẩu phải không được để trống'));
                         }
-                      ]}
-                      
-                    >
-                      <Input.Password className=" py-0 px-2" id="password"/>
-                    </Form.Item>
-                  </div>
+                        if (value.length < 6) {
+                          return Promise.reject(new Error('Mật khẩu phải có ít nhất 6 ký tự!'));
+                        }
+                        if (!/[A-Z]/.test(value)) {
+                          return Promise.reject(new Error('Mật khẩu phải chứa ít nhất một chữ hoa!'));
+                        }
+                        if (!/[a-z]/.test(value)) {
+                          return Promise.reject(new Error('Mật khẩu phải chứa ít nhất một chữ thường!'));
+                        }
+                        if (!/[0-9]/.test(value)) {
+                          return Promise.reject(new Error('Mật khẩu phải chứa ít nhất một số!'));
+                        }
+                        return Promise.resolve();
+                      }
+                    }
+                  ]}
 
-                  <div>
-                    <label htmlFor="password_confirmation" className="font-bold block mb-[0.5rem]">Nhập lại mật khẩu</label>
-                    <Form.Item<FieldTypeSignup>
-                      name="password_confirmation"
-                      dependencies={['password']}
-                      rules={[
-                        { 
-                          required: true,
-                          validator: (_, value) => {
-                            if(!value){
-                              return Promise.reject(new Error('Mật khẩu phải không được để trống'));
-                            }
-                            if (value.length < 6) {
-                              return Promise.reject(new Error('Mật khẩu phải có ít nhất 6 ký tự!'));
-                            }
-                            if (!/[A-Z]/.test(value)) {
-                              return Promise.reject(new Error('Mật khẩu phải chứa ít nhất một chữ hoa!'));
-                            }
-                            if (!/[a-z]/.test(value)) {
-                              return Promise.reject(new Error('Mật khẩu phải chứa ít nhất một chữ thường!'));
-                            }
-                            if (!/[0-9]/.test(value)) {
-                              return Promise.reject(new Error('Mật khẩu phải chứa ít nhất một số!'));
-                            }
-                            return Promise.resolve();
-                          }
-                        },
-                        ({ getFieldValue }) => ({
-                          validator(_, value) {
-                            if (!value || getFieldValue('password') === value) {
-                              return Promise.resolve();
-                            }
-                            return Promise.reject(new Error('Hai mật khẩu bạn đã nhập không khớp nhau!'));
-                          },
-                        }),
-                      ]}
-                      
-                    >
-                      <Input.Password className=" py-0 px-2" id="password_confirmation"/>
-                    </Form.Item>
-                  </div>
+                >
+                  <Input.Password className=" py-0 px-2" id="password" />
+                </Form.Item>
+              </div>
 
-                  <Form.Item>
-                    <Link to={''}>Quên mật khẩu</Link>
-                  </Form.Item>
+              <div>
+                <label htmlFor="password_confirmation" className="font-bold block mb-[0.5rem]">Nhập lại mật khẩu</label>
+                <Form.Item<FieldTypeSignup>
+                  name="password_confirmation"
+                  dependencies={['password']}
+                  rules={[
+                    {
+                      required: true,
+                      validator: (_, value) => {
+                        if (!value) {
+                          return Promise.reject(new Error('Mật khẩu phải không được để trống'));
+                        }
+                        if (value.length < 6) {
+                          return Promise.reject(new Error('Mật khẩu phải có ít nhất 6 ký tự!'));
+                        }
+                        if (!/[A-Z]/.test(value)) {
+                          return Promise.reject(new Error('Mật khẩu phải chứa ít nhất một chữ hoa!'));
+                        }
+                        if (!/[a-z]/.test(value)) {
+                          return Promise.reject(new Error('Mật khẩu phải chứa ít nhất một chữ thường!'));
+                        }
+                        if (!/[0-9]/.test(value)) {
+                          return Promise.reject(new Error('Mật khẩu phải chứa ít nhất một số!'));
+                        }
+                        return Promise.resolve();
+                      }
+                    },
+                    ({ getFieldValue }) => ({
+                      validator(_, value) {
+                        if (!value || getFieldValue('password') === value) {
+                          return Promise.resolve();
+                        }
+                        return Promise.reject(new Error('Hai mật khẩu bạn đã nhập không khớp nhau!'));
+                      },
+                    }),
+                  ]}
 
-                  <Form.Item>
-                    <Button type="primary" htmlType="submit" className=" w-full p-5">
-                    Đăng nhập
-                    </Button>
-                  </Form.Item>
-                  <div className="flex justify-center">
-                    <span>Đã có tài khoản? <Link onClick={()=>{
-                      dispatch(setOpenModalSignup(false))
-                      dispatch(setOpenModalLogin(true))
-                    }}>Đăng kí ngay</Link></span>
-                  </div>
-                </Form>
-            </Flex>
-          </div>
+                >
+                  <Input.Password className=" py-0 px-2" id="password_confirmation" />
+                </Form.Item>
+              </div>
+
+              <Form.Item>
+                <Link to={''}>Quên mật khẩu</Link>
+              </Form.Item>
+
+              <Form.Item>
+                <Button type="primary" htmlType="submit" className=" w-full p-5">
+                  Đăng ký
+                </Button>
+              </Form.Item>
+              <div className="flex justify-center">
+                <span>Đã có tài khoản? <Link onClick={() => {
+                  dispatch(setOpenModalSignup(false))
+                  dispatch(setOpenModalLogin(true))
+                }}>Đăng kí ngay</Link></span>
+              </div>
+            </Form>
+          </Flex>
+        </div>
       </Modal>
 
       {
         isModalVeritifyOpen
-        ?
-        <Verytify setIsModalVeritifyOpen={setIsModalVeritifyOpen} email={email}/>
-        :
-        ''
+          ?
+          <Verytify setIsModalVeritifyOpen={setIsModalVeritifyOpen} email={email} />
+          :
+          ''
       }
     </div>
   );

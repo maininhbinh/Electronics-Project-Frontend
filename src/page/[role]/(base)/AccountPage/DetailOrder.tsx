@@ -25,6 +25,7 @@ import Joi from "joi";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { Controller, useForm } from "react-hook-form";
 import { ErrorMessage } from '@hookform/error-message';
+import { useCancelOrderMutation } from "@/services/OrderEndPoints";
 const schema = Joi.object({
     note: Joi.string().required().messages({
         'string.empty': 'Nội dung bắt buộc nhập'
@@ -34,6 +35,7 @@ const schema = Joi.object({
 
 const { TextArea } = Input;
 export default function DetailOrder() {
+    const [cancelOrder, { isLoading: isLoadingCancel }] = useCancelOrderMutation();
     const {
         control,
         register,
@@ -59,7 +61,23 @@ export default function DetailOrder() {
     const dataItem = data?.order_detail;
 
     const [vnPayment, { isLoading: loadingVnPay }] = useVnPaymentMutation();
-    const onSubmit = (data) => console.log(data)
+    const onSubmit = async (data) => {
+        try {
+            const payload = {
+                order_id: dataItem.id,
+                note: data.note
+            }
+            await cancelOrder(payload).unwrap();
+            refetch();
+            popupSuccess('Hủy đơn hàng thành công');
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth',
+            });
+        } catch (error) {
+            popupError('Hủy đơn hàng thất bại');
+        }
+    }
     const renderProductItem = (product: any, index: number) => {
         const { image, thumbnail, name, price, quantity } = product;
         return (
@@ -121,12 +139,12 @@ export default function DetailOrder() {
         return null
     }
 
-
+    console.log(dataItem)
     return (
         <>
             <Row gutter={16}>
                 <div className="flex w-full justify-between mb-10">
-                    {dataItem.payment_status == 'Chờ thanh toán' && dataItem.payment_methods !== 'COD'
+                    {dataItem?.order_status.id != 8 && dataItem.payment_status == 'Chờ thanh toán' && dataItem.payment_methods !== 'COD'
                         ?
                         <Button onClick={() => {
                             handelPayment(dataItem.id)
@@ -139,6 +157,7 @@ export default function DetailOrder() {
                             <span>{dataItem.code}</span>
                             <span className="mx-2">·</span>
                             <span className="text-primary-500">{dataItem.order_status.status}</span>
+                            {dataItem?.order_status.id == 8 && <span> <b className="ml-4">Lý do:</b> <span className="text-red-500">{dataItem.note}</span></span>}
                         </p>
                     </div>
                 </div>
@@ -197,6 +216,11 @@ export default function DetailOrder() {
                         <span className="text-[12px] text-gray-500 border-r-[1px] p-3">Giảm giá : </span>
                         <span className=" px-3 w-[240px] flex justify-end items-center">{VND(Number(dataItem?.total_price) - Number(dataItem?.discount_price))}</span>
                     </div>
+
+                    <div className="flex justify-end border-solid border-b-[1px] border-b-[#eee] ">
+                        <span className="text-[12px] text-gray-500 border-r-[1px] p-3">Voucher áp dụng : </span>
+                        <span className=" px-3 w-[240px] flex justify-end items-center text-green-500"> - {VND(Number(dataItem?.discount_price))}</span>
+                    </div>
                     <div className="flex justify-end border-solid border-b-[1px] border-b-[#eee] ">
                         <span className="text-[12px] text-gray-500 border-r-[1px] p-3">Kiểu thanh toán : </span>
                         <span className=" px-3 w-[240px] flex justify-end items-center">{dataItem?.payment_methods}</span>
@@ -214,7 +238,7 @@ export default function DetailOrder() {
                         <b className="text-[19px] text-red-500 p-3 w-[240px] flex justify-end">{VND(Number(dataItem.total_price))}</b>
                     </div>
                 </Col>
-                {dataItem?.order_status.id == 1 && <Col span={24} className="mt-5 ">
+                {dataItem?.order_status.id == 1 && dataItem?.payment_status != "Đã thanh toán" && <Col span={24} className="mt-5 ">
 
                     <Card size="small" title={<div className="cursor-pointer">    <Tooltip trigger="hover" placement="rightTop" title={"Đơn hàng chỉ được hủy ở trạng thái chờ xử lý"}>
                         <span>Hủy đơn hàng !</span>

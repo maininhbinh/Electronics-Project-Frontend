@@ -84,7 +84,7 @@ const AccountOrder = () => {
   };
 
   if (!data && isLoading) {
-    return 
+    return
   }
 
   const order = data.data

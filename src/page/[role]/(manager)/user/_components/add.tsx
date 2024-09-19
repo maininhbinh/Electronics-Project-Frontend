@@ -1,7 +1,7 @@
 import { Modal, Switch, Upload } from 'antd'
 import { Button, Form, Input } from 'antd'
 import { useNavigate } from 'react-router-dom'
-import { useLazyGetDistrictsQuery, useGetProvincesQuery } from '../../../../../utils/addressRTKQuery'
+import { useLazyGetDistrictsQuery, useGetProvincesQuery, useLazyGetWardsQuery } from '../../../../../utils/addressRTKQuery'
 import { Select } from 'antd'
 import type { SelectProps } from 'antd'
 
@@ -34,7 +34,9 @@ const validateMessages = {
 /* eslint-enable no-template-curly-in-string */
 
 export default function AddUser() {
-  const [file, setFile] = useState({ 
+  const [getWard, { data: dataWards, isLoading: wardLoading }] = useLazyGetWardsQuery()
+  const [optionsWard, setOptionWard] = useState<SelectProps['options']>([])
+  const [file, setFile] = useState({
     data: {},
     loading: false
   })
@@ -45,7 +47,7 @@ export default function AddUser() {
       loading: false
     })
     onSuccess('Upload successful', file)
- 
+
   }
 
   const [createUser, { isLoading: loadingCreateUser }] = useCreateUserMutation()
@@ -53,24 +55,35 @@ export default function AddUser() {
   const [optionsDistrict, setOptionDistrict] = useState<SelectProps['options']>([])
 
   const onFinish = async (values: Iuser | any) => {
-   
+    console.log(values)
     const formData = new FormData()
-    for (const key  in values ) {
-       if(String(key) == 'image'){
-        formData.append(key,values[key][0].originFileObj);
+    for (const key in values) {
+      if (String(key) == 'image') {
+        formData.append(key, values[key][0].originFileObj);
         continue;
-       }
-       if(String(key) == 'is_active'){
-        if(values[key]){
-           formData.append(key,'1')
-        }else {
-           formData.append(key,'0')
+      }
+      if (String(key) == 'district') {
+        const splitStr = values.district.split(/-(\d+)/)
+        formData.append(key, splitStr[0])
+        continue;
+      }
+      if (String(key) == 'city') {
+        const splitStr = values.city.split(/-(\d+)/)
+        formData.append(key, splitStr[0])
+        continue;
+      }
+      if (String(key) == 'is_active') {
+        if (values[key]) {
+          formData.append(key, '1')
+        } else {
+          formData.append(key, '0')
         }
         continue;
-       }
-       formData.append(key,values[key])
-       
+      }
+      formData.append(key, values[key])
+
     }
+
     try {
       await createUser(formData).unwrap();
       popupSuccess('Add user success');
@@ -78,7 +91,7 @@ export default function AddUser() {
     } catch (error) {
       popupError('Add user error');
     }
-   
+
 
   }
 
@@ -88,12 +101,20 @@ export default function AddUser() {
     setOptionDistrict(() => {
       return dataDistricts?.data.map((item: { id: number; name: string }) => {
         return {
+          value: `${item.name}-${item.id}`,
+          label: item.name
+        }
+      })
+    })
+    setOptionWard(() => {
+      return dataWards?.data.map((item: { id: number; name: string }) => {
+        return {
           value: `${item.name}`,
           label: item.name
         }
       })
     })
-  }, [dataDistricts])
+  }, [dataDistricts, dataWards])
 
   const options: SelectProps['options'] = []
 
@@ -108,6 +129,8 @@ export default function AddUser() {
 
   const onChangeProvince = async (value: string) => {
     form.resetFields(['district'])
+    form.resetFields(['ward'])
+    setOptionWard([])
     if (value) {
       const splitStr = value.split(/-(\d+)/)
       const provinceId = splitStr[1]
@@ -115,6 +138,18 @@ export default function AddUser() {
       await getDistrict(provinceId)
     } else {
       setOptionDistrict([])
+    }
+  }
+
+  const onChangeDistrict = async (value: any) => {
+    form.resetFields(['ward'])
+    if (value) {
+      const splitStr = value.split(/-(\d+)/)
+      const districtId = splitStr[1]
+
+      await getWard(districtId)
+    } else {
+      setOptionWard([])
     }
   }
   const navigate = useNavigate()
@@ -127,9 +162,9 @@ export default function AddUser() {
   if (isError) return <ErrorLoad />
   return (
     <>
-      <Modal okButtonProps={{ hidden: true }}  title='Add user' open={true} onCancel={handleCancel}>
+      <Modal okButtonProps={{ hidden: true }} title='Add user' open={true} onCancel={handleCancel}>
         <Form
-        
+
           form={form}
           {...layout}
           name='nest-messages'
@@ -144,7 +179,7 @@ export default function AddUser() {
             <Input type='email' placeholder='Enter your email' />
           </Form.Item>
 
-          <Form.Item name='password' label='Password' rules={[{ required: true , min : 8, max: 30}, ]}>
+          <Form.Item name='password' label='Password' rules={[{ required: true, min: 8, max: 30 },]}>
             <Input type='password' placeholder='*******' />
           </Form.Item>
 
@@ -164,13 +199,8 @@ export default function AddUser() {
             <Input type='text' placeholder='Enter phone number' />
           </Form.Item>
 
-          <Form.Item name='address' label='Address' rules={[{ required: true }]}>
-            <Input type='text' placeholder='Enter your address ' />
-          </Form.Item>
 
-          <Form.Item name='county' label='County' rules={[{ required: true }]}>
-            <Select style={{ width: '100%' }} options={[{ value: 'Việt Nam', label: 'VietNam' }]} />
-          </Form.Item>
+
 
           <Form.Item name='city' label='Pronvinces' rules={[{ required: true }]}>
             <Select
@@ -184,10 +214,25 @@ export default function AddUser() {
           <Form.Item name='district' label='District' rules={[{ required: true }]}>
             <Select
               loading={districtLoading}
+              onChange={(value) => onChangeDistrict(value)}
               style={{ width: '100%' }}
               placeholder='Enter name district'
               options={optionsDistrict}
             />
+          </Form.Item>
+
+          <Form.Item name='ward' label='Ward' rules={[{ required: true }]}>
+            <Select
+              loading={wardLoading}
+              style={{ width: '100%' }}
+              placeholder='Enter name ward'
+              options={optionsWard}
+            />
+          </Form.Item>
+
+
+          <Form.Item name='address' label='Address' rules={[{ required: true }]}>
+            <Input type='text' placeholder='Enter your address ' />
           </Form.Item>
 
           <Form.Item name='role_id' label='Role' rules={[{ required: true }]}>
@@ -199,14 +244,14 @@ export default function AddUser() {
               ]}
             />
           </Form.Item>
-          <Form.Item 
-                    className='m-0' 
-                    label='Active'
-                    name='is_active' 
-                    valuePropName="checked"
-                >
-                    <Switch />
-                </Form.Item>
+          <Form.Item
+            className='m-0'
+            label='Active'
+            name='is_active'
+            valuePropName="checked"
+          >
+            <Switch />
+          </Form.Item>
 
           <Form.Item className='mt-3' wrapperCol={{ ...layout.wrapperCol, offset: 8 }}>
             <Button loading={loadingCreateUser || file.loading} disabled={loadingCreateUser} type='primary' htmlType='submit'>

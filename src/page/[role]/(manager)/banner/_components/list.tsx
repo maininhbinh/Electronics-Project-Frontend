@@ -8,22 +8,22 @@ import { useGetBannersQuery, useDeleteBannerMutation } from '../BannerEndpoints'
 import { popupSuccess } from '@/page/[role]/shared/Toast'
 
 export default function ListBanner() {
-  const {data : banners, isLoading} = useGetBannersQuery({});
-  const [deleteBanner, {isLoading : isLoadingDeleteBanner}] = useDeleteBannerMutation();
+  const { data: banners, isLoading } = useGetBannersQuery({});
+  const [deleteBanner, { isLoading: isLoadingDeleteBanner }] = useDeleteBannerMutation();
   const handlerRemoveBanner = async (value: IBanner) => {
-     
-     try {
-        await deleteBanner(value.id).unwrap();
-        popupSuccess('Delete banner success');
 
-     } catch (error) {
+    try {
+      await deleteBanner(value.id).unwrap();
+      popupSuccess('Delete banner success');
+
+    } catch (error) {
       popupSuccess('Delete banner error');
-     }
+    }
   }
 
-  
 
-  
+
+
 
   const columns: TableProps<IBanner>['columns'] = [
     {
@@ -41,7 +41,7 @@ export default function ListBanner() {
       width: 160,
       render: (text) => <a>{text}</a>
     },
-   
+
     {
       title: 'Ảnh',
       dataIndex: 'image_url',
@@ -57,12 +57,12 @@ export default function ListBanner() {
       width: 100,
       render: (_, { is_active }) => (
         <>
-              <Tag color={is_active == 1 ? 'green' : 'red'} >
-                  {is_active == 1 ? 'Đang hoạt động' : 'không hoạt động'}
-              </Tag>
+          <Tag color={is_active == 1 ? 'green' : 'red'} >
+            {is_active == 1 ? 'Đang hoạt động' : 'không hoạt động'}
+          </Tag>
         </>
       )
-    
+
     },
     {
       title: 'Hành động',
@@ -75,11 +75,11 @@ export default function ListBanner() {
             <Button type='primary'>Edit</Button>
           </Link>
           <Popconfirm
-          
+
             placement='topRight'
             title='Are you sure delete this banner?'
             onConfirm={() => handlerRemoveBanner(record)}
-            onCancel={() => {}}
+            onCancel={() => { }}
             okText='Đồng ý'
             cancelText='Hủy bỏ'
           >
@@ -103,11 +103,11 @@ export default function ListBanner() {
         <Typography.Title editable level={2} style={{ margin: 0 }}>
           Danh sách banner
         </Typography.Title>
-      
+
       </div>
 
       <Table
-        pagination={{ pageSize: 8 }}
+
         columns={columns}
         size='middle'
         scroll={{ x: 1000, y: 500 }}

@@ -14,19 +14,19 @@ import {
 import {
   SearchOutlined,
   StarOutlined,
-  LikeOutlined, 
+  LikeOutlined,
   MessageOutlined
 } from "@ant-design/icons";
 import bell from "./icon/Bell";
 import toggler from "./icon/Togge";
-import { setMiniSidenav, setNotification } from "../../../../app/webSlice"; 
+import { setMiniSidenav, setNotification } from "../../../../app/webSlice";
 import { useAppDispatch, useAppSelector } from "../../../../app/hooks";
 import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
 
 
 function Header() {
 
-  const {notification} = useAppSelector(state => state.web)
+  const { notification } = useAppSelector(state => state.web)
   const [showSidenav, setShowSidenav] = useState(false)
   const dispatch = useAppDispatch()
 
@@ -37,7 +37,7 @@ function Header() {
     content:
       'We supply a series of design principles, practical patterns and high quality design resources (Sketch and Axure), to help people create their product prototypes beautifully and efficiently.',
   }));
-  
+
   const IconText = ({ icon, text }: { icon: React.FC; text: string }) => (
     <Space>
       {React.createElement(icon)}
@@ -48,9 +48,9 @@ function Header() {
   useEffect(() => {
     window.scrollTo(0, 0)
     const handleResize = () => {
-      if(window.innerWidth < 992){
+      if (window.innerWidth < 992) {
         setShowSidenav(true)
-      }else{        
+      } else {
         setShowSidenav(false)
         dispatch(setMiniSidenav(true))
       }
@@ -99,28 +99,14 @@ function Header() {
             </List.Item>
           )}
         />
-          
+
       </Drawer>
       <Flex gap={10} justify="space-between" align="center">
-        <Input
-          className="header-search w-[250px]"
-          prefix={<div className=" px-2"><SearchRoundedIcon /></div>}
-          size="small"
-          placeholder={'Tìm kiếm'}
-          style={{ borderRadius: '2rem', border: 'none', backgroundColor: '#ffff', boxShadow: 'rgba(0, 0, 0, 0.05) 0rem 1.25rem 1.6875rem 0rem' }}
-        />
+
         <Flex align="center" gap={20}>
-          <Badge size="small" count={4}>
-            <a
-              href="#pablo"
-              className="ant-dropdown-link"
-              onClick={() => dispatch(setNotification(true))}
-            >
-              {bell}
-            </a>
-          </Badge>
+
           <Flex align="center" gap={10} justify="center" className="rounded-[999px]">
-            <Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=1" className=" bg-gray-200 w-[28px] h-[28px]"  />
+            <Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=1" className=" bg-gray-200 w-[28px] h-[28px]" />
           </Flex>
           {
             showSidenav
@@ -134,7 +120,7 @@ function Header() {
             </Button>
           }
         </Flex>
-        
+
       </Flex>
     </>
   );
