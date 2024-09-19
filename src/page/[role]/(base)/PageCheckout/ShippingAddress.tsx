@@ -31,10 +31,7 @@ interface Props {
 }
 
 const ShippingAddress: FC<Props> = ({ isActive, onCloseActive, onOpenActive, onFinish, form }) => {
-  const [optionsWard, setOptionWard] = useState<SelectProps['options']>([{
-    value: 'Hòa Lợi',
-    label: "Hòa Lợi"
-  }])
+  const [optionsWard, setOptionWard] = useState<SelectProps['options']>([])
   const [optionsDistrict, setOptionDistrict] = useState<SelectProps['options']>([])
   const { data: provinces, isLoading: isLoadingProvinces, isError } = useGetProvincesQuery({})
   const [getWard, { data: dataWards, isLoading: wardLoading }] = useLazyGetWardsQuery()
