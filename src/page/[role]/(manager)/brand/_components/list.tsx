@@ -94,23 +94,11 @@ const columns: TableProps<IBrand>['columns'] = [
   })
 
   return <>
-    <Typography.Title editable level={2} style={{ margin: 0 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-        Danh sách thương hiệu <Flex wrap="wrap" gap="small">
-         
-         <Link to="add">  <Button type="primary" danger >
-            Thêm thương hiệu
-          </Button></Link>
-         
-        </Flex>
-      </div>
-
-    </Typography.Title>
-
+    <div className='flex items-center justify-between mb-10'>
+      <h2 className='font-bold text-[24px]'>
+        Danh sách thương hiệu
+      </h2>
+    </div>
     <Table columns={columns} dataSource={dataItem} loading={isLoading} />
-
-
-
-
   </>
 }

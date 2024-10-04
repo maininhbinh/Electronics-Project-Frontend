@@ -125,10 +125,10 @@ export default function ListCategory() {
   }
   return (
     <>
-      <div className='flex items-center justify-between my-2'>
-        <Typography.Title editable level={2} style={{ margin: 0 }}>
-          Danh sách danh mục
-        </Typography.Title>
+      <div className='flex items-center justify-between mb-10'>
+        <h2 className='font-bold text-[24px]'>
+          Danh sách Danh mục
+        </h2>
       </div>
       <div className=''>
         <Flex wrap='wrap' gap='small' className='my-5' align='center' justify='space-between'>

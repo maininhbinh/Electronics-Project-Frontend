@@ -100,12 +100,19 @@ export default function ListBanner() {
   return (
     <>
       <div className='flex items-center justify-between my-2'>
-        <Typography.Title editable level={2} style={{ margin: 0 }}>
-          Danh sách banner
-        </Typography.Title>
+        <div className='flex items-center justify-between mb-10'>
+          <h2 className='font-bold text-[24px]'>
+            Danh sách sản phẩm
+          </h2>
+        </div>
 
       </div>
 
+      <Flex className='mt-3' wrap='wrap' gap='small'>
+        <Link to='add'>
+          <Button type='primary'>Thêm Banner</Button>
+        </Link>
+      </Flex>
       <Table
 
         columns={columns}
@@ -115,12 +122,6 @@ export default function ListBanner() {
         dataSource={newData}
         loading={isLoading}
       />
-
-      <Flex className='mt-3' wrap='wrap' gap='small'>
-        <Link to='add'>
-          <Button type='primary'>Thêm Banner</Button>
-        </Link>
-      </Flex>
     </>
   )
 }

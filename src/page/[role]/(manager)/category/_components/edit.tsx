@@ -284,7 +284,7 @@ export default function EditCategory() {
                   }
                   <Flex justify='flex-end' align='center'>
                     <div>
-                      <Button className=' border-dashed ' onClick={handleSetDetail} >Thêm</Button>
+                      <Button className=' border-dashed ' onClick={handleSetDetail} >Chỉnh sửa</Button>
                     </div>
                   </Flex>
                 </Flex>

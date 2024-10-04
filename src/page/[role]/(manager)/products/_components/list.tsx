@@ -132,10 +132,10 @@ export default function ListProduct() {
 
   return <>
 
-    <div className='flex items-center justify-between my-2'>
-      <Title editable level={2} style={{ margin: 0 }}>
+    <div className='flex items-center justify-between mb-10'>
+      <h2 className='font-bold text-[24px]'>
         Danh sách sản phẩm
-      </Title>
+      </h2>
     </div>
 
     <div className=''>

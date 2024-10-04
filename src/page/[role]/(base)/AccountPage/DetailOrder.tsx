@@ -214,13 +214,19 @@ export default function DetailOrder() {
 
                     <div className="flex justify-end border-solid border-b-[1px] border-b-[#eee] ">
                         <span className="text-[12px] text-gray-500 border-r-[1px] p-3">Giảm giá : </span>
-                        <span className=" px-3 w-[240px] flex justify-end items-center">{VND(Number(dataItem?.total_price) - Number(dataItem?.discount_price))}</span>
+                        <span className=" px-3 w-[240px] flex justify-end items-center">{ dataItem.discount_price != 0 ? Number(dataItem?.discount_price) : 'Đơn hàng không áp dụng khuyến mãi'}</span>
                     </div>
 
-                    <div className="flex justify-end border-solid border-b-[1px] border-b-[#eee] ">
-                        <span className="text-[12px] text-gray-500 border-r-[1px] p-3">Voucher áp dụng : </span>
-                        <span className=" px-3 w-[240px] flex justify-end items-center text-green-500"> - {VND(Number(dataItem?.discount_price))}</span>
-                    </div>
+                    {
+                        dataItem.discount_code
+                        ?
+                        <div className="flex justify-end border-solid border-b-[1px] border-b-[#eee] ">
+                            <span className="text-[12px] text-gray-500 border-r-[1px] p-3">Mã giảm giá : </span>
+                            <span className=" px-3 w-[240px] flex justify-end items-center text-green-500"> {dataItem.discount_code}</span>
+                        </div>
+                        :
+                        ''
+                    }
                     <div className="flex justify-end border-solid border-b-[1px] border-b-[#eee] ">
                         <span className="text-[12px] text-gray-500 border-r-[1px] p-3">Kiểu thanh toán : </span>
                         <span className=" px-3 w-[240px] flex justify-end items-center">{dataItem?.payment_methods}</span>
@@ -228,10 +234,6 @@ export default function DetailOrder() {
                     <div className="flex justify-end border-solid border-b-[1px] border-b-[#eee] ">
                         <span className="text-[12px] text-gray-500 border-r-[1px] p-3">trạng thái thanh toán : </span>
                         <span className=" px-3 w-[240px] flex justify-end items-center">{dataItem?.payment_status}</span>
-                    </div>
-                    <div className="flex justify-end border-solid border-b-[1px] border-b-[#eee] ">
-                        <span className="text-[12px] text-gray-500 border-r-[1px] p-3">Phí vận chuyển : </span>
-                        <span className=" p-3 w-[240px] flex justify-end">0đ</span>
                     </div>
                     <div className="flex justify-end border-solid border-b-[1px] border-b-[#eee] ">
                         <span className="text-[12px] text-gray-500 border-r-[1px] p-3">Tổng cộng : </span>

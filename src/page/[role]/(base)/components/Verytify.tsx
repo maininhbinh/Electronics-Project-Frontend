@@ -52,7 +52,7 @@ export default function Verytify({setIsModalVeritifyOpen, email}: VerifyTokenPro
   };
 
   const handleResendOTP = async () => {
-    setExpiredOTP(5)
+    setExpiredOTP(60)
     setResetOTP(true)
     const response = await ResendToken(email);
     console.log(response);

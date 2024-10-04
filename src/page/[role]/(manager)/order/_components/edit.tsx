@@ -7,7 +7,7 @@ import {
 } from '@ant-design/icons';
 import { exportToWord } from "@/utils/exportBillOrder";
 import { useChangeStatusOrderMutation, useGetOrderQuery } from "@/services/OrderEndPoints";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { formatTimestamp } from "@/utils/formatDate";
 import { popupError, popupSuccess } from "@/page/[role]/shared/Toast";
 import HandleAnimationIcon from "@/page/[role]/components/icon/OrderIcon/Handle";
@@ -18,6 +18,7 @@ import DoneOrderAnimationIcon from "@/page/[role]/components/icon/OrderIcon/Done
 import OrderCancelAnimationIcon from "@/page/[role]/components/icon/OrderIcon/OrderCancel";
 import DeliveringAnimationIcon from "@/page/[role]/components/icon/OrderIcon/Delivering";
 import PickupAnimationIcon from "@/page/[role]/components/icon/OrderIcon/PickUp";
+import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded';
 import { ErrorMessage } from '@hookform/error-message';
 import Joi from "joi";
 import { joiResolver } from "@hookform/resolvers/joi";
@@ -35,6 +36,7 @@ const schema = Joi.object({
 const { TextArea } = Input;
 export default function EditOrder() {
   const [cancelOrder, { isLoading: isLoadingCancel }] = useCancelOrderMutation();
+  const navigate = useNavigate()
   const {
     control,
     handleSubmit,
@@ -222,7 +224,19 @@ export default function EditOrder() {
   }
   return (
     <>
-
+      <Flex className='mb-5' align='center' gap={20}>
+          <Flex className='p-3 rounded-xl bg-[#fff] cursor-pointer' style={{boxShadow: 'rgba(0, 0, 0, 0.05) 0rem 1.25rem 1.6875rem 0rem', }}
+            onClick={()=>{
+              navigate('..')
+            }}
+          >
+            <ArrowBackRoundedIcon/>
+          </Flex>
+          <Flex vertical>
+            <h2 className='font-bold text-[24px]'>Danh sách đơn hàng</h2>
+            <span className='text-gray-500'>Quay lại trang danh sách Đơn hàng</span>
+          </Flex>
+      </Flex>
       <Row gutter={[24, 32]}>
         <Col span={24}>
           <Card title="Giao hàng" bordered={false}>
@@ -252,8 +266,8 @@ export default function EditOrder() {
             </Flex>
           </Card>
         </Col>
-        <Col span={24}>
-          <Card className='h-full' title="Thông tin đơn hàng" bordered={false} extra={<> <Badge color="green" text={dataItem?.order_status?.status} /></>}>
+        <Col span={12}>
+          <Card className='h-full' title="Thông tin khách hàng" bordered={false} extra={<> <Badge color="green" text={dataItem?.order_status?.status} /></>}>
             <div className="flex justify-between border-solid border-b-[1px] border-b-[#eee] py-4">
               <b className="">Tên: </b>
               <span className="">{dataItem?.receiver_name}</span>
@@ -270,6 +284,11 @@ export default function EditOrder() {
               <b className="">Địa chỉ: </b>
               <span className="">{dataItem?.receiver_address}-{dataItem?.receiver_ward}-{dataItem?.receiver_district}-{dataItem?.receiver_pronvinces}</span>
             </div>
+          </Card>
+        </Col>
+        <Col span={12}>
+          <Card className='h-full' title="Thông tin đơn hàng" bordered={false} >
+           
             <div className="flex justify-between border-solid border-b-[1px] border-b-[#eee] py-4">
               <b className="">Mã đơn hàng : </b>
               <span className="">{dataItem?.code}</span>
@@ -307,7 +326,7 @@ export default function EditOrder() {
 
             <div className="flex justify-between border-solid border-b-[1px] border-b-[#eee] py-4">
               <b className="">Giảm giá : </b>
-              <span className="">{VND(Number(dataItem?.total_price) - Number(dataItem?.discount_price))}</span>
+              <span className="">{dataItem?.discount_price != 0 ? Number(dataItem?.discount_price) : 'Đơn hàng không áp dụng khuyến mãi'}</span>
             </div>
 
 
@@ -315,10 +334,6 @@ export default function EditOrder() {
             <div className="flex justify-between border-solid border-b-[1px] border-b-[#eee] py-4">
               <b className="">Kiểu thanh toán : </b>
               <span className="">{dataItem?.payment_methods}</span>
-            </div>
-            <div className="flex justify-between border-solid border-b-[1px] border-b-[#eee] py-4">
-              <b className="">Phí vận chuyển : </b>
-              <span className="">0đ</span>
             </div>
             <div className="flex justify-between border-solid border-b-[1px] border-b-[#eee] py-4">
               <b className="text-[19px]">Tổng cộng : </b>

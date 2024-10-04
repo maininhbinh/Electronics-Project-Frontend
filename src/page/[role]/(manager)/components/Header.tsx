@@ -22,6 +22,7 @@ import toggler from "./icon/Togge";
 import { setMiniSidenav, setNotification } from "../../../../app/webSlice";
 import { useAppDispatch, useAppSelector } from "../../../../app/hooks";
 import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
+import { isValidJSON } from "@/utils/isJson";
 
 
 function Header() {
@@ -29,6 +30,9 @@ function Header() {
   const { notification } = useAppSelector(state => state.web)
   const [showSidenav, setShowSidenav] = useState(false)
   const dispatch = useAppDispatch()
+  const item = localStorage.getItem('user');
+  const user = item && isValidJSON(item) ? JSON.parse(item) : '';
+
 
   const data = Array.from({ length: 23 }).map((_, i) => ({
     href: 'https://ant.design',
@@ -101,12 +105,13 @@ function Header() {
         />
 
       </Drawer>
-      <Flex gap={10} justify="space-between" align="center">
+      <Flex gap={10} justify="flex-end" align="center">
 
         <Flex align="center" gap={20}>
 
           <Flex align="center" gap={10} justify="center" className="rounded-[999px]">
-            <Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=1" className=" bg-gray-200 w-[28px] h-[28px]" />
+            <span className="font-bold">{user?.username ?? ''}</span>
+            <Avatar src={user && user.image ? user.image : 'https://api.dicebear.com/7.x/miniavs/svg?seed=1'} className=" bg-gray-200 w-[28px] h-[28px]" />
           </Flex>
           {
             showSidenav

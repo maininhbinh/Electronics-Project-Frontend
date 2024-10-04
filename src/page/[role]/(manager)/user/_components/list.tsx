@@ -148,9 +148,11 @@ export default function ListUser() {
   return <>
 
     <HandleLoading isLoading={isLoading} isError={isError}>
-      <Typography.Title editable level={2} style={{ margin: 0 }}>
+    <div className='flex items-center justify-between mb-10'>
+      <h2 className='font-bold text-[24px]'>
         Danh sách người dùng
-      </Typography.Title>
+      </h2>
+    </div>
       <Table columns={columns} dataSource={dataItem} />
 
       <Flex wrap="wrap" gap="small">
