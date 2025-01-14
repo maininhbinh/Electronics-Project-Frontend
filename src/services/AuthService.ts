@@ -3,7 +3,7 @@ import { ISignin, ISignup } from "@/common/types/Auth.interface";
 import { Iuser } from "@/common/types/user.interface";
 
 export const SigninService = (payload: ISignin) => {
-    return instanceTest.post('auth/login', payload)
+    return instance.post('auth/login', payload)
 }
 
 export const SignupService = (payload: ISignup) => {

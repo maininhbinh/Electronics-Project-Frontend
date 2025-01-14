@@ -49,7 +49,6 @@ const ProductCard: FC<ProductCardProps> = ({
   const { isAuthenticated } = useAppSelector(state => state.auth);
   const dispatch = useAppDispatch()
 
-
   useEffect(() => {
     const widths = blocksRef.current.map(block => block.offsetWidth);
     const max = Math.max(...widths);

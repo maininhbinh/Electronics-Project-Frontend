@@ -8,9 +8,11 @@ import "./styles/index.scss";
 import "../../../fonts/line-awesome-1.3.0/css/line-awesome.css";
 import "rc-slider/assets/index.css";
 import Footer from "./shared/Footer/Footer";
+import { useGetBannersQuery } from "../(manager)/banner/BannerEndpoints";
 
 function Base() {
-  return (
+  const { data: bannersList } = useGetBannersQuery({})
+  return !bannersList || bannersList.data < 1 ? '' : (
     <HelmetProvider>
       <Helmet>
         <title>Ciseco || Shop - eCommerce React template</title>

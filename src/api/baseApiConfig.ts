@@ -8,7 +8,8 @@ export const baseApiConfig = {
       prepareHeaders: (headers, { getState }) => {
         headers.set('authorization', `Bearer ${localStorage.getItem('access_token')}`)
         return headers
-      }
+      },
+      credentials: 'include',
     })
 
     const result = await baseQuery(args, api, extraOptions)

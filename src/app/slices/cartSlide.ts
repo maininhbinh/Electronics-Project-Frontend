@@ -1,7 +1,5 @@
 
 import { createSlice, Dispatch, ThunkDispatch, ThunkAction } from '@reduxjs/toolkit'
-import { ISignin, ISignup } from '@/common/types/Auth.interface'
-import { LogoutService, SigninService } from '@/services/AuthService'
 import { AxiosError } from 'axios'
 import { ErrorResponse } from 'react-router-dom'
 import { addCartService, deleteCartService, GetAllCartService, updateCartService } from '@/services/CartService'

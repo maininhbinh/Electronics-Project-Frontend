@@ -52,14 +52,7 @@ const SectionHero2: FC<SectionHero2Props> = ({ className = '' }) => {
   // =================
   const [indexActive, setIndexActive] = useState(0)
   const [isRunning, toggleIsRunning] = useBoolean(true)
-  const { data } = useGetBannersQuery({})
-  const [bannersList, setBannersList] = useState(DATA)
-
-  useEffect(() => {
-    if (data) {
-      setBannersList(data?.length > 0 ? data : DATA)
-    }
-  }, [data])
+  const { data: bannersList } = useGetBannersQuery({})
 
   useInterval(
     () => {
@@ -186,7 +179,7 @@ const SectionHero2: FC<SectionHero2Props> = ({ className = '' }) => {
     )
   }
 
-  return <>{bannersList.map((banner: any, index: number) => renderItem(index))}</>
+  return <>{bannersList && bannersList.length > 0 ? bannersList.map((banner: any, index: number) => renderItem(index)) : ''}</>
 }
 
 export default SectionHero2

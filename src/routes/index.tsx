@@ -100,9 +100,9 @@ export default function Router() {
             <Route
               path='cart'
               element={
-                <GuardPage>
                   <CartPage />
-                </GuardPage>
+                // <GuardPage>
+                // </GuardPage>
               }
             />
 

@@ -10,7 +10,7 @@ export const CartsApi = apiWithTag.injectEndpoints({
   
   endpoints: (builder) => ({
     getCarts: builder.query({
-      query: () => 'cart',
+      query: () => 'cart/',
       providesTags: (result) =>
       result
         ? [
@@ -31,7 +31,7 @@ export const CartsApi = apiWithTag.injectEndpoints({
     }),
     addToCart: builder.mutation({
       query: (payload) => ({
-        url: 'cart/add',
+        url: 'cart/add/',
         method: 'POST',
         body: payload,
       }),
